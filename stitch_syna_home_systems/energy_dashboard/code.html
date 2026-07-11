@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-tertiary-fixed": "#2d1600",
+                        "tertiary": "#894d00",
+                        "surface-dim": "#dad9df",
+                        "inverse-surface": "#2f3034",
+                        "primary-container": "#0070eb",
+                        "on-background": "#1a1b1f",
+                        "on-primary-fixed": "#001a41",
+                        "primary-fixed": "#d8e2ff",
+                        "inverse-on-surface": "#f1f0f5",
+                        "on-tertiary-container": "#fffbff",
+                        "surface-container-low": "#f4f3f8",
+                        "secondary": "#006e28",
+                        "inverse-primary": "#adc6ff",
+                        "on-surface": "#1a1b1f",
+                        "surface": "#faf9fe",
+                        "on-primary-container": "#fefcff",
+                        "on-error": "#ffffff",
+                        "on-error-container": "#93000a",
+                        "outline-variant": "#c1c6d7",
+                        "surface-tint": "#005bc1",
+                        "surface-container": "#eeedf3",
+                        "primary-fixed-dim": "#adc6ff",
+                        "surface-container-lowest": "#ffffff",
+                        "on-secondary": "#ffffff",
+                        "on-secondary-fixed": "#002107",
+                        "on-secondary-fixed-variant": "#00531c",
+                        "background": "#faf9fe",
+                        "secondary-fixed-dim": "#53e16f",
+                        "surface-bright": "#faf9fe",
+                        "secondary-fixed": "#72fe88",
+                        "error": "#ba1a1a",
+                        "tertiary-fixed-dim": "#ffb874",
+                        "on-primary": "#ffffff",
+                        "on-primary-fixed-variant": "#004493",
+                        "on-surface-variant": "#414755",
+                        "on-tertiary": "#ffffff",
+                        "on-secondary-container": "#00732a",
+                        "primary": "#0058bc",
+                        "surface-container-highest": "#e3e2e7",
+                        "surface-container-high": "#e9e7ed",
+                        "secondary-container": "#6ffb85",
+                        "surface-variant": "#e3e2e7",
+                        "on-tertiary-fixed-variant": "#6a3b00",
+                        "error-container": "#ffdad6",
+                        "tertiary-fixed": "#ffdcbf",
+                        "outline": "#717786",
+                        "tertiary-container": "#ac6300"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "xl": "32px",
+                        "lg": "24px",
+                        "md": "16px",
+                        "xs": "4px",
+                        "gutter": "16px",
+                        "unit": "8px",
+                        "sm": "8px",
+                        "container-margin": "24px"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "body-md": ["Inter"],
+                        "label-caps": ["Inter"],
+                        "display-lg": ["Inter"],
+                        "headline-lg-mobile": ["Inter"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "0em", "fontWeight": "600"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "label-sm": ["13px", {"lineHeight": "18px", "letterSpacing": "0em", "fontWeight": "500"}],
+                        "body-lg": ["17px", {"lineHeight": "24px", "letterSpacing": "0em", "fontWeight": "400"}],
+                        "body-md": ["15px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "400"}],
+                        "label-caps": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "headline-lg-mobile": ["28px", {"lineHeight": "34px", "letterSpacing": "-0.01em", "fontWeight": "600"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            user-select: none;
+        }
+        body {
+            background-color: #faf9fe;
+            color: #1a1b1f;
+            -webkit-font-smoothing: antialiased;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.05);
+        }
+        .chart-line {
+            stroke-dasharray: 1000;
+            stroke-dashoffset: 1000;
+            animation: dash 3s ease-out forwards;
+        }
+        @keyframes dash {
+            to { stroke-dashoffset: 0; }
+        }
+        .peak-pulse {
+            animation: pulse-glow 2s infinite ease-in-out;
+        }
+        @keyframes pulse-glow {
+            0% { transform: scale(1); opacity: 0.8; }
+            50% { transform: scale(1.4); opacity: 0.4; }
+            100% { transform: scale(1); opacity: 0.8; }
+        }
+        .bar-grow {
+            transform-origin: bottom;
+            animation: grow 1.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        @keyframes grow {
+            from { transform: scaleY(0); }
+            to { transform: scaleY(1); }
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="font-body-md text-on-surface">
+<!-- Top Navigation Anchor -->
+<nav class="fixed top-0 w-full z-50 bg-surface/70 backdrop-blur-3xl border-b border-white/10 shadow-[0px_4px_20px_rgba(0,0,0,0.05)] flex justify-between items-center px-container-margin py-md">
+<div class="flex items-center gap-md">
+<div class="w-10 h-10 rounded-full overflow-hidden bg-surface-variant">
+<img class="w-full h-full object-cover" data-alt="A professional user profile avatar in a clean, minimalist style. The image features a person with a friendly expression, set against a neutral, softly lit studio background that emphasizes high-end aesthetics and professional quality. The lighting is diffused and modern, fitting a premium tech dashboard theme." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDCcQqoopw5tXtsdZy81qpHbKY9sHJzWGwOZXlkAAaKks4kXQr_EO6EHFAbv8cacSrNk-EzYvQs7WzWrc-IxrlGHQgHRWOqQfv5p5ynjPyQBc0UYDm8uHXFR697LOLJbJGYhm-qWAarrWIyaf3eW2vLSIKb0d9-nVSwy-lnytYSBUcjB0QB4Tq6WiWcsoClK522ZuxyoNjay_C69AwVSK2L_nIEHeI3FPmQ_KlU6mm3oQMUzke7UzPLpMvqPYkntfd5iflsnJ70vdc"/>
+</div>
+<span class="font-headline-md text-headline-md font-bold text-on-surface">Lumina</span>
+</div>
+<div class="hidden md:flex gap-lg">
+<button class="text-primary font-label-sm">Dashboard</button>
+<button class="text-on-surface-variant/60 font-label-sm hover:text-primary transition-colors">Devices</button>
+<button class="text-on-surface-variant/60 font-label-sm hover:text-primary transition-colors">Automation</button>
+<button class="text-on-surface-variant/60 font-label-sm hover:text-primary transition-colors">History</button>
+</div>
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-variant/20 transition-colors active:scale-95 duration-200">
+<span class="material-symbols-outlined text-on-surface-variant">notifications</span>
+</button>
+</nav>
+<!-- Main Content Canvas -->
+<main class="pt-32 pb-32 px-container-margin max-w-7xl mx-auto">
+<!-- Header & Tabs -->
+<header class="flex flex-col md:flex-row md:items-end justify-between gap-lg mb-xl">
+<div>
+<h1 class="font-headline-lg text-headline-lg md:font-headline-lg md:text-headline-lg text-on-surface">Energy Usage</h1>
+<p class="text-on-surface-variant font-body-md mt-xs">Real-time consumption monitoring for your smart home.</p>
+</div>
+<div class="flex p-1 bg-surface-container rounded-xl">
+<button class="px-lg py-2 rounded-lg text-label-sm bg-white shadow-sm text-primary transition-all">Daily</button>
+<button class="px-lg py-2 rounded-lg text-label-sm text-on-surface-variant hover:bg-white/50 transition-all">Weekly</button>
+<button class="px-lg py-2 rounded-lg text-label-sm text-on-surface-variant hover:bg-white/50 transition-all">Monthly</button>
+</div>
+</header>
+<!-- Bento Grid Layout -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-lg">
+<!-- Main Chart Card -->
+<section class="lg:col-span-8 glass-card rounded-xl p-lg flex flex-col min-h-[400px]">
+<div class="flex justify-between items-center mb-xl">
+<h3 class="font-headline-md text-on-surface">Consumption Over Time</h3>
+<div class="flex items-center gap-md">
+<span class="flex items-center gap-xs text-label-sm text-on-surface-variant">
+<span class="w-2 h-2 rounded-full bg-primary"></span> Consumption
+                        </span>
+<span class="flex items-center gap-xs text-label-sm text-on-surface-variant">
+<span class="w-2 h-2 rounded-full bg-error"></span> Peak Period
+                        </span>
+</div>
+</div>
+<!-- SVG Line Chart Placeholder -->
+<div class="flex-grow relative mt-4">
+<svg class="w-full h-full" preserveaspectratio="none" viewbox="0 0 800 300">
+<!-- Grid Lines -->
+<line stroke="#E3E2E7" stroke-dasharray="4" stroke-width="1" x1="0" x2="800" y1="50" y2="50"></line>
+<line stroke="#E3E2E7" stroke-dasharray="4" stroke-width="1" x1="0" x2="800" y1="150" y2="150"></line>
+<line stroke="#E3E2E7" stroke-dasharray="4" stroke-width="1" x1="0" x2="800" y1="250" y2="250"></line>
+<!-- Main Path -->
+<path class="chart-line" d="M0,250 C100,240 150,260 200,200 S300,50 400,100 S500,280 600,240 S750,180 800,150" fill="none" stroke="#0058bc" stroke-linecap="round" stroke-width="4"></path>
+<!-- Area Gradient -->
+<lineargradient id="chart-grad" x1="0" x2="0" y1="0" y2="1">
+<stop offset="0%" stop-color="#0058bc" stop-opacity="0.1"></stop>
+<stop offset="100%" stop-color="#0058bc" stop-opacity="0"></stop>
+</lineargradient>
+<path d="M0,250 C100,240 150,260 200,200 S300,50 400,100 S500,280 600,240 S750,180 800,150 L800,300 L0,300 Z" fill="url(#chart-grad)"></path>
+<!-- Peak Highlight -->
+<circle class="peak-pulse" cx="315" cy="65" fill="#ba1a1a" r="6"></circle>
+<text fill="#ba1a1a" font-family="Inter" font-size="12" font-weight="600" x="330" y="60">Peak: 4.2 kW</text>
+</svg>
+<div class="flex justify-between mt-md px-xs">
+<span class="text-label-sm text-on-surface-variant/60">06:00</span>
+<span class="text-label-sm text-on-surface-variant/60">09:00</span>
+<span class="text-label-sm text-on-surface-variant/60">12:00</span>
+<span class="text-label-sm text-on-surface-variant/60">15:00</span>
+<span class="text-label-sm text-on-surface-variant/60">18:00</span>
+<span class="text-label-sm text-on-surface-variant/60">21:00</span>
+</div>
+</div>
+</section>
+<!-- Device Stats / Comparison -->
+<section class="lg:col-span-4 glass-card rounded-xl p-lg">
+<h3 class="font-headline-md text-on-surface mb-xl">Device Distribution</h3>
+<div class="space-y-lg">
+<!-- AC Unit -->
+<div>
+<div class="flex justify-between mb-sm">
+<span class="text-label-sm font-semibold">Climate Control</span>
+<span class="text-label-sm text-primary">12.4 kWh</span>
+</div>
+<div class="w-full h-8 bg-surface-container rounded-full overflow-hidden">
+<div class="bar-grow h-full bg-primary w-[65%] rounded-full"></div>
+</div>
+</div>
+<!-- Fridge -->
+<div>
+<div class="flex justify-between mb-sm">
+<span class="text-label-sm font-semibold">Refrigeration</span>
+<span class="text-label-sm text-primary">4.2 kWh</span>
+</div>
+<div class="w-full h-8 bg-surface-container rounded-full overflow-hidden">
+<div class="bar-grow h-full bg-primary/60 w-[25%] rounded-full"></div>
+</div>
+</div>
+<!-- Lights -->
+<div>
+<div class="flex justify-between mb-sm">
+<span class="text-label-sm font-semibold">Smart Lighting</span>
+<span class="text-label-sm text-primary">2.8 kWh</span>
+</div>
+<div class="w-full h-8 bg-surface-container rounded-full overflow-hidden">
+<div class="bar-grow h-full bg-primary/30 w-[15%] rounded-full"></div>
+</div>
+</div>
+<!-- Others -->
+<div>
+<div class="flex justify-between mb-sm">
+<span class="text-label-sm font-semibold">Others</span>
+<span class="text-label-sm text-primary">1.5 kWh</span>
+</div>
+<div class="w-full h-8 bg-surface-container rounded-full overflow-hidden">
+<div class="bar-grow h-full bg-primary/10 w-[8%] rounded-full"></div>
+</div>
+</div>
+</div>
+<div class="mt-xl p-md bg-secondary-container/20 rounded-xl flex items-center gap-md border border-secondary-container/30">
+<div class="w-10 h-10 flex items-center justify-center bg-secondary-container rounded-lg text-on-secondary-container">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">eco</span>
+</div>
+<div>
+<p class="text-label-sm font-bold text-on-secondary-container">Efficiency Tip</p>
+<p class="text-[11px] text-on-secondary-container/80">Lowering AC by 2°C could save you $12 this month.</p>
+</div>
+</div>
+</section>
+<!-- Bottom Stats Row -->
+<div class="lg:col-span-4 glass-card rounded-xl p-lg flex items-center gap-lg group hover:scale-[1.01] transition-transform duration-300">
+<div class="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[32px]">bolt</span>
+</div>
+<div>
+<p class="text-label-sm text-on-surface-variant font-medium">Total Consumption</p>
+<p class="font-display-lg text-display-lg text-on-surface">24.5 <span class="text-headline-md font-medium text-on-surface-variant">kWh</span></p>
+</div>
+</div>
+<div class="lg:col-span-4 glass-card rounded-xl p-lg flex items-center gap-lg group hover:scale-[1.01] transition-transform duration-300">
+<div class="w-14 h-14 rounded-full bg-tertiary/10 flex items-center justify-center text-tertiary">
+<span class="material-symbols-outlined text-[32px]">payments</span>
+</div>
+<div>
+<p class="text-label-sm text-on-surface-variant font-medium">Estimated Cost</p>
+<p class="font-display-lg text-display-lg text-on-surface">$18.42 <span class="text-headline-md font-medium text-on-surface-variant">USD</span></p>
+</div>
+</div>
+<div class="lg:col-span-4 glass-card rounded-xl p-lg flex items-center gap-lg group hover:scale-[1.01] transition-transform duration-300">
+<div class="w-14 h-14 rounded-full bg-secondary/10 flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-[32px]">forest</span>
+</div>
+<div>
+<p class="text-label-sm text-on-surface-variant font-medium">Carbon Footprint</p>
+<p class="font-display-lg text-display-lg text-on-surface">12.8 <span class="text-headline-md font-medium text-on-surface-variant">kgCO2</span></p>
+</div>
+</div>
+</div>
+</main>
+<!-- Bottom Navigation Shell -->
+<nav class="md:hidden fixed bottom-0 w-full z-50 rounded-t-xl bg-surface/70 backdrop-blur-3xl border-t border-white/20 shadow-[0px_-4px_20px_rgba(0,0,0,0.05)] flex justify-around items-center px-lg py-md">
+<button class="flex flex-col items-center justify-center text-on-surface-variant/60 hover:opacity-80 transition-opacity active:scale-[0.92] duration-200">
+<span class="material-symbols-outlined">home_app_logo</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant/60 hover:opacity-80 transition-opacity active:scale-[0.92] duration-200">
+<span class="material-symbols-outlined">grid_view</span>
+</button>
+<button class="flex flex-col items-center justify-center text-primary dark:text-primary-fixed-dim after:content-[''] after:w-1 after:h-1 after:bg-primary after:rounded-full after:mt-1 hover:opacity-80 transition-opacity active:scale-[0.92] duration-200">
+<span class="material-symbols-outlined">bolt</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant/60 hover:opacity-80 transition-opacity active:scale-[0.92] duration-200">
+<span class="material-symbols-outlined">smart_toy</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant/60 hover:opacity-80 transition-opacity active:scale-[0.92] duration-200">
+<span class="material-symbols-outlined">person</span>
+</button>
+</nav>
+<script>
+        // Micro-interactions for tab switching
+        const tabs = document.querySelectorAll('button[class*="rounded-lg"]');
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                tabs.forEach(t => {
+                    t.classList.remove('bg-white', 'shadow-sm', 'text-primary');
+                    t.classList.add('text-on-surface-variant');
+                });
+                tab.classList.remove('text-on-surface-variant');
+                tab.classList.add('bg-white', 'shadow-sm', 'text-primary');
+            });
+        });
+
+        // Simple animation trigger for chart
+        window.addEventListener('load', () => {
+            const chartPath = document.querySelector('.chart-line');
+            if(chartPath) {
+                chartPath.style.strokeDashoffset = '0';
+            }
+        });
+    </script>
+</body></html>

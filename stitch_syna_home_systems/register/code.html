@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Join Lumina - Register</title>
+<!-- Google Fonts: Inter -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-tertiary-fixed": "#2d1600",
+                        "tertiary": "#894d00",
+                        "surface-dim": "#dad9df",
+                        "inverse-surface": "#2f3034",
+                        "primary-container": "#0070eb",
+                        "on-background": "#1a1b1f",
+                        "on-primary-fixed": "#001a41",
+                        "primary-fixed": "#d8e2ff",
+                        "inverse-on-surface": "#f1f0f5",
+                        "on-tertiary-container": "#fffbff",
+                        "surface-container-low": "#f4f3f8",
+                        "secondary": "#006e28",
+                        "inverse-primary": "#adc6ff",
+                        "on-surface": "#1a1b1f",
+                        "surface": "#faf9fe",
+                        "on-primary-container": "#fefcff",
+                        "on-error": "#ffffff",
+                        "on-error-container": "#93000a",
+                        "outline-variant": "#c1c6d7",
+                        "surface-tint": "#005bc1",
+                        "surface-container": "#eeedf3",
+                        "primary-fixed-dim": "#adc6ff",
+                        "surface-container-lowest": "#ffffff",
+                        "on-secondary": "#ffffff",
+                        "on-secondary-fixed": "#002107",
+                        "on-secondary-fixed-variant": "#00531c",
+                        "background": "#faf9fe",
+                        "secondary-fixed-dim": "#53e16f",
+                        "surface-bright": "#faf9fe",
+                        "secondary-fixed": "#72fe88",
+                        "error": "#ba1a1a",
+                        "tertiary-fixed-dim": "#ffb874",
+                        "on-primary": "#ffffff",
+                        "on-primary-fixed-variant": "#004493",
+                        "on-surface-variant": "#414755",
+                        "on-tertiary": "#ffffff",
+                        "on-secondary-container": "#00732a",
+                        "primary": "#0058bc",
+                        "surface-container-highest": "#e3e2e7",
+                        "surface-container-high": "#e9e7ed",
+                        "secondary-container": "#6ffb85",
+                        "surface-variant": "#e3e2e7",
+                        "on-tertiary-fixed-variant": "#6a3b00",
+                        "error-container": "#ffdad6",
+                        "tertiary-fixed": "#ffdcbf",
+                        "outline": "#717786",
+                        "tertiary-container": "#ac6300"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "xl": "32px",
+                        "lg": "24px",
+                        "md": "16px",
+                        "xs": "4px",
+                        "gutter": "16px",
+                        "unit": "8px",
+                        "sm": "8px",
+                        "container-margin": "24px"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "body-md": ["Inter"],
+                        "label-caps": ["Inter"],
+                        "display-lg": ["Inter"],
+                        "headline-lg-mobile": ["Inter"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "0em", "fontWeight": "600"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "label-sm": ["13px", {"lineHeight": "18px", "letterSpacing": "0em", "fontWeight": "500"}],
+                        "body-lg": ["17px", {"lineHeight": "24px", "letterSpacing": "0em", "fontWeight": "400"}],
+                        "body-md": ["15px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "400"}],
+                        "label-caps": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "headline-lg-mobile": ["28px", {"lineHeight": "34px", "letterSpacing": "-0.01em", "fontWeight": "600"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #faf9fe;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-panel {
+            backdrop-filter: blur(20px);
+            background: rgba(255, 255, 255, 0.7);
+        }
+        input:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(0, 88, 188, 0.1);
+        }
+        .animate-subtle-glow {
+            animation: subtle-glow 4s ease-in-out infinite alternate;
+        }
+        @keyframes subtle-glow {
+            from { opacity: 0.4; transform: scale(1); }
+            to { opacity: 0.6; transform: scale(1.1); }
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background min-h-screen flex items-center justify-center p-container-margin overflow-x-hidden">
+<!-- Atmospheric Background Decoration -->
+<div class="fixed inset-0 overflow-hidden pointer-events-none">
+<div class="absolute -top-[10%] -left-[5%] w-[40%] h-[40%] rounded-full bg-primary/5 blur-[100px] animate-subtle-glow"></div>
+<div class="absolute -bottom-[10%] -right-[5%] w-[40%] h-[40%] rounded-full bg-secondary/5 blur-[100px] animate-subtle-glow" style="animation-delay: 2s;"></div>
+</div>
+<!-- Main Registration Container -->
+<main class="relative z-10 w-full max-w-[480px]">
+<!-- Header Section -->
+<div class="mb-xl text-center md:text-left">
+<div class="flex items-center justify-center md:justify-start gap-sm mb-md">
+<div class="w-10 h-10 rounded-xl bg-primary flex items-center justify-center shadow-lg shadow-primary/20">
+<span class="material-symbols-outlined text-white text-[24px]" style="font-variation-settings: 'FILL' 1;">bolt</span>
+</div>
+<span class="font-headline-md text-headline-md text-on-surface tracking-tight">Lumina</span>
+</div>
+<h1 class="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-surface mb-xs">Join Lumina</h1>
+<p class="font-body-md text-body-md text-on-surface-variant">Create your account to start managing your smart space.</p>
+</div>
+<!-- Registration Form Card -->
+<div class="glass-panel border border-white/40 shadow-[0px_4px_20px_rgba(0,0,0,0.05)] rounded-[24px] p-lg md:p-xl">
+<form class="space-y-lg" id="registerForm" onsubmit="event.preventDefault();">
+<!-- Full Name -->
+<div class="space-y-sm">
+<label class="font-label-caps text-label-caps text-on-surface-variant" for="fullName">FULL NAME</label>
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-md top-1/2 -translate-y-1/2 text-on-surface-variant/40 group-focus-within:text-primary transition-colors">person</span>
+<input class="w-full bg-surface-container-lowest border border-outline-variant/30 rounded-xl py-md pl-[48px] pr-md font-body-md text-body-md text-on-surface placeholder:text-on-surface-variant/30 transition-all hover:border-outline-variant focus:border-primary" id="fullName" placeholder="John Doe" type="text"/>
+</div>
+</div>
+<!-- Email -->
+<div class="space-y-sm">
+<label class="font-label-caps text-label-caps text-on-surface-variant" for="email">EMAIL ADDRESS</label>
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-md top-1/2 -translate-y-1/2 text-on-surface-variant/40 group-focus-within:text-primary transition-colors">mail</span>
+<input class="w-full bg-surface-container-lowest border border-outline-variant/30 rounded-xl py-md pl-[48px] pr-md font-body-md text-body-md text-on-surface placeholder:text-on-surface-variant/30 transition-all hover:border-outline-variant focus:border-primary" id="email" placeholder="name@example.com" type="email"/>
+</div>
+</div>
+<!-- Password Row -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-md">
+<div class="space-y-sm">
+<label class="font-label-caps text-label-caps text-on-surface-variant" for="password">PASSWORD</label>
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-md top-1/2 -translate-y-1/2 text-on-surface-variant/40 group-focus-within:text-primary transition-colors">lock</span>
+<input class="w-full bg-surface-container-lowest border border-outline-variant/30 rounded-xl py-md pl-[48px] pr-md font-body-md text-body-md text-on-surface placeholder:text-on-surface-variant/30 transition-all hover:border-outline-variant focus:border-primary" id="password" placeholder="••••••••" type="password"/>
+</div>
+</div>
+<div class="space-y-sm">
+<label class="font-label-caps text-label-caps text-on-surface-variant" for="confirmPassword">CONFIRM</label>
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-md top-1/2 -translate-y-1/2 text-on-surface-variant/40 group-focus-within:text-primary transition-colors">lock_reset</span>
+<input class="w-full bg-surface-container-lowest border border-outline-variant/30 rounded-xl py-md pl-[48px] pr-md font-body-md text-body-md text-on-surface placeholder:text-on-surface-variant/30 transition-all hover:border-outline-variant focus:border-primary" id="confirmPassword" placeholder="••••••••" type="password"/>
+</div>
+</div>
+</div>
+<!-- Terms and Conditions -->
+<div class="flex items-start gap-md py-xs">
+<div class="relative flex items-center h-5">
+<input class="w-5 h-5 rounded-[6px] border-outline-variant/40 text-primary focus:ring-primary/20 bg-surface-container-lowest transition-all" id="terms" type="checkbox"/>
+</div>
+<label class="font-body-md text-body-md text-on-surface-variant" for="terms">
+                        I agree to the <a class="text-primary hover:underline font-medium" href="#">Terms and Conditions</a> and <a class="text-primary hover:underline font-medium" href="#">Privacy Policy</a>.
+                    </label>
+</div>
+<!-- Primary Action -->
+<button class="w-full bg-primary text-white font-label-sm text-label-sm py-md rounded-xl shadow-lg shadow-primary/20 hover:bg-primary-container active:scale-[0.98] transition-all flex items-center justify-center gap-sm" type="submit">
+                    Create Account
+                    <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</button>
+</form>
+<!-- Social/Divider (Optional aesthetic touch) -->
+<div class="mt-xl pt-lg border-t border-outline-variant/10">
+<p class="font-body-md text-body-md text-on-surface-variant text-center">
+                    Already have an account? 
+                    <a class="text-primary font-semibold hover:underline decoration-2 underline-offset-4 ml-xs transition-all" href="#">Log in</a>
+</p>
+</div>
+</div>
+<!-- Footer Info -->
+<div class="mt-lg text-center">
+<p class="font-label-caps text-label-caps text-on-surface-variant/40 tracking-widest">SECURE CLOUD INFRASTRUCTURE • LUMINA OS V2.4</p>
+</div>
+</main>
+<!-- Micro-interaction Script -->
+<script>
+        document.querySelectorAll('input').forEach(input => {
+            input.addEventListener('focus', () => {
+                input.parentElement.classList.add('scale-[1.01]');
+            });
+            input.addEventListener('blur', () => {
+                input.parentElement.classList.remove('scale-[1.01]');
+            });
+        });
+
+        // Simple button press effect enhancement
+        const btn = document.querySelector('button');
+        btn.addEventListener('mousedown', () => btn.classList.add('opacity-90'));
+        btn.addEventListener('mouseup', () => btn.classList.remove('opacity-90'));
+    </script>
+</body></html>

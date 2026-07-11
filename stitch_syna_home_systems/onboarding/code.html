@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Lumina - Control your world.</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-tertiary-fixed": "#2d1600",
+                        "tertiary": "#894d00",
+                        "surface-dim": "#dad9df",
+                        "inverse-surface": "#2f3034",
+                        "primary-container": "#0070eb",
+                        "on-background": "#1a1b1f",
+                        "on-primary-fixed": "#001a41",
+                        "primary-fixed": "#d8e2ff",
+                        "inverse-on-surface": "#f1f0f5",
+                        "on-tertiary-container": "#fffbff",
+                        "surface-container-low": "#f4f3f8",
+                        "secondary": "#006e28",
+                        "inverse-primary": "#adc6ff",
+                        "on-surface": "#1a1b1f",
+                        "surface": "#faf9fe",
+                        "on-primary-container": "#fefcff",
+                        "on-error": "#ffffff",
+                        "on-error-container": "#93000a",
+                        "outline-variant": "#c1c6d7",
+                        "surface-tint": "#005bc1",
+                        "surface-container": "#eeedf3",
+                        "primary-fixed-dim": "#adc6ff",
+                        "surface-container-lowest": "#ffffff",
+                        "on-secondary": "#ffffff",
+                        "on-secondary-fixed": "#002107",
+                        "on-secondary-fixed-variant": "#00531c",
+                        "background": "#faf9fe",
+                        "secondary-fixed-dim": "#53e16f",
+                        "surface-bright": "#faf9fe",
+                        "secondary-fixed": "#72fe88",
+                        "error": "#ba1a1a",
+                        "tertiary-fixed-dim": "#ffb874",
+                        "on-primary": "#ffffff",
+                        "on-primary-fixed-variant": "#004493",
+                        "on-surface-variant": "#414755",
+                        "on-tertiary": "#ffffff",
+                        "on-secondary-container": "#00732a",
+                        "primary": "#0058bc",
+                        "surface-container-highest": "#e3e2e7",
+                        "surface-container-high": "#e9e7ed",
+                        "secondary-container": "#6ffb85",
+                        "surface-variant": "#e3e2e7",
+                        "on-tertiary-fixed-variant": "#6a3b00",
+                        "error-container": "#ffdad6",
+                        "tertiary-fixed": "#ffdcbf",
+                        "outline": "#717786",
+                        "tertiary-container": "#ac6300"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "xl": "32px",
+                        "lg": "24px",
+                        "md": "16px",
+                        "xs": "4px",
+                        "gutter": "16px",
+                        "unit": "8px",
+                        "sm": "8px",
+                        "container-margin": "24px"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "body-md": ["Inter"],
+                        "label-caps": ["Inter"],
+                        "display-lg": ["Inter"],
+                        "headline-lg-mobile": ["Inter"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "0em", "fontWeight": "600"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "label-sm": ["13px", {"lineHeight": "18px", "letterSpacing": "0em", "fontWeight": "500"}],
+                        "body-lg": ["17px", {"lineHeight": "24px", "letterSpacing": "0em", "fontWeight": "400"}],
+                        "body-md": ["15px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "400"}],
+                        "label-caps": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "headline-lg-mobile": ["28px", {"lineHeight": "34px", "letterSpacing": "-0.01em", "fontWeight": "600"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            background-color: #faf9fe;
+            color: #1a1b1f;
+            -webkit-font-smoothing: antialiased;
+            overflow: hidden;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            vertical-align: middle;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+        .step-transition {
+            transition: all 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        .animate-pulse-slow {
+            animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: .7; }
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="font-body-md text-on-surface">
+<!-- Global TopAppBar (Suppressed for Onboarding context, but Lumina branding remains) -->
+<header class="fixed top-0 w-full z-50 flex justify-center py-xl">
+<div class="font-headline-md text-headline-md font-bold text-on-surface tracking-tight">
+            Lumina
+        </div>
+</header>
+<main class="relative h-screen w-full flex flex-col items-center justify-between overflow-hidden">
+<!-- Background Hero Section -->
+<div class="absolute inset-0 z-0" id="hero-container">
+<div class="relative w-full h-full">
+<!-- Large high-fidelity illustration placeholder -->
+<div class="absolute inset-0 bg-cover bg-center step-transition scale-105" data-alt="A hyper-realistic, wide-angle interior of a modern smart living room with floor-to-ceiling windows showing a serene dusk cityscape. The furniture is minimalist and high-end, featuring soft neutral tones and natural materials like white oak and marble. Subdued, warm ambient lighting emanates from invisible sources, casting long, soft shadows. The overall aesthetic is clean, airy, and premium, embodying the concept of invisible technology in a luxury smart home environment. The lighting suggests a high-key, light-mode palette with subtle blue and orange sunset hues." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCf9IRQF_HFa4jSsxE6H3lekGogRIJzITsv3BUZyK6WJwhos2NUHcbjV5j4gv3Kf7k760WBoPQ4nDHdqxhfSUr1QhJZn4WMSJWUABYJfFQpnxg7vHlFqxgLZSC0mHSG2gPJJyrMoYkrUuhwDPsITnXx-GlUPfuJU1yq_tYTtVNcZhjaUnNcHjN11pvSi7PqCzOXaTbTLyI4-u8xBGv1ZMqhcrlng9SNS6KTsPuKhZuUSSiGdihO--pPWjovsTutEEV4UDS9kqNFPJc')"></div>
+<!-- Overlay Gradient for Readability -->
+<div class="absolute inset-0 bg-gradient-to-b from-white/20 via-transparent to-surface-container-lowest"></div>
+</div>
+</div>
+<!-- Content Canvas -->
+<div class="relative z-10 w-full max-w-lg mx-auto h-full flex flex-col justify-end px-container-margin pb-xl">
+<div class="glass-card rounded-[32px] p-xl mb-xl shadow-[0px_4px_20px_rgba(0,0,0,0.05)] border border-white/40 flex flex-col items-center text-center" id="onboarding-card">
+<!-- Onboarding Step 1 -->
+<div class="step-transition opacity-100 transform translate-y-0" id="step-1">
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile md:font-headline-lg md:text-headline-lg text-on-surface mb-md">
+                        Control your world.
+                    </h1>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-xs mx-auto mb-xl leading-relaxed">
+                        Experience the future of living with seamless automation and AI-driven insights.
+                    </p>
+</div>
+<!-- Progress Indicators -->
+<div class="flex gap-xs mb-xl">
+<div class="w-8 h-1.5 rounded-full bg-primary transition-all duration-300"></div>
+<div class="w-1.5 h-1.5 rounded-full bg-outline-variant transition-all duration-300"></div>
+<div class="w-1.5 h-1.5 rounded-full bg-outline-variant transition-all duration-300"></div>
+</div>
+<!-- Primary Action -->
+<button class="w-full bg-primary text-on-primary py-md px-lg rounded-xl font-body-lg text-body-lg font-semibold shadow-lg hover:shadow-primary/20 active:scale-95 transition-all duration-200 flex justify-center items-center gap-sm" onclick="handleNextStep()">
+                    Get Started
+                    <span class="material-symbols-outlined">arrow_forward</span>
+</button>
+<!-- Secondary Link -->
+<button class="mt-md text-on-surface-variant font-label-sm text-label-sm hover:text-primary transition-colors">
+                    Already have an account? Sign In
+                </button>
+</div>
+<!-- Accessibility Note / Privacy -->
+<p class="text-center font-label-sm text-label-sm text-on-surface-variant/60 mb-md">
+                By continuing, you agree to Lumina’s Terms &amp; Privacy.
+            </p>
+</div>
+</main>
+<script>
+        let currentStep = 1;
+        const totalSteps = 3;
+
+        const headlineTexts = [
+            "Control your world.",
+            "Intuitive Automation.",
+            "Total Security."
+        ];
+
+        const subTexts = [
+            "Experience the future of living with seamless automation and AI-driven insights.",
+            "Lumina learns your routines to perfectly adjust lighting, climate, and sound automatically.",
+            "Rest easy with AI-powered monitoring that keeps your sanctuary safe and private at all times."
+        ];
+
+        function handleNextStep() {
+            if (currentStep < totalSteps) {
+                currentStep++;
+                updateUI();
+            } else {
+                // Final step action - simulated transition
+                document.getElementById('onboarding-card').style.opacity = '0';
+                document.getElementById('onboarding-card').style.transform = 'translateY(20px)';
+                setTimeout(() => {
+                    alert('Redirecting to Account Setup...');
+                }, 500);
+            }
+        }
+
+        function updateUI() {
+            const headline = document.querySelector('h1');
+            const subtext = document.querySelector('p.font-body-md');
+            const dots = document.querySelectorAll('.flex.gap-xs.mb-xl div');
+            const btn = document.querySelector('button.bg-primary');
+            const hero = document.querySelector('#hero-container div');
+
+            // Exit animation
+            headline.parentElement.style.opacity = '0';
+            headline.parentElement.style.transform = 'translateY(10px)';
+
+            setTimeout(() => {
+                // Update content
+                headline.innerText = headlineTexts[currentStep - 1];
+                subtext.innerText = subTexts[currentStep - 1];
+                
+                if(currentStep === totalSteps) {
+                    btn.innerHTML = 'Complete Setup <span class="material-symbols-outlined">check_circle</span>';
+                } else {
+                    btn.innerHTML = 'Continue <span class="material-symbols-outlined">arrow_forward</span>';
+                }
+
+                // Update dots
+                dots.forEach((dot, idx) => {
+                    if (idx === currentStep - 1) {
+                        dot.className = "w-8 h-1.5 rounded-full bg-primary transition-all duration-500";
+                    } else {
+                        dot.className = "w-1.5 h-1.5 rounded-full bg-outline-variant transition-all duration-300";
+                    }
+                });
+
+                // Update background parallax effect slightly
+                hero.style.transform = `scale(${1.05 + (currentStep * 0.02)}) translateX(${-(currentStep - 1) * 10}px)`;
+
+                // Entry animation
+                headline.parentElement.style.opacity = '1';
+                headline.parentElement.style.transform = 'translateY(0)';
+            }, 300);
+        }
+
+        // Ambient interaction
+        document.addEventListener('mousemove', (e) => {
+            const x = (e.clientX / window.innerWidth) - 0.5;
+            const y = (e.clientY / window.innerHeight) - 0.5;
+            const hero = document.querySelector('#hero-container div');
+            if (hero) {
+                hero.style.transition = 'transform 0.1s linear';
+                hero.style.transform = `scale(${1.05 + (currentStep * 0.02)}) translate(${x * 20}px, ${y * 20}px)`;
+            }
+        });
+    </script>
+</body></html>

@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Lumina | Smart Automations</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+        .glass {
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .active-dot::after {
+            content: '';
+            display: block;
+            width: 4px;
+            height: 4px;
+            background-color: currentColor;
+            border-radius: 50%;
+            margin-top: 4px;
+        }
+        /* Custom scrollbar for horizontal sections */
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-tertiary-fixed": "#2d1600",
+                        "tertiary": "#894d00",
+                        "surface-dim": "#dad9df",
+                        "inverse-surface": "#2f3034",
+                        "primary-container": "#0070eb",
+                        "on-background": "#1a1b1f",
+                        "on-primary-fixed": "#001a41",
+                        "primary-fixed": "#d8e2ff",
+                        "inverse-on-surface": "#f1f0f5",
+                        "on-tertiary-container": "#fffbff",
+                        "surface-container-low": "#f4f3f8",
+                        "secondary": "#006e28",
+                        "inverse-primary": "#adc6ff",
+                        "on-surface": "#1a1b1f",
+                        "surface": "#faf9fe",
+                        "on-primary-container": "#fefcff",
+                        "on-error": "#ffffff",
+                        "on-error-container": "#93000a",
+                        "outline-variant": "#c1c6d7",
+                        "surface-tint": "#005bc1",
+                        "surface-container": "#eeedf3",
+                        "primary-fixed-dim": "#adc6ff",
+                        "surface-container-lowest": "#ffffff",
+                        "on-secondary": "#ffffff",
+                        "on-secondary-fixed": "#002107",
+                        "on-secondary-fixed-variant": "#00531c",
+                        "background": "#faf9fe",
+                        "secondary-fixed-dim": "#53e16f",
+                        "surface-bright": "#faf9fe",
+                        "secondary-fixed": "#72fe88",
+                        "error": "#ba1a1a",
+                        "tertiary-fixed-dim": "#ffb874",
+                        "on-primary": "#ffffff",
+                        "on-primary-fixed-variant": "#004493",
+                        "on-surface-variant": "#414755",
+                        "on-tertiary": "#ffffff",
+                        "on-secondary-container": "#00732a",
+                        "primary": "#0058bc",
+                        "surface-container-highest": "#e3e2e7",
+                        "surface-container-high": "#e9e7ed",
+                        "secondary-container": "#6ffb85",
+                        "surface-variant": "#e3e2e7",
+                        "on-tertiary-fixed-variant": "#6a3b00",
+                        "error-container": "#ffdad6",
+                        "tertiary-fixed": "#ffdcbf",
+                        "outline": "#717786",
+                        "tertiary-container": "#ac6300"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "xl": "32px",
+                        "lg": "24px",
+                        "md": "16px",
+                        "xs": "4px",
+                        "gutter": "16px",
+                        "unit": "8px",
+                        "sm": "8px",
+                        "container-margin": "24px"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "body-md": ["Inter"],
+                        "label-caps": ["Inter"],
+                        "display-lg": ["Inter"],
+                        "headline-lg-mobile": ["Inter"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "0em", "fontWeight": "600"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "label-sm": ["13px", {"lineHeight": "18px", "letterSpacing": "0em", "fontWeight": "500"}],
+                        "body-lg": ["17px", {"lineHeight": "24px", "letterSpacing": "0em", "fontWeight": "400"}],
+                        "body-md": ["15px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "400"}],
+                        "label-caps": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "headline-lg-mobile": ["28px", {"lineHeight": "34px", "letterSpacing": "-0.01em", "fontWeight": "600"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background min-h-screen pb-32">
+<!-- Top App Bar (Shared Component Strategy) -->
+<header class="fixed top-0 w-full z-50 glass bg-surface/70 border-b border-white/10 shadow-[0px_4px_20px_rgba(0,0,0,0.05)] flex justify-between items-center px-container-margin py-md">
+<div class="flex items-center gap-md">
+<div class="w-10 h-10 rounded-full bg-surface-container overflow-hidden border border-outline-variant">
+<img class="w-full h-full object-cover" data-alt="A professional, high-resolution headshot of a modern homeowner, shot in soft natural studio lighting against a minimal warm grey background. The lighting is clean and premium, reflecting a high-end lifestyle brand aesthetic. The individual has a calm, confident expression, fitting for a user profile in a luxury smart home management application." src="https://lh3.googleusercontent.com/aida-public/AB6AXuALHiCxSkP4Fg8v78A8e3nE9ItnpUjRF-LiunYTc_fkubzf_EMl3QesZEQuPXkuQS_GKUuuuHvGuboEDycXkCPDs1Ojv_O0IE0-pKiGa928ToUQ7FYdQjcRtzGSOuwBHiByJq8MYm3R9AxlDwLdNVuJ3dWnHXJwoSNGP17DnrNbMIVyMHPmOCHZLfhKdx6LlMTVt0Dh8rPJ84sOaDZfwWY1NMPVxFy1Qg_TK_uKRgx92KHuJiJUil2nzm9qhpECy0x6GZdvY74WjbE"/>
+</div>
+<h1 class="font-headline-md text-headline-md font-bold text-on-surface">Lumina</h1>
+</div>
+<div class="flex items-center gap-md">
+<button class="w-10 h-10 flex items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-variant/20 transition-colors active:scale-95 duration-200">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+</div>
+</header>
+<main class="mt-24 px-container-margin">
+<!-- Main Header & Action -->
+<div class="flex justify-between items-end mb-lg">
+<div>
+<span class="font-label-caps text-label-caps text-primary uppercase tracking-widest">Management</span>
+<h2 class="font-headline-lg text-headline-lg text-on-surface">Automations</h2>
+</div>
+<button class="flex items-center gap-sm bg-primary text-on-primary px-lg py-md rounded-xl shadow-lg shadow-primary/20 active:scale-95 transition-all duration-200 font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[20px]">add</span>
+<span>Create New</span>
+</button>
+</div>
+<!-- Creation Interface (Visualized IF-THEN) -->
+<section class="mb-xl">
+<div class="bg-surface-container-low rounded-3xl p-lg border border-outline-variant/30">
+<div class="flex flex-col md:flex-row items-center gap-lg">
+<!-- IF Trigger -->
+<div class="flex-1 w-full">
+<div class="flex items-center gap-sm mb-md">
+<span class="font-label-caps text-label-caps bg-primary/10 text-primary px-md py-xs rounded-full">IF</span>
+<span class="font-body-md text-body-md text-on-surface-variant">Trigger occurs</span>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-md">
+<div class="bg-surface-container-lowest p-md rounded-2xl border border-outline-variant/20 flex flex-col items-center text-center cursor-pointer hover:border-primary/50 transition-colors">
+<span class="material-symbols-outlined text-primary mb-sm">schedule</span>
+<span class="font-label-sm text-label-sm">Time</span>
+</div>
+<div class="bg-surface-container-lowest p-md rounded-2xl border border-outline-variant/20 flex flex-col items-center text-center cursor-pointer hover:border-primary/50 transition-colors">
+<span class="material-symbols-outlined text-primary mb-sm">near_me</span>
+<span class="font-label-sm text-label-sm">Location</span>
+</div>
+<div class="bg-surface-container-lowest p-md rounded-2xl border border-outline-variant/20 flex flex-col items-center text-center cursor-pointer hover:border-primary/50 transition-colors">
+<span class="material-symbols-outlined text-primary mb-sm">sensors</span>
+<span class="font-label-sm text-label-sm">Device State</span>
+</div>
+</div>
+</div>
+<!-- Visual Connector -->
+<div class="flex items-center justify-center py-md">
+<span class="material-symbols-outlined text-outline text-[32px] rotate-90 md:rotate-0">arrow_forward_ios</span>
+</div>
+<!-- THEN Action -->
+<div class="flex-1 w-full">
+<div class="flex items-center gap-sm mb-md">
+<span class="font-label-caps text-label-caps bg-secondary/10 text-secondary px-md py-xs rounded-full">THEN</span>
+<span class="font-body-md text-body-md text-on-surface-variant">Execute action</span>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-md">
+<div class="bg-surface-container-lowest p-md rounded-2xl border border-outline-variant/20 flex flex-col items-center text-center cursor-pointer hover:border-secondary/50 transition-colors">
+<span class="material-symbols-outlined text-secondary mb-sm">palette</span>
+<span class="font-label-sm text-label-sm">Scenes</span>
+</div>
+<div class="bg-surface-container-lowest p-md rounded-2xl border border-outline-variant/20 flex flex-col items-center text-center cursor-pointer hover:border-secondary/50 transition-colors">
+<span class="material-symbols-outlined text-secondary mb-sm">settings_remote</span>
+<span class="font-label-sm text-label-sm">Control Device</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Active Rules List -->
+<section class="mb-xl">
+<h3 class="font-headline-md text-headline-md mb-md">Active Rules</h3>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-lg">
+<!-- Rule 1 -->
+<div class="bg-surface-container-high p-lg rounded-3xl border border-white/40 shadow-sm relative overflow-hidden active:scale-[0.98] transition-transform cursor-pointer">
+<div class="flex justify-between items-start mb-md">
+<div class="flex items-center gap-md">
+<div class="w-12 h-12 bg-tertiary-container text-on-tertiary-container rounded-2xl flex items-center justify-center">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">wb_twilight</span>
+</div>
+<div>
+<h4 class="font-body-lg text-body-lg font-semibold">Sunset Routine</h4>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Daily • Local Time</p>
+</div>
+</div>
+<input checked="" class="w-10 h-5 bg-outline-variant rounded-full appearance-none relative cursor-pointer checked:bg-secondary before:content-[''] before:absolute before:w-4 before:h-4 before:bg-white before:rounded-full before:top-0.5 before:left-0.5 checked:before:left-5.5 transition-all duration-300" type="checkbox"/>
+</div>
+<div class="flex items-center gap-md mt-lg bg-white/30 rounded-xl p-md">
+<div class="flex-1">
+<p class="font-label-caps text-[10px] text-on-surface-variant mb-xs">IF SUNSET</p>
+<p class="font-label-sm text-label-sm">Close Living Blinds</p>
+</div>
+<div class="h-8 w-px bg-outline-variant/30"></div>
+<div class="flex-1">
+<p class="font-label-caps text-[10px] text-on-surface-variant mb-xs">STATUS</p>
+<div class="flex items-center gap-xs">
+<div class="w-2 h-2 rounded-full bg-secondary"></div>
+<p class="font-label-sm text-label-sm">Active</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Rule 2 -->
+<div class="bg-surface-container-high p-lg rounded-3xl border border-white/40 shadow-sm relative overflow-hidden active:scale-[0.98] transition-transform cursor-pointer">
+<div class="flex justify-between items-start mb-md">
+<div class="flex items-center gap-md">
+<div class="w-12 h-12 bg-primary-container text-on-primary-container rounded-2xl flex items-center justify-center">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">home_pin</span>
+</div>
+<div>
+<h4 class="font-body-lg text-body-lg font-semibold">Arrive Home</h4>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Geofence • &lt; 50m</p>
+</div>
+</div>
+<input checked="" class="w-10 h-5 bg-outline-variant rounded-full appearance-none relative cursor-pointer checked:bg-secondary before:content-[''] before:absolute before:w-4 before:h-4 before:bg-white before:rounded-full before:top-0.5 before:left-0.5 checked:before:left-5.5 transition-all duration-300" type="checkbox"/>
+</div>
+<div class="flex items-center gap-md mt-lg bg-white/30 rounded-xl p-md">
+<div class="flex-1">
+<p class="font-label-caps text-[10px] text-on-surface-variant mb-xs">THEN ACTIONS</p>
+<p class="font-label-sm text-label-sm">Unlock Door &amp; AC 72°F</p>
+</div>
+<div class="h-8 w-px bg-outline-variant/30"></div>
+<div class="flex-1">
+<p class="font-label-caps text-[10px] text-on-surface-variant mb-xs">FREQUENCY</p>
+<p class="font-label-sm text-label-sm">2x Today</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Scenes Horizontal Scroll -->
+<section class="mb-xl">
+<div class="flex justify-between items-center mb-md">
+<h3 class="font-headline-md text-headline-md">Quick Scenes</h3>
+<button class="text-primary font-label-sm text-label-sm hover:underline">View All</button>
+</div>
+<div class="flex gap-md overflow-x-auto hide-scrollbar pb-xs">
+<!-- Scene 1 -->
+<div class="flex-shrink-0 w-48 h-56 rounded-3xl overflow-hidden relative group cursor-pointer active:scale-95 transition-transform">
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110" data-alt="A moody, cinematic living room scene at night. The lighting is warm and amber-toned, with soft glowing practical lights and a large television screen displaying a colorful movie scene. The atmosphere is cozy, luxurious, and peaceful, perfectly representing a high-end Movie Night scene in a modern smart home." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDMi27uI6y9g_0wDJfnJWka8_Nx1V2BAqqKR45R9AR6SeDbKiCNcQKcemA0NjWVgcQ1X3F0P0Aipgw7eyZbxo96mR555atUAof-iYHm1wBM6GHHNvmihitO9I8KxJ32vjBOgUjyXgmNpwvmRBZ92uHaO9P9byytqY6ADL7vAmWdm1a9cBein4amxYzQl_7GLEcltPExr0wxJxmkPL6DNvVWO5C0PHRIxV2Rn6YQJowkehu4hnVSmB7xERlO-Rx6qdkHFwYUiD8kSDE')"></div>
+<div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+<div class="absolute bottom-lg left-lg right-lg">
+<p class="text-white font-body-lg font-bold mb-xs">Movie Night</p>
+<p class="text-white/60 font-label-sm text-label-sm">8 Devices</p>
+</div>
+<div class="absolute top-md right-md">
+<span class="material-symbols-outlined text-white/40">play_circle</span>
+</div>
+</div>
+<!-- Scene 2 -->
+<div class="flex-shrink-0 w-48 h-56 rounded-3xl overflow-hidden relative group cursor-pointer active:scale-95 transition-transform">
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110" data-alt="A serene, high-end bedroom at night with cool-toned moonlit lighting coming through a window. The room is minimalist with soft linens and a single glowing bedside lamp that emits a very low, warm light. The aesthetic is clean, peaceful, and premium, suggesting a Good Night automation scene." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDfCpPPnIOau7Z1M7jvgN7xGJdt3vaUosuj2g672sqA7gEhfb8omcosmjg__d2qphBthhIQql7O-sxA8dN7s8ofY3vHEFPzkSSEdOtiMcMzrfsNgXYh7n6FWy7zAHoIuzsiwrWZj8aKkeZrEK0RV9X4nbCjC49opQgRiIUjNEcJGDu-XqI523EqvTT4gqDPpZpHPGgu_kSFQaC6ttZHJztJvn5q1tQo8WYNwi0g6q8qec0X_qXmTu3CNxqmEGA9L82erj_llZqIOlI')"></div>
+<div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+<div class="absolute bottom-lg left-lg right-lg">
+<p class="text-white font-body-lg font-bold mb-xs">Good Night</p>
+<p class="text-white/60 font-label-sm text-label-sm">12 Devices</p>
+</div>
+<div class="absolute top-md right-md">
+<span class="material-symbols-outlined text-white/40">play_circle</span>
+</div>
+</div>
+<!-- Scene 3 -->
+<div class="flex-shrink-0 w-48 h-56 rounded-3xl overflow-hidden relative group cursor-pointer active:scale-95 transition-transform">
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110" data-alt="A bright, airy home office filled with morning sunlight. The desk is clean, featuring high-end minimalist technology, and several indoor plants add a touch of green. The lighting is crisp and energizing, with a high-key light mode aesthetic, perfectly depicting a Focus or Morning Work scene." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDQmzhmmlIBGEdX7iMmI6ugkORwxTLjxE65GmB3FXT5tRs4NN5x1fv5A_exuuhOZ62h1E-REpc_Ds3cEtv88rk2CKtRIRfo5wbgQMJmXVt7mFYrVsJPxGJi4k_5KqbVwA9mhBg1lrZ5o2qi9nNA4kxoekMM9mWC8i4uKcUv7tKcr-RB9xLcVtmPEUhB4PHlxhAnSa-3xHer26WqkaUe9zy01IHCBT0MnhhtkphoXp6XJK4eTMGS5OGmR5ku5ckhytMg9u-maKc-dsU')"></div>
+<div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+<div class="absolute bottom-lg left-lg right-lg">
+<p class="text-white font-body-lg font-bold mb-xs">Focus Mode</p>
+<p class="text-white/60 font-label-sm text-label-sm">4 Devices</p>
+</div>
+<div class="absolute top-md right-md">
+<span class="material-symbols-outlined text-white/40">play_circle</span>
+</div>
+</div>
+<!-- Scene 4 (Add New) -->
+<div class="flex-shrink-0 w-48 h-56 rounded-3xl border-2 border-dashed border-outline-variant/40 flex flex-col items-center justify-center text-on-surface-variant hover:border-primary/40 hover:text-primary transition-colors cursor-pointer">
+<span class="material-symbols-outlined text-[32px] mb-sm">add_circle</span>
+<span class="font-label-sm text-label-sm">New Scene</span>
+</div>
+</div>
+</section>
+</main>
+<!-- Bottom Nav Bar (Shared Component Strategy) -->
+<nav class="fixed bottom-0 w-full z-50 rounded-t-xl glass bg-surface/70 border-t border-white/20 shadow-[0px_-4px_20px_rgba(0,0,0,0.05)] flex justify-around items-center px-lg py-md">
+<button class="flex flex-col items-center justify-center text-on-surface-variant/60 hover:opacity-80 transition-opacity active:scale-[0.92]">
+<span class="material-symbols-outlined">home_app_logo</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant/60 hover:opacity-80 transition-opacity active:scale-[0.92]">
+<span class="material-symbols-outlined">grid_view</span>
+</button>
+<button class="flex flex-col items-center justify-center text-primary active-dot hover:opacity-80 transition-opacity active:scale-[0.92]">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">bolt</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant/60 hover:opacity-80 transition-opacity active:scale-[0.92]">
+<span class="material-symbols-outlined">smart_toy</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant/60 hover:opacity-80 transition-opacity active:scale-[0.92]">
+<span class="material-symbols-outlined">person</span>
+</button>
+</nav>
+<script>
+        // Micro-interaction for Rule Toggles
+        document.querySelectorAll('input[type="checkbox"]').forEach(toggle => {
+            toggle.addEventListener('change', (e) => {
+                const card = e.target.closest('.relative');
+                if (!e.target.checked) {
+                    card.classList.add('opacity-60', 'grayscale-[0.5]');
+                } else {
+                    card.classList.remove('opacity-60', 'grayscale-[0.5]');
+                }
+            });
+        });
+
+        // Click interaction for Scene cards
+        document.querySelectorAll('.group.cursor-pointer').forEach(scene => {
+            scene.addEventListener('click', function() {
+                const icon = this.querySelector('.material-symbols-outlined');
+                icon.textContent = 'check_circle';
+                icon.classList.add('text-secondary', 'scale-110');
+                
+                setTimeout(() => {
+                    icon.textContent = 'play_circle';
+                    icon.classList.remove('text-secondary', 'scale-110');
+                }, 2000);
+            });
+        });
+    </script>
+</body></html>

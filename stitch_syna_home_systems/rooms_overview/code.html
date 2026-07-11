@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Lumina - Rooms Overview</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-tertiary-fixed": "#2d1600",
+                    "tertiary": "#894d00",
+                    "surface-dim": "#dad9df",
+                    "inverse-surface": "#2f3034",
+                    "primary-container": "#0070eb",
+                    "on-background": "#1a1b1f",
+                    "on-primary-fixed": "#001a41",
+                    "primary-fixed": "#d8e2ff",
+                    "inverse-on-surface": "#f1f0f5",
+                    "on-tertiary-container": "#fffbff",
+                    "surface-container-low": "#f4f3f8",
+                    "secondary": "#006e28",
+                    "inverse-primary": "#adc6ff",
+                    "on-surface": "#1a1b1f",
+                    "surface": "#faf9fe",
+                    "on-primary-container": "#fefcff",
+                    "on-error": "#ffffff",
+                    "on-error-container": "#93000a",
+                    "outline-variant": "#c1c6d7",
+                    "surface-tint": "#005bc1",
+                    "surface-container": "#eeedf3",
+                    "primary-fixed-dim": "#adc6ff",
+                    "surface-container-lowest": "#ffffff",
+                    "on-secondary": "#ffffff",
+                    "on-secondary-fixed": "#002107",
+                    "on-secondary-fixed-variant": "#00531c",
+                    "background": "#faf9fe",
+                    "secondary-fixed-dim": "#53e16f",
+                    "surface-bright": "#faf9fe",
+                    "secondary-fixed": "#72fe88",
+                    "error": "#ba1a1a",
+                    "tertiary-fixed-dim": "#ffb874",
+                    "on-primary": "#ffffff",
+                    "on-primary-fixed-variant": "#004493",
+                    "on-surface-variant": "#414755",
+                    "on-tertiary": "#ffffff",
+                    "on-secondary-container": "#00732a",
+                    "primary": "#0058bc",
+                    "surface-container-highest": "#e3e2e7",
+                    "surface-container-high": "#e9e7ed",
+                    "secondary-container": "#6ffb85",
+                    "surface-variant": "#e3e2e7",
+                    "on-tertiary-fixed-variant": "#6a3b00",
+                    "error-container": "#ffdad6",
+                    "tertiary-fixed": "#ffdcbf",
+                    "outline": "#717786",
+                    "tertiary-container": "#ac6300"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "xl": "32px",
+                    "lg": "24px",
+                    "md": "16px",
+                    "xs": "4px",
+                    "gutter": "16px",
+                    "unit": "8px",
+                    "sm": "8px",
+                    "container-margin": "24px"
+            },
+            "fontFamily": {
+                    "headline-md": ["Inter"],
+                    "headline-lg": ["Inter"],
+                    "label-sm": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "body-md": ["Inter"],
+                    "label-caps": ["Inter"],
+                    "display-lg": ["Inter"],
+                    "headline-lg-mobile": ["Inter"]
+            },
+            "fontSize": {
+                    "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "0em", "fontWeight": "600"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "label-sm": ["13px", {"lineHeight": "18px", "letterSpacing": "0em", "fontWeight": "500"}],
+                    "body-lg": ["17px", {"lineHeight": "24px", "letterSpacing": "0em", "fontWeight": "400"}],
+                    "body-md": ["15px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "400"}],
+                    "label-caps": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "headline-lg-mobile": ["28px", {"lineHeight": "34px", "letterSpacing": "-0.01em", "fontWeight": "600"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        .room-card { transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
+        .room-card:active { transform: scale(0.98); }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface min-h-screen pb-32">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-surface/70 backdrop-blur-3xl border-b border-white/10 shadow-[0px_4px_20px_rgba(0,0,0,0.05)] flex justify-between items-center px-container-margin py-md">
+<div class="flex items-center gap-md">
+<div class="w-10 h-10 rounded-full bg-surface-container overflow-hidden ring-2 ring-primary/10">
+<img class="w-full h-full object-cover" data-alt="A high-end professional headshot of a person for a user profile, shot in a bright minimalist studio with soft daylight and a clean white background. The style is premium and corporate, with a focus on high-fidelity detail and a calm, approachable expression. The lighting is flattering and even, emphasizing a high-end, clean tech brand aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAMu4neiSvUxVFHOJfDF90hf9ORqpUmSZrZ0REaEWNn3lLPgv8IqlHCzL2lJVaFTmarisK3lEUa3nnfwdIksOQkJZ4QjlavY2T7gOkNW0IvpulUG4VD7N7f4AAe9dMve2HlPYmAN4ryWbHVeaT-bpLDb4o_SZ9iJIKg5cAzvBVtacES22VG8VEs0P9nPYOVP1zfmv_MftAr_7VlUcv0IjGQShSCJr2ymh8DGjS6hqeIPISGZO-kRbN7U-fWbxiPAU4Y8KiTKcsKF6U"/>
+</div>
+<h1 class="font-headline-md text-headline-md font-bold text-on-surface">Lumina</h1>
+</div>
+<button class="w-10 h-10 flex items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-variant/20 transition-colors active:scale-95 duration-200">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+</header>
+<!-- Main Canvas -->
+<main class="pt-24 px-container-margin space-y-md">
+<div class="mb-lg">
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface">Your Rooms</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">12 total devices connected</p>
+</div>
+<!-- Rooms List -->
+<div class="flex flex-col gap-md">
+<!-- Living Room -->
+<div class="room-card relative h-56 rounded-xl overflow-hidden group shadow-[0px_4px_20px_rgba(0,0,0,0.05)]">
+<div class="absolute inset-0 bg-cover bg-center" data-alt="A stunning, high-end minimalist living room featuring a plush cream-colored modular sofa, large floor-to-ceiling windows with soft sheer curtains, and warm wooden accents. The lighting is golden hour soft sunlight filtering through, creating a serene and luxurious atmosphere. The composition is clean and architectural, highlighting premium interior design with a focus on high-quality materials and smart-home integration." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuD9Komqt4og37DGr4XBt7DoGjQkOfTjBMDbbB2ZdN444I3NNi7akMduxo0_P6g28mMnqufsyniySRRImGeVsrOR4K89NhsiwmcBCn9BrtgKY169MG5Wjwdrp64lspeZvN03ea3mfYSleB6zkPnP2GOsIVTz9iwpGp_NcLOk9rfeCcyCeUAqbQMLVZiiaP9p0h0OzYe0Ki03hGhNTrOcRMul9kfv676h3k8HWtkMjXyKq-ugH22h9tt48jritw8zK1uJ_aNJt_F2YTc')"></div>
+<div class="absolute inset-0 bg-black/10 group-hover:bg-black/5 transition-colors"></div>
+<div class="absolute bottom-0 left-0 right-0 p-lg glass-card flex justify-between items-end">
+<div>
+<h3 class="font-headline-md text-headline-md text-on-surface">Living Room</h3>
+<p class="font-label-sm text-label-sm text-on-surface-variant flex items-center gap-xs">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+                            4 Devices Active
+                        </p>
+</div>
+<span class="material-symbols-outlined text-primary">chevron_right</span>
+</div>
+</div>
+<!-- Bedroom -->
+<div class="room-card relative h-56 rounded-xl overflow-hidden group shadow-[0px_4px_20px_rgba(0,0,0,0.05)]">
+<div class="absolute inset-0 bg-cover bg-center" data-alt="A tranquil and elegant master bedroom with a large king-sized bed, soft linen bedding in muted grey tones, and warm ambient lighting from minimalist bedside lamps. The room feels peaceful and sophisticated, with a large abstract painting on the wall and a floor-to-ceiling window looking out into a soft dawn sky. The aesthetic is clean and high-end, emphasizing comfort and invisible technology." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuB5TtnfeGDSW7eEPVB3_-qz4iNXKjFmC6pTffKXxPu_eabJ9MaBkdCL_PAodjsjAINoZaWtr91G6vzQZYBQitQrn-hsxLzFF6cQ7R8qqyuXJe19YwY1diycFTw-iydfd48jxYYy5YnBLl7KB_jW9FhIBK53AjkPWzpuQqlhplCyTgE0JByd8BOeqWItx7CE5oQsQNuP2E_qpF1qcUGkHJX0aiteRoIcvEOi0seyogvN8s30hBg0eyp_pddJG_wRW7mjFHls5WvpJsY')"></div>
+<div class="absolute inset-0 bg-black/10 group-hover:bg-black/5 transition-colors"></div>
+<div class="absolute bottom-0 left-0 right-0 p-lg glass-card flex justify-between items-end">
+<div>
+<h3 class="font-headline-md text-headline-md text-on-surface">Bedroom</h3>
+<p class="font-label-sm text-label-sm text-on-surface-variant flex items-center gap-xs">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+                            2 Devices Active
+                        </p>
+</div>
+<span class="material-symbols-outlined text-primary">chevron_right</span>
+</div>
+</div>
+<!-- Kitchen -->
+<div class="room-card relative h-56 rounded-xl overflow-hidden group shadow-[0px_4px_20px_rgba(0,0,0,0.05)]">
+<div class="absolute inset-0 bg-cover bg-center" data-alt="A modern designer kitchen with sleek matte black cabinetry, marble countertops, and high-end built-in appliances. Soft under-cabinet LED lighting illuminates the space, creating a professional and clean aesthetic. The setting is bright and spacious, with a large island and minimalist bar stools. The overall mood is sophisticated and technologically advanced." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAE8DA6K8SNQufuBrHaLMRNnLVziy_Um4tHfxYG_SbsfyWgO4CaDzhSylsgDEqXDWon3k5N_FHcbU2bcI7-Iab1MHhkxiCAoWhfEJla1wlAXjQuLJG7QV0sJznQTIeUaEmB2A0D7-pknAWA9oo-OBU1Dnv1QRvtNTOlH76g9z4jQLCP717PWs-rCp3PCg96hS1pXSP9J1RSgBugYHZlmVs32dWRFlWhyN9nhtDKlC6NRJEJoUGOgty1CG-jYgmfkk3uyyIW4c2b4kY')"></div>
+<div class="absolute inset-0 bg-black/10 group-hover:bg-black/5 transition-colors"></div>
+<div class="absolute bottom-0 left-0 right-0 p-lg glass-card flex justify-between items-end">
+<div>
+<h3 class="font-headline-md text-headline-md text-on-surface">Kitchen</h3>
+<p class="font-label-sm text-label-sm text-on-surface-variant flex items-center gap-xs">
+<span class="w-2 h-2 rounded-full bg-outline"></span>
+                            0 Devices Active
+                        </p>
+</div>
+<span class="material-symbols-outlined text-primary">chevron_right</span>
+</div>
+</div>
+<!-- Garage -->
+<div class="room-card relative h-56 rounded-xl overflow-hidden group shadow-[0px_4px_20px_rgba(0,0,0,0.05)]">
+<div class="absolute inset-0 bg-cover bg-center" data-alt="A pristine, high-tech garage with polished concrete floors and bright white overhead lighting. A sleek electric vehicle is parked in the center. The walls are organized with minimalist tool cabinets and smart home interfaces. The design is industrial yet premium, emphasizing order, cleanliness, and advanced engineering." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCWe8Q8ogq7ev1CWoODvMJdXWu9h4o0y-LCHPNy3iVzUX6MtAi0YrnovfqQDvHbxiH-rhs8vxeVhZ-SpK3q9hM0QtVYcoAkWJssEv7IiI0WaXAynJn4eBnSfPgqcIoXSvGP17avh02wnx2w956ji6IoFgf0cDpFj1vr6RF0ONlB6M3ZPA-V8PB_UBr5qhvPIOJjElMLXhNz3VAU71ByTPAf1XwxkyoQPn0nRmBCWtTjX6133sgPyWpEEMYevVfj6cwjQxhlGbLOFcc')"></div>
+<div class="absolute inset-0 bg-black/10 group-hover:bg-black/5 transition-colors"></div>
+<div class="absolute bottom-0 left-0 right-0 p-lg glass-card flex justify-between items-end">
+<div>
+<h3 class="font-headline-md text-headline-md text-on-surface">Garage</h3>
+<p class="font-label-sm text-label-sm text-on-surface-variant flex items-center gap-xs">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+                            1 Device Active
+                        </p>
+</div>
+<span class="material-symbols-outlined text-primary">chevron_right</span>
+</div>
+</div>
+<!-- Bathroom -->
+<div class="room-card relative h-56 rounded-xl overflow-hidden group shadow-[0px_4px_20px_rgba(0,0,0,0.05)]">
+<div class="absolute inset-0 bg-cover bg-center" data-alt="A spa-like luxury bathroom featuring a freestanding soaking tub, rainforest shower head, and textured stone walls. The lighting is dim and atmospheric, with warm accent lights highlighting the architectural details. The space feels like a sanctuary, utilizing high-end natural materials and a calm, minimalist design language." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBrlrqHKsLb4PbhmNt_5hK6c7GMgOJaKl743TvMEYXtaE2vyk-t9Qz1MnkRNsruSoAEztrYcfTnVvqtCQamNhqSUV2kXdpfk4HPADriUfwyBpft9BtnXmYPzBDRrTQ3jsRDb3t4rdbzwek7bwExYtDwXtn0YhkWCgI_jB9k-fjO5IsMY3J-J4ecdhMj6WC3GnzaoTLk73mc0B8yJcqsfERbZHNWBZCWiGGixnpPJ0tMzvIwoITm5Dgyyvp5UIKyNGLn409u_glRCCw')"></div>
+<div class="absolute inset-0 bg-black/10 group-hover:bg-black/5 transition-colors"></div>
+<div class="absolute bottom-0 left-0 right-0 p-lg glass-card flex justify-between items-end">
+<div>
+<h3 class="font-headline-md text-headline-md text-on-surface">Bathroom</h3>
+<p class="font-label-sm text-label-sm text-on-surface-variant flex items-center gap-xs">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+                            2 Devices Active
+                        </p>
+</div>
+<span class="material-symbols-outlined text-primary">chevron_right</span>
+</div>
+</div>
+<!-- Garden -->
+<div class="room-card relative h-56 rounded-xl overflow-hidden group shadow-[0px_4px_20px_rgba(0,0,0,0.05)]">
+<div class="absolute inset-0 bg-cover bg-center" data-alt="A modern landscaped garden at twilight, with subtle smart lighting illuminating pathways and architectural plants. A wooden deck area with minimalist outdoor furniture is the focal point. The air feels cool and the atmosphere is serene, showing a perfect blend of nature and high-end outdoor technology for a premium smart home experience." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDh8LTLMVoojyLj9YZLhEdNsXyK5TmeWOgmNg5Vq_BRak8xYGxMdDtLJKCfMAYDd3Kps1tYCSoaIZDbyu4s39YnF7MGtNSM444O55B-tkt-R2LFfgabz8brNXbujLXGjdDyl5nGHe0ENwINPlW0suKHjvhdHxyrFhgb0kKGnwj-RkTWbay_G5c2beo9FfWOURrOD2p6hErblLyioSdk-HQlc8XqHTj6J26_bqiLL-vy8-0xSGVP_0b3BUSMBLSWULYFDdxP7pYGSGA')"></div>
+<div class="absolute inset-0 bg-black/10 group-hover:bg-black/5 transition-colors"></div>
+<div class="absolute bottom-0 left-0 right-0 p-lg glass-card flex justify-between items-end">
+<div>
+<h3 class="font-headline-md text-headline-md text-on-surface">Garden</h3>
+<p class="font-label-sm text-label-sm text-on-surface-variant flex items-center gap-xs">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+                            3 Devices Active
+                        </p>
+</div>
+<span class="material-symbols-outlined text-primary">chevron_right</span>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 w-full z-50 rounded-t-xl bg-surface/70 backdrop-blur-3xl border-t border-white/20 shadow-[0px_-4px_20px_rgba(0,0,0,0.05)] flex justify-around items-center px-lg py-md">
+<div class="flex flex-col items-center justify-center text-on-surface-variant/60 hover:opacity-80 transition-opacity active:scale-[0.92] duration-200 cursor-pointer">
+<span class="material-symbols-outlined" data-icon="home_app_fill">home_app_logo</span>
+</div>
+<div class="flex flex-col items-center justify-center text-primary after:content-[''] after:w-1 after:h-1 after:bg-primary after:rounded-full after:mt-1 hover:opacity-80 transition-opacity active:scale-[0.92] duration-200 cursor-pointer">
+<span class="material-symbols-outlined" data-icon="grid_view" style="font-variation-settings: 'FILL' 1;">grid_view</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant/60 hover:opacity-80 transition-opacity active:scale-[0.92] duration-200 cursor-pointer">
+<span class="material-symbols-outlined" data-icon="smart_toy">smart_toy</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant/60 hover:opacity-80 transition-opacity active:scale-[0.92] duration-200 cursor-pointer">
+<span class="material-symbols-outlined" data-icon="bolt">bolt</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant/60 hover:opacity-80 transition-opacity active:scale-[0.92] duration-200 cursor-pointer">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+</div>
+</nav>
+<script>
+        // Micro-interactions for room cards
+        document.querySelectorAll('.room-card').forEach(card => {
+            card.addEventListener('click', () => {
+                // Future navigation logic or detail view opening
+                console.log('Room selected');
+            });
+        });
+    </script>
+</body></html>

@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Lumina - User Profile</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+        .dark .glass-card {
+            background: rgba(47, 48, 52, 0.7);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .active-dot::after {
+            content: '';
+            width: 4px;
+            height: 4px;
+            background-color: currentColor;
+            border-radius: 50%;
+            margin-top: 4px;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-tertiary-fixed": "#2d1600",
+                      "tertiary": "#894d00",
+                      "surface-dim": "#dad9df",
+                      "inverse-surface": "#2f3034",
+                      "primary-container": "#0070eb",
+                      "on-background": "#1a1b1f",
+                      "on-primary-fixed": "#001a41",
+                      "primary-fixed": "#d8e2ff",
+                      "inverse-on-surface": "#f1f0f5",
+                      "on-tertiary-container": "#fffbff",
+                      "surface-container-low": "#f4f3f8",
+                      "secondary": "#006e28",
+                      "inverse-primary": "#adc6ff",
+                      "on-surface": "#1a1b1f",
+                      "surface": "#faf9fe",
+                      "on-primary-container": "#fefcff",
+                      "on-error": "#ffffff",
+                      "on-error-container": "#93000a",
+                      "outline-variant": "#c1c6d7",
+                      "surface-tint": "#005bc1",
+                      "surface-container": "#eeedf3",
+                      "primary-fixed-dim": "#adc6ff",
+                      "surface-container-lowest": "#ffffff",
+                      "on-secondary": "#ffffff",
+                      "on-secondary-fixed": "#002107",
+                      "on-secondary-fixed-variant": "#00531c",
+                      "background": "#faf9fe",
+                      "secondary-fixed-dim": "#53e16f",
+                      "surface-bright": "#faf9fe",
+                      "secondary-fixed": "#72fe88",
+                      "error": "#ba1a1a",
+                      "tertiary-fixed-dim": "#ffb874",
+                      "on-primary": "#ffffff",
+                      "on-primary-fixed-variant": "#004493",
+                      "on-surface-variant": "#414755",
+                      "on-tertiary": "#ffffff",
+                      "on-secondary-container": "#00732a",
+                      "primary": "#0058bc",
+                      "surface-container-highest": "#e3e2e7",
+                      "surface-container-high": "#e9e7ed",
+                      "secondary-container": "#6ffb85",
+                      "surface-variant": "#e3e2e7",
+                      "on-tertiary-fixed-variant": "#6a3b00",
+                      "error-container": "#ffdad6",
+                      "tertiary-fixed": "#ffdcbf",
+                      "outline": "#717786",
+                      "tertiary-container": "#ac6300"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "xl": "32px",
+                      "lg": "24px",
+                      "md": "16px",
+                      "xs": "4px",
+                      "gutter": "16px",
+                      "unit": "8px",
+                      "sm": "8px",
+                      "container-margin": "24px"
+              },
+              "fontFamily": {
+                      "headline-md": ["Inter"],
+                      "headline-lg": ["Inter"],
+                      "label-sm": ["Inter"],
+                      "body-lg": ["Inter"],
+                      "body-md": ["Inter"],
+                      "label-caps": ["Inter"],
+                      "display-lg": ["Inter"],
+                      "headline-lg-mobile": ["Inter"]
+              },
+              "fontSize": {
+                      "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "0em", "fontWeight": "600"}],
+                      "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                      "label-sm": ["13px", {"lineHeight": "18px", "letterSpacing": "0em", "fontWeight": "500"}],
+                      "body-lg": ["17px", {"lineHeight": "24px", "letterSpacing": "0em", "fontWeight": "400"}],
+                      "body-md": ["15px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "400"}],
+                      "label-caps": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                      "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                      "headline-lg-mobile": ["28px", {"lineHeight": "34px", "letterSpacing": "-0.01em", "fontWeight": "600"}]
+              }
+            },
+          },
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background min-h-screen pb-32">
+<!-- Top App Bar (From Shared Components) -->
+<header class="fixed top-0 w-full z-50 bg-surface/70 backdrop-blur-3xl border-b border-white/10 shadow-[0px_4px_20px_rgba(0,0,0,0.05)] flex justify-between items-center px-container-margin py-md">
+<div class="flex items-center gap-md">
+<div class="w-10 h-10 rounded-full overflow-hidden border-2 border-primary/20">
+<img class="w-full h-full object-cover" data-alt="A professional studio portrait of a friendly man named Alex, wearing a minimalist black turtleneck, set against a soft grey background. The lighting is high-end and diffused, reflecting a clean and modern tech aesthetic consistent with a premium smart home application." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA9WM4AUyMyhuBpGcEyD-6nrPHfo3zSFI_PLTXzEU8qCCQbwbAyQjFG2cJUU22LIr9FgtScimGHoAc6tMKJtFqHyXJjLyOdyN2vWeq0bymdQ5JmZfCqc7H_jdHFwZ9OcB-L9nKqc8c-pGIzdm0nEX2rkTPXYtNwbRzWqLnRaHDX8gU7G6O2QDI_AtXzrqx0qH_RWbon8ob48Dz3CDy18b0C3FpHoge0Lk_zfYC-GNKUhSAUoma0jL-RYiB4UYig62fc3Iq6pPQeTeA"/>
+</div>
+<span class="font-headline-md text-headline-md font-bold text-on-surface">Lumina</span>
+</div>
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-variant/20 transition-colors active:scale-95 duration-200">
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="notifications">notifications</span>
+</button>
+</header>
+<main class="pt-24 px-container-margin max-w-2xl mx-auto space-y-xl">
+<!-- Profile Header Section -->
+<section class="flex flex-col items-center text-center space-y-md py-lg">
+<div class="relative">
+<div class="w-32 h-32 rounded-full overflow-hidden border-4 border-white shadow-lg">
+<img class="w-full h-full object-cover" data-alt="A close-up, high-resolution portrait of Alex, a tech-savvy homeowner, looking directly at the camera with a warm smile. The image has a shallow depth of field, highlighting crisp details in his features while the background is a blurred, airy, modern architectural space with soft natural light. The overall mood is approachable, trustworthy, and premium." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAtpoyhYyftAfOg__44uhBabqOmtJN6_wKfmXNZabqBDfvK3uN8bTmf-bE6SGv7RqkT97_zYz8eAifIBgHhZ7-yCaysnnYLo4nx2cK8HARZhPkG2i_IzVLPtdD7BUScnst7QpRR-pTMgXdrudha4CFuJP5qPcULqTQbitkUahhDru2fq-I_PyjGuy5NAx1uX9y-y5nhdP4kSu6KjC78tKnvO1GjzyptxYYx2H5xvVBwrKt04lQBjh-r7zJt5DHkmfA7PoPgQ6uMUr0"/>
+</div>
+<div class="absolute bottom-0 right-0 bg-primary text-on-primary text-[10px] px-sm py-0.5 rounded-full font-bold uppercase tracking-wider shadow-md">
+                    PRO
+                </div>
+</div>
+<div>
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface">Alex</h1>
+<p class="font-body-md text-on-surface-variant">alex.home@lumina.io</p>
+<div class="mt-xs inline-flex items-center gap-xs bg-secondary-container text-on-secondary-container px-md py-xs rounded-full">
+<span class="material-symbols-outlined text-[16px]" data-icon="verified_user">verified_user</span>
+<span class="font-label-sm text-label-sm">Home Member</span>
+</div>
+</div>
+</section>
+<!-- Bento Group: Members -->
+<section class="space-y-md">
+<div class="flex justify-between items-center">
+<h2 class="font-label-caps text-label-caps text-on-surface-variant">Home Members</h2>
+<button class="text-primary font-label-sm text-label-sm hover:underline">Manage</button>
+</div>
+<div class="grid grid-cols-1 gap-md">
+<div class="glass-card p-md rounded-xl flex items-center justify-between transition-transform active:scale-[0.98]">
+<div class="flex items-center gap-md">
+<div class="flex -space-x-3">
+<div class="w-10 h-10 rounded-full border-2 border-white overflow-hidden bg-surface-container">
+<img class="w-full h-full object-cover" data-alt="Portrait of a young woman with a kind expression, softly lit in a modern interior setting. Her style is minimalist and clean, matching the premium Lumina UI aesthetic with a focus on high-quality skin tones and professional photography." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA8FId5vVqHyTBocxa9QWyXcMqwouLMVJQs1YDq559xDYMKiXI_2dFntrGNPRVmbADZuK57OypZoEWcwijedPBJlLCtP12VsF1SmAgIl1yE6kSshNZdT5KPD0fGB56BEEVMDlsstC5JnlcKaLxbN1bGzTNMa1LIoRUE_Lvsi4_irWU-PgKGoZM9w9Ys0rlncmGHoCBjd3dbP_iomCQCgszwIb3ky_UE3skNYJpOHMriY5bv2PkItAiOhfQjISNSpBC1OjHDcchG0a4"/>
+</div>
+<div class="w-10 h-10 rounded-full border-2 border-white overflow-hidden bg-surface-container">
+<img class="w-full h-full object-cover" data-alt="Portrait of a mature man with glasses, smiling warmly. He is set against a clean, out-of-focus home environment with bright, natural lighting. The image style is polished and sophisticated, representing a diverse family member in a high-end smart home context." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAjakXfoZxsMNz-BohkV44PHrO5EU78ZFCgvsSi_ewIjkTI_l3iDp4mF04NCsQff9l8yfb6eyLR56s6JICjbxV87puu9MgFp62OeXuumBiFtWmjKgRAULDU99vPVzmNRr_l3rduXrdOJcsKXlR_fo2712wcAgX1U8arLC1-XV2qyCs6Sl-xskIr0B-9IjuOLP2XtE5Pt_OVTUdzgQOpOfgN_WdHTnomm8jQHm9lPSDd8Yp6YvjHWBWx04CWxaAfCrEQC_8CrGRDmNs"/>
+</div>
+<div class="w-10 h-10 rounded-full border-2 border-white bg-surface-container-highest flex items-center justify-center text-on-surface-variant font-label-sm">
+                                +2
+                            </div>
+</div>
+<div>
+<p class="font-body-md text-on-surface font-semibold">4 Members</p>
+<p class="font-label-sm text-on-surface-variant">Full Control Access</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-outline" data-icon="chevron_right">chevron_right</span>
+</div>
+</div>
+</section>
+<!-- Settings List -->
+<section class="space-y-sm">
+<h2 class="font-label-caps text-label-caps text-on-surface-variant px-xs">Preferences</h2>
+<div class="glass-card rounded-xl overflow-hidden">
+<!-- Language -->
+<button class="w-full flex items-center justify-between p-md hover:bg-surface-variant/10 transition-colors border-b border-surface-variant/20">
+<div class="flex items-center gap-md text-on-surface">
+<span class="material-symbols-outlined" data-icon="language">language</span>
+<span class="font-body-md">Language</span>
+</div>
+<div class="flex items-center gap-xs">
+<span class="font-label-sm text-on-surface-variant">English (US)</span>
+<span class="material-symbols-outlined text-outline" data-icon="chevron_right">chevron_right</span>
+</div>
+</button>
+<!-- Theme Toggle -->
+<div class="w-full flex items-center justify-between p-md border-b border-surface-variant/20">
+<div class="flex items-center gap-md text-on-surface">
+<span class="material-symbols-outlined" data-icon="dark_mode">dark_mode</span>
+<span class="font-body-md">Theme</span>
+</div>
+<button class="relative w-12 h-7 bg-surface-container-highest rounded-full transition-colors duration-300 focus:outline-none" id="theme-toggle">
+<div class="absolute left-1 top-1 w-5 h-5 bg-white rounded-full transition-transform duration-300 transform shadow-sm"></div>
+</button>
+</div>
+<!-- Privacy -->
+<button class="w-full flex items-center justify-between p-md hover:bg-surface-variant/10 transition-colors border-b border-surface-variant/20">
+<div class="flex items-center gap-md text-on-surface">
+<span class="material-symbols-outlined" data-icon="lock">lock</span>
+<span class="font-body-md">Privacy</span>
+</div>
+<span class="material-symbols-outlined text-outline" data-icon="chevron_right">chevron_right</span>
+</button>
+<!-- Security -->
+<button class="w-full flex items-center justify-between p-md hover:bg-surface-variant/10 transition-colors">
+<div class="flex items-center gap-md text-on-surface">
+<span class="material-symbols-outlined" data-icon="security">security</span>
+<span class="font-body-md">Security</span>
+</div>
+<span class="material-symbols-outlined text-outline" data-icon="chevron_right">chevron_right</span>
+</button>
+</div>
+</section>
+<!-- Log Out Action -->
+<section class="pt-lg">
+<button class="w-full py-md flex items-center justify-center gap-sm text-error font-semibold hover:bg-error/5 rounded-xl transition-colors active:scale-[0.98]">
+<span class="material-symbols-outlined" data-icon="logout">logout</span>
+<span class="font-body-md">Log Out</span>
+</button>
+<p class="text-center font-label-sm text-on-surface-variant/40 mt-md">Lumina App Version 2.4.0 (Build 892)</p>
+</section>
+</main>
+<!-- Bottom Navigation Bar (From Shared Components) -->
+<nav class="fixed bottom-0 w-full z-50 rounded-t-xl bg-surface/70 backdrop-blur-3xl border-t border-white/20 shadow-[0px_-4px_20px_rgba(0,0,0,0.05)] flex justify-around items-center px-lg py-md">
+<button class="flex flex-col items-center justify-center text-on-surface-variant/60 hover:opacity-80 transition-all active:scale-[0.92]">
+<span class="material-symbols-outlined" data-icon="home_app_fill">home_app_logo</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant/60 hover:opacity-80 transition-all active:scale-[0.92]">
+<span class="material-symbols-outlined" data-icon="grid_view">grid_view</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant/60 hover:opacity-80 transition-all active:scale-[0.92]">
+<span class="material-symbols-outlined" data-icon="smart_toy">smart_toy</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant/60 hover:opacity-80 transition-all active:scale-[0.92]">
+<span class="material-symbols-outlined" data-icon="bolt">bolt</span>
+</button>
+<button class="flex flex-col items-center justify-center text-primary active-dot hover:opacity-80 transition-all active:scale-[0.92]">
+<span class="material-symbols-outlined" data-icon="person" style="font-variation-settings: 'FILL' 1;">person</span>
+</button>
+</nav>
+<script>
+        // Micro-interaction for Theme Toggle
+        const themeToggle = document.getElementById('theme-toggle');
+        const themeThumb = themeToggle.querySelector('div');
+        let isDarkMode = false;
+
+        themeToggle.addEventListener('click', () => {
+            isDarkMode = !isDarkMode;
+            if (isDarkMode) {
+                themeThumb.style.transform = 'translateX(20px)';
+                themeToggle.classList.replace('bg-surface-container-highest', 'bg-secondary');
+                document.documentElement.classList.add('dark');
+            } else {
+                themeThumb.style.transform = 'translateX(0px)';
+                themeToggle.classList.replace('bg-secondary', 'bg-surface-container-highest');
+                document.documentElement.classList.remove('dark');
+            }
+        });
+
+        // Add haptic-like feel to buttons
+        document.querySelectorAll('button').forEach(btn => {
+            btn.addEventListener('touchstart', () => {
+                btn.style.transform = 'scale(0.97)';
+            });
+            btn.addEventListener('touchend', () => {
+                btn.style.transform = 'scale(1)';
+            });
+        });
+    </script>
+</body></html>

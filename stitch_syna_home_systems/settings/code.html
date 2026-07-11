@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Lumina - Settings</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-tertiary-fixed": "#2d1600",
+                    "tertiary": "#894d00",
+                    "surface-dim": "#dad9df",
+                    "inverse-surface": "#2f3034",
+                    "primary-container": "#0070eb",
+                    "on-background": "#1a1b1f",
+                    "on-primary-fixed": "#001a41",
+                    "primary-fixed": "#d8e2ff",
+                    "inverse-on-surface": "#f1f0f5",
+                    "on-tertiary-container": "#fffbff",
+                    "surface-container-low": "#f4f3f8",
+                    "secondary": "#006e28",
+                    "inverse-primary": "#adc6ff",
+                    "on-surface": "#1a1b1f",
+                    "surface": "#faf9fe",
+                    "on-primary-container": "#fefcff",
+                    "on-error": "#ffffff",
+                    "on-error-container": "#93000a",
+                    "outline-variant": "#c1c6d7",
+                    "surface-tint": "#005bc1",
+                    "surface-container": "#eeedf3",
+                    "primary-fixed-dim": "#adc6ff",
+                    "surface-container-lowest": "#ffffff",
+                    "on-secondary": "#ffffff",
+                    "on-secondary-fixed": "#002107",
+                    "on-secondary-fixed-variant": "#00531c",
+                    "background": "#faf9fe",
+                    "secondary-fixed-dim": "#53e16f",
+                    "surface-bright": "#faf9fe",
+                    "secondary-fixed": "#72fe88",
+                    "error": "#ba1a1a",
+                    "tertiary-fixed-dim": "#ffb874",
+                    "on-primary": "#ffffff",
+                    "on-primary-fixed-variant": "#004493",
+                    "on-surface-variant": "#414755",
+                    "on-tertiary": "#ffffff",
+                    "on-secondary-container": "#00732a",
+                    "primary": "#0058bc",
+                    "surface-container-highest": "#e3e2e7",
+                    "surface-container-high": "#e9e7ed",
+                    "secondary-container": "#6ffb85",
+                    "surface-variant": "#e3e2e7",
+                    "on-tertiary-fixed-variant": "#6a3b00",
+                    "error-container": "#ffdad6",
+                    "tertiary-fixed": "#ffdcbf",
+                    "outline": "#717786",
+                    "tertiary-container": "#ac6300"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "xl": "32px",
+                    "lg": "24px",
+                    "md": "16px",
+                    "xs": "4px",
+                    "gutter": "16px",
+                    "unit": "8px",
+                    "sm": "8px",
+                    "container-margin": "24px"
+            },
+            "fontFamily": {
+                    "headline-md": ["Inter"],
+                    "headline-lg": ["Inter"],
+                    "label-sm": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "body-md": ["Inter"],
+                    "label-caps": ["Inter"],
+                    "display-lg": ["Inter"],
+                    "headline-lg-mobile": ["Inter"]
+            },
+            "fontSize": {
+                    "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "0em", "fontWeight": "600"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "label-sm": ["13px", {"lineHeight": "18px", "letterSpacing": "0em", "fontWeight": "500"}],
+                    "body-lg": ["17px", {"lineHeight": "24px", "letterSpacing": "0em", "fontWeight": "400"}],
+                    "body-md": ["15px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "400"}],
+                    "label-caps": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "headline-lg-mobile": ["28px", {"lineHeight": "34px", "letterSpacing": "-0.01em", "fontWeight": "600"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
+        .glass-panel { backdrop-filter: blur(24px); }
+        .tap-scale { transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
+        .tap-scale:active { transform: scale(0.97); }
+        .custom-scrollbar::-webkit-scrollbar { width: 0px; }
+        .status-dot { width: 8px; height: 8px; border-radius: 50%; }
+        .active-pill::after { content: ''; position: absolute; bottom: -8px; width: 4px; height: 4px; background-color: currentColor; border-radius: 50%; left: 50%; transform: translateX(-50%); }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface custom-scrollbar">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-surface/70 backdrop-blur-3xl border-b border-white/10 shadow-[0px_4px_20px_rgba(0,0,0,0.05)]">
+<div class="flex justify-between items-center px-container-margin py-md">
+<div class="flex items-center gap-md">
+<div class="w-10 h-10 rounded-full bg-surface-container-high overflow-hidden border border-outline-variant/30 transition-transform active:scale-95 duration-200">
+<img class="w-full h-full object-cover" data-alt="A sophisticated close-up portrait of a professional woman with a calm expression, softly lit by cool window light. She is wearing a modern, minimalist grey silk shirt against a blurred architectural background of a smart home interior. The image has a clean, high-key aesthetic with soft shadows and premium clarity, perfectly reflecting the brand's luxury smart home identity." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCQ4A0v3e9gS5iSAWZaZme6tYZQoK-edqHg7vLFufaBjXpqqNLQ8GNzTZT-nBA5LzOf7yiwJtU15BeswYvcBwmuPRXoDoQEGMzQz8TTi3r1uvLwtjUMpo-pW1mGcp9gpVR2lv-mvPhmyKkky0BaPYdEK-TarlwNU3BFGMUlDqlC38ATjxC3g31dBoNCINfb50lJQwwTq5uJdIBSITPNHtIdYAaB3_wO52cJSo4yT5MT0228Hig0KtiIP_YIDaMT39zfRDirEFuNyGw"/>
+</div>
+<h1 class="font-headline-md text-headline-md font-bold text-on-surface">Lumina</h1>
+</div>
+<div class="flex gap-md">
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-variant/20 transition-colors active:scale-95 duration-200">
+<span class="material-symbols-outlined text-primary" data-icon="notifications">notifications</span>
+</button>
+</div>
+</div>
+</header>
+<main class="pt-24 pb-32 px-container-margin max-w-2xl mx-auto">
+<!-- Profile Header Section -->
+<section class="mb-xl animate-in fade-in slide-in-from-bottom-4 duration-700">
+<div class="font-headline-lg-mobile text-headline-lg-mobile mb-xs md:font-headline-lg md:text-headline-lg">Settings</div>
+<p class="font-body-md text-body-md text-on-surface-variant">Manage your smart environment and preferences</p>
+</section>
+<!-- Categories List -->
+<div class="space-y-lg">
+<!-- Appearance Category -->
+<div class="space-y-sm">
+<h3 class="font-label-caps text-label-caps text-on-surface-variant px-sm">APPEARANCE</h3>
+<div class="bg-surface-container-lowest rounded-xl overflow-hidden shadow-[0px_4px_20px_rgba(0,0,0,0.05)] border border-outline-variant/10">
+<div class="group flex items-center justify-between p-md hover:bg-surface-variant/10 transition-colors cursor-pointer tap-scale">
+<div class="flex items-center gap-md">
+<span class="material-symbols-outlined text-primary" data-icon="palette">palette</span>
+<div class="flex flex-col">
+<span class="font-body-md text-body-md font-medium">Theme Mode</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">System default</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant/40" data-icon="chevron_right">chevron_right</span>
+</div>
+</div>
+</div>
+<!-- Notifications Category -->
+<div class="space-y-sm">
+<h3 class="font-label-caps text-label-caps text-on-surface-variant px-sm">NOTIFICATIONS</h3>
+<div class="bg-surface-container-lowest rounded-xl overflow-hidden shadow-[0px_4px_20px_rgba(0,0,0,0.05)] border border-outline-variant/10">
+<div class="group flex items-center justify-between p-md hover:bg-surface-variant/10 transition-colors border-b border-outline-variant/10 cursor-pointer tap-scale">
+<div class="flex items-center gap-md">
+<span class="material-symbols-outlined text-primary" data-icon="notifications_active">notifications_active</span>
+<div class="flex flex-col">
+<span class="font-body-md text-body-md font-medium">Priority Alerts</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Active for security events</span>
+</div>
+</div>
+<div class="flex items-center gap-sm">
+<div class="w-10 h-6 bg-secondary rounded-full relative p-1 flex items-center justify-end transition-colors cursor-pointer">
+<div class="w-4 h-4 bg-white rounded-full shadow-sm"></div>
+</div>
+</div>
+</div>
+<div class="group flex items-center justify-between p-md hover:bg-surface-variant/10 transition-colors cursor-pointer tap-scale">
+<div class="flex items-center gap-md">
+<span class="material-symbols-outlined text-primary" data-icon="history">history</span>
+<div class="flex flex-col">
+<span class="font-body-md text-body-md font-medium">Activity Logs</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">View device history</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant/40" data-icon="chevron_right">chevron_right</span>
+</div>
+</div>
+</div>
+<!-- Connectivity Category -->
+<div class="space-y-sm">
+<h3 class="font-label-caps text-label-caps text-on-surface-variant px-sm">CONNECTIVITY</h3>
+<div class="bg-surface-container-lowest rounded-xl overflow-hidden shadow-[0px_4px_20px_rgba(0,0,0,0.05)] border border-outline-variant/10">
+<div class="group flex items-center justify-between p-md hover:bg-surface-variant/10 transition-colors cursor-pointer tap-scale">
+<div class="flex items-center gap-md">
+<span class="material-symbols-outlined text-primary" data-icon="keyboard_voice">keyboard_voice</span>
+<div class="flex flex-col">
+<span class="font-body-md text-body-md font-medium">Voice Assistant</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Linked: Alexa, HomeKit</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant/40" data-icon="chevron_right">chevron_right</span>
+</div>
+</div>
+</div>
+<!-- Security Category -->
+<div class="space-y-sm">
+<h3 class="font-label-caps text-label-caps text-on-surface-variant px-sm">SECURITY</h3>
+<div class="bg-surface-container-lowest rounded-xl overflow-hidden shadow-[0px_4px_20px_rgba(0,0,0,0.05)] border border-outline-variant/10">
+<div class="group flex items-center justify-between p-md hover:bg-surface-variant/10 transition-colors border-b border-outline-variant/10 cursor-pointer tap-scale">
+<div class="flex items-center gap-md">
+<span class="material-symbols-outlined text-primary" data-icon="fingerprint">fingerprint</span>
+<div class="flex flex-col">
+<span class="font-body-md text-body-md font-medium">Biometrics</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">FaceID/TouchID protection</span>
+</div>
+</div>
+<div class="w-10 h-6 bg-secondary rounded-full relative p-1 flex items-center justify-end transition-colors">
+<div class="w-4 h-4 bg-white rounded-full shadow-sm"></div>
+</div>
+</div>
+<div class="group flex items-center justify-between p-md hover:bg-surface-variant/10 transition-colors cursor-pointer tap-scale">
+<div class="flex items-center gap-md">
+<span class="material-symbols-outlined text-primary" data-icon="cloud_sync">cloud_sync</span>
+<div class="flex flex-col">
+<span class="font-body-md text-body-md font-medium">Backup</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Cloud sync enabled</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant/40" data-icon="chevron_right">chevron_right</span>
+</div>
+</div>
+</div>
+<!-- System Category -->
+<div class="space-y-sm">
+<h3 class="font-label-caps text-label-caps text-on-surface-variant px-sm">SYSTEM</h3>
+<div class="bg-surface-container-lowest rounded-xl overflow-hidden shadow-[0px_4px_20px_rgba(0,0,0,0.05)] border border-outline-variant/10">
+<div class="group flex items-center justify-between p-md hover:bg-surface-variant/10 transition-colors cursor-pointer tap-scale">
+<div class="flex items-center gap-md">
+<span class="material-symbols-outlined text-primary" data-icon="info">info</span>
+<div class="flex flex-col">
+<span class="font-body-md text-body-md font-medium">About</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Version 2.4.0</span>
+</div>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant group-hover:text-primary transition-colors">Up to date</span>
+</div>
+</div>
+</div>
+<!-- Sign Out Button -->
+<button class="w-full py-md px-lg rounded-xl bg-error-container text-on-error-container font-body-md font-semibold text-center tap-scale transition-colors hover:opacity-90 mt-xl">
+                Sign Out
+            </button>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 w-full z-50 rounded-t-xl bg-surface/70 backdrop-blur-3xl border-t border-white/20 shadow-[0px_-4px_20px_rgba(0,0,0,0.05)]">
+<div class="flex justify-around items-center px-lg py-md">
+<a class="flex flex-col items-center justify-center text-on-surface-variant/60 hover:opacity-80 transition-all duration-200 active:scale-[0.92]" href="#">
+<span class="material-symbols-outlined" data-icon="home_app_fill">home_app_logo</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant/60 hover:opacity-80 transition-all duration-200 active:scale-[0.92]" href="#">
+<span class="material-symbols-outlined" data-icon="grid_view">grid_view</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant/60 hover:opacity-80 transition-all duration-200 active:scale-[0.92]" href="#">
+<span class="material-symbols-outlined" data-icon="smart_toy">smart_toy</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant/60 hover:opacity-80 transition-all duration-200 active:scale-[0.92]" href="#">
+<span class="material-symbols-outlined" data-icon="bolt">bolt</span>
+</a>
+<a class="flex flex-col items-center justify-center text-primary active-pill relative tap-scale" href="#">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+</a>
+</div>
+</nav>
+<script>
+        // Micro-interaction for toggles
+        document.querySelectorAll('.bg-secondary').forEach(toggle => {
+            toggle.addEventListener('click', function() {
+                const isOff = this.classList.contains('bg-on-surface-variant/20');
+                if (isOff) {
+                    this.classList.replace('bg-on-surface-variant/20', 'bg-secondary');
+                    this.classList.replace('justify-start', 'justify-end');
+                } else {
+                    this.classList.replace('bg-secondary', 'bg-on-surface-variant/20');
+                    this.classList.replace('justify-end', 'justify-start');
+                }
+            });
+        });
+
+        // Scroll shadow logic for TopAppBar
+        window.addEventListener('scroll', () => {
+            const header = document.querySelector('header');
+            if (window.scrollY > 10) {
+                header.classList.add('shadow-md');
+            } else {
+                header.classList.remove('shadow-md');
+            }
+        });
+    </script>
+</body></html>

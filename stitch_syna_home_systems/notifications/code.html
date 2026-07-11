@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Lumina - Notifications</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-tertiary-fixed": "#2d1600",
+                    "tertiary": "#894d00",
+                    "surface-dim": "#dad9df",
+                    "inverse-surface": "#2f3034",
+                    "primary-container": "#0070eb",
+                    "on-background": "#1a1b1f",
+                    "on-primary-fixed": "#001a41",
+                    "primary-fixed": "#d8e2ff",
+                    "inverse-on-surface": "#f1f0f5",
+                    "on-tertiary-container": "#fffbff",
+                    "surface-container-low": "#f4f3f8",
+                    "secondary": "#006e28",
+                    "inverse-primary": "#adc6ff",
+                    "on-surface": "#1a1b1f",
+                    "surface": "#faf9fe",
+                    "on-primary-container": "#fefcff",
+                    "on-error": "#ffffff",
+                    "on-error-container": "#93000a",
+                    "outline-variant": "#c1c6d7",
+                    "surface-tint": "#005bc1",
+                    "surface-container": "#eeedf3",
+                    "primary-fixed-dim": "#adc6ff",
+                    "surface-container-lowest": "#ffffff",
+                    "on-secondary": "#ffffff",
+                    "on-secondary-fixed": "#002107",
+                    "on-secondary-fixed-variant": "#00531c",
+                    "background": "#faf9fe",
+                    "secondary-fixed-dim": "#53e16f",
+                    "surface-bright": "#faf9fe",
+                    "secondary-fixed": "#72fe88",
+                    "error": "#ba1a1a",
+                    "tertiary-fixed-dim": "#ffb874",
+                    "on-primary": "#ffffff",
+                    "on-primary-fixed-variant": "#004493",
+                    "on-surface-variant": "#414755",
+                    "on-tertiary": "#ffffff",
+                    "on-secondary-container": "#00732a",
+                    "primary": "#0058bc",
+                    "surface-container-highest": "#e3e2e7",
+                    "surface-container-high": "#e9e7ed",
+                    "secondary-container": "#6ffb85",
+                    "surface-variant": "#e3e2e7",
+                    "on-tertiary-fixed-variant": "#6a3b00",
+                    "error-container": "#ffdad6",
+                    "tertiary-fixed": "#ffdcbf",
+                    "outline": "#717786",
+                    "tertiary-container": "#ac6300"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "xl": "32px",
+                    "lg": "24px",
+                    "md": "16px",
+                    "xs": "4px",
+                    "gutter": "16px",
+                    "unit": "8px",
+                    "sm": "8px",
+                    "container-margin": "24px"
+            },
+            "fontFamily": {
+                    "headline-md": ["Inter"],
+                    "headline-lg": ["Inter"],
+                    "label-sm": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "body-md": ["Inter"],
+                    "label-caps": ["Inter"],
+                    "display-lg": ["Inter"],
+                    "headline-lg-mobile": ["Inter"]
+            },
+            "fontSize": {
+                    "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "0em", "fontWeight": "600"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "label-sm": ["13px", {"lineHeight": "18px", "letterSpacing": "0em", "fontWeight": "500"}],
+                    "body-lg": ["17px", {"lineHeight": "24px", "letterSpacing": "0em", "fontWeight": "400"}],
+                    "body-md": ["15px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "400"}],
+                    "label-caps": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "headline-lg-mobile": ["28px", {"lineHeight": "34px", "letterSpacing": "-0.01em", "fontWeight": "600"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            line-height: 1;
+            text-transform: none;
+            letter-spacing: normal;
+            word-wrap: normal;
+            white-space: nowrap;
+            direction: ltr;
+        }
+        .swipe-container {
+            touch-action: pan-x;
+        }
+        .swipe-item {
+            transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+        .swipe-action-left {
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+        }
+        .swipe-action-right {
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+        }
+        .blur-nav {
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface font-body-md min-h-screen pb-32">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-surface/70 backdrop-blur-3xl shadow-[0px_4px_20px_rgba(0,0,0,0.05)] border-b border-white/10 flex justify-between items-center px-container-margin py-md">
+<div class="flex items-center gap-md">
+<div class="w-10 h-10 rounded-full overflow-hidden bg-surface-container-high">
+<img class="w-full h-full object-cover" data-alt="A professional studio portrait of a modern homeowner, high-end photography, soft cinematic lighting, neutral background, sharp focus, capturing a serene and confident expression. The aesthetic is clean and minimal, consistent with a luxury smart home interface." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCShGoWs66T3yHKDA70Li-QvZtMWp49KCZdFTE1uDkqZefsOkdfqoRkN9ngTXJNBFzVw1l8sEbJSgam6FWWtbldQB7b-jNqdQ8td-Qx-z7lyQ1bvZ2EMyI2KuyGiPzrirt85O_qvbD1zv6nJ_4cZZa3tJ_FXSw29gksbzBNWoDsMydIJPODm7tAzbbI-s6H5Rz0J743mO7HbnCHU0A2IGgS2fVFexAU17j_POexZYUzUvF5ucdyOvVq9c_HOivhO03Hyd-hByZQ-zw"/>
+</div>
+<h1 class="font-headline-md text-headline-md font-bold text-on-surface">Lumina</h1>
+</div>
+<div class="flex items-center gap-md">
+<button class="material-symbols-outlined text-primary p-2 rounded-full hover:bg-surface-variant/20 transition-colors active:scale-95 duration-200">notifications</button>
+</div>
+</header>
+<!-- Main Canvas -->
+<main class="pt-24 px-container-margin max-w-2xl mx-auto">
+<div class="mb-lg">
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile md:font-headline-lg md:text-headline-lg text-on-surface">Activity Center</h2>
+<p class="text-on-surface-variant font-body-md">Your home's recent highlights and alerts.</p>
+</div>
+<!-- Priority: Security Alerts -->
+<section class="mb-xl">
+<div class="flex items-center justify-between mb-md">
+<h3 class="font-label-caps text-label-caps text-tertiary flex items-center gap-xs">
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">security</span>
+                    Security Alerts
+                </h3>
+<span class="text-label-sm text-on-surface-variant/60">2 NEW</span>
+</div>
+<div class="space-y-md">
+<!-- Alert Card 1 -->
+<div class="relative overflow-hidden group">
+<div class="absolute inset-0 bg-error flex items-center justify-between px-lg rounded-xl">
+<span class="material-symbols-outlined text-on-error">delete</span>
+<span class="material-symbols-outlined text-on-error">visibility</span>
+</div>
+<div class="swipe-item relative bg-surface border-l-4 border-tertiary p-md rounded-xl shadow-[0px_4px_20px_rgba(0,0,0,0.05)] flex items-start gap-md group-hover:bg-surface-bright transition-colors cursor-grab active:cursor-grabbing" ontouchend="endSwipe(this)" ontouchmove="moveSwipe(this, event)" ontouchstart="startSwipe(this, event)">
+<div class="p-sm bg-tertiary-fixed text-on-tertiary-fixed rounded-lg">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">motion_sensor_active</span>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-start">
+<h4 class="font-body-lg text-body-lg font-semibold text-on-surface">Motion detected at Patio</h4>
+<span class="text-label-sm text-on-surface-variant/60">03:12 AM</span>
+</div>
+<p class="text-body-md text-on-surface-variant mt-xs leading-relaxed">System triggered recording on Camera 04. No unrecognized faces detected.</p>
+<div class="flex gap-md mt-md">
+<button class="px-md py-xs bg-primary text-on-primary rounded-full text-label-sm font-semibold hover:opacity-90 active:scale-95 transition-all">View Feed</button>
+<button class="px-md py-xs border border-outline-variant text-on-surface-variant rounded-full text-label-sm font-semibold hover:bg-surface-variant/20 active:scale-95 transition-all">Dismiss</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Alert Card 2 -->
+<div class="relative overflow-hidden group">
+<div class="absolute inset-0 bg-error flex items-center justify-between px-lg rounded-xl">
+<span class="material-symbols-outlined text-on-error">delete</span>
+<span class="material-symbols-outlined text-on-error">visibility</span>
+</div>
+<div class="swipe-item relative bg-surface border-l-4 border-tertiary p-md rounded-xl shadow-[0px_4px_20px_rgba(0,0,0,0.05)] flex items-start gap-md group-hover:bg-surface-bright transition-colors" ontouchend="endSwipe(this)" ontouchmove="moveSwipe(this, event)" ontouchstart="startSwipe(this, event)">
+<div class="p-sm bg-tertiary-fixed text-on-tertiary-fixed rounded-lg">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">door_front</span>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-start">
+<h4 class="font-body-lg text-body-lg font-semibold text-on-surface">Front Door Left Unlocked</h4>
+<span class="text-label-sm text-on-surface-variant/60">01:45 AM</span>
+</div>
+<p class="text-body-md text-on-surface-variant mt-xs leading-relaxed">Front Door has been unlocked for 15 minutes. Auto-lock failed.</p>
+<div class="flex gap-md mt-md">
+<button class="px-md py-xs bg-primary text-on-primary rounded-full text-label-sm font-semibold hover:opacity-90 active:scale-95 transition-all">Lock Now</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Device Status -->
+<section class="mb-xl">
+<h3 class="font-label-caps text-label-caps text-on-surface-variant mb-md flex items-center gap-xs">
+<span class="material-symbols-outlined text-[16px]">devices</span>
+                Device Status
+            </h3>
+<div class="space-y-sm">
+<div class="bg-surface-container-low p-md rounded-xl flex items-center gap-md border border-outline-variant/30 group hover:border-primary/30 transition-colors">
+<div class="w-10 h-10 rounded-full bg-error-container flex items-center justify-center text-on-error-container">
+<span class="material-symbols-outlined">speaker_group</span>
+</div>
+<div class="flex-1">
+<h4 class="font-body-md text-body-md font-medium text-on-surface">Kitchen Speaker Offline</h4>
+<p class="text-label-sm text-on-surface-variant/60">Disconnected from 'Lumina_5G'</p>
+</div>
+<button class="material-symbols-outlined text-on-surface-variant/40 hover:text-primary transition-colors">refresh</button>
+</div>
+<div class="bg-surface-container-low p-md rounded-xl flex items-center gap-md border border-outline-variant/30 group hover:border-primary/30 transition-colors">
+<div class="w-10 h-10 rounded-full bg-surface-container-highest flex items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined">battery_2_bar</span>
+</div>
+<div class="flex-1">
+<h4 class="font-body-md text-body-md font-medium text-on-surface">Low Battery: Hallway Sensor</h4>
+<p class="text-label-sm text-on-surface-variant/60">8% remaining • CR2032 Required</p>
+</div>
+<button class="material-symbols-outlined text-on-surface-variant/40 hover:text-primary transition-colors">shopping_cart</button>
+</div>
+</div>
+</section>
+<!-- Automation Completed -->
+<section class="mb-xl">
+<h3 class="font-label-caps text-label-caps text-on-surface-variant mb-md flex items-center gap-xs">
+<span class="material-symbols-outlined text-[16px]">auto_awesome</span>
+                Automation Completed
+            </h3>
+<div class="space-y-sm">
+<div class="bg-surface-container-lowest p-md rounded-xl flex items-center gap-md border border-outline-variant/20 shadow-sm">
+<div class="w-10 h-10 rounded-full bg-secondary-container flex items-center justify-center text-on-secondary-container">
+<span class="material-symbols-outlined">wb_twilight</span>
+</div>
+<div class="flex-1">
+<h4 class="font-body-md text-body-md font-medium text-on-surface">Sunset Routine activated</h4>
+<p class="text-label-sm text-on-surface-variant/60">Blinds closed, Living room lights to 40%</p>
+</div>
+<span class="text-label-sm text-on-surface-variant/40">1h ago</span>
+</div>
+<div class="bg-surface-container-lowest p-md rounded-xl flex items-center gap-md border border-outline-variant/20 shadow-sm">
+<div class="w-10 h-10 rounded-full bg-secondary-container flex items-center justify-center text-on-secondary-container">
+<span class="material-symbols-outlined">thermostat</span>
+</div>
+<div class="flex-1">
+<h4 class="font-body-md text-body-md font-medium text-on-surface">Target temp reached: Master Bedroom</h4>
+<p class="text-label-sm text-on-surface-variant/60">AC switched to Eco mode at 22°C</p>
+</div>
+<span class="text-label-sm text-on-surface-variant/40">3h ago</span>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 w-full z-50 bg-surface/70 backdrop-blur-3xl rounded-t-xl border-t border-white/20 shadow-[0px_-4px_20px_rgba(0,0,0,0.05)] flex justify-around items-center px-lg py-md">
+<a class="flex flex-col items-center justify-center text-on-surface-variant/60 hover:opacity-80 transition-opacity active:scale-[0.92] duration-200" href="#">
+<span class="material-symbols-outlined">home_app_logo</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant/60 hover:opacity-80 transition-opacity active:scale-[0.92] duration-200" href="#">
+<span class="material-symbols-outlined">grid_view</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant/60 hover:opacity-80 transition-opacity active:scale-[0.92] duration-200" href="#">
+<span class="material-symbols-outlined">smart_toy</span>
+</a>
+<a class="flex flex-col items-center justify-center text-primary after:content-[''] after:w-1 after:h-1 after:bg-primary after:rounded-full after:mt-1 hover:opacity-80 transition-opacity active:scale-[0.92] duration-200" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">bolt</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant/60 hover:opacity-80 transition-opacity active:scale-[0.92] duration-200" href="#">
+<span class="material-symbols-outlined">person</span>
+</a>
+</nav>
+<script>
+        let startX = 0;
+        let currentX = 0;
+        let activeElement = null;
+
+        function startSwipe(el, e) {
+            startX = e.touches ? e.touches[0].clientX : e.clientX;
+            activeElement = el;
+            el.style.transition = 'none';
+        }
+
+        function moveSwipe(el, e) {
+            if (!activeElement) return;
+            currentX = (e.touches ? e.touches[0].clientX : e.clientX) - startX;
+            
+            // Dampen swipe
+            const move = currentX / 1.5;
+            if (Math.abs(move) < 120) {
+                el.style.transform = `translateX(${move}px)`;
+            }
+        }
+
+        function endSwipe(el) {
+            activeElement = null;
+            el.style.transition = 'transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1)';
+            
+            if (currentX > 80) {
+                // Swipe right action - View
+                el.style.transform = `translateX(100%)`;
+                setTimeout(() => {
+                    alert('Viewing detail...');
+                    el.style.transform = `translateX(0)`;
+                }, 300);
+            } else if (currentX < -80) {
+                // Swipe left action - Dismiss
+                el.style.transform = `translateX(-100%)`;
+                setTimeout(() => {
+                    el.closest('.relative.overflow-hidden').style.display = 'none';
+                }, 300);
+            } else {
+                el.style.transform = `translateX(0)`;
+            }
+            currentX = 0;
+        }
+
+        // Mouse support for desktop testing
+        document.querySelectorAll('.swipe-item').forEach(item => {
+            item.addEventListener('mousedown', (e) => startSwipe(item, e));
+            window.addEventListener('mousemove', (e) => moveSwipe(item, e));
+            window.addEventListener('mouseup', () => endSwipe(item));
+        });
+    </script>
+</body></html>

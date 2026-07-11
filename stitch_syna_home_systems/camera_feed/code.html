@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Lumina | Smart Camera Monitoring</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .glass { backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .active-pulse { animation: pulse-red 2s infinite; }
+        @keyframes pulse-red {
+            0% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.2); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+        .shimmer {
+            background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.05) 50%, transparent 100%);
+            background-size: 200% 100%;
+            animation: shimmer 3s infinite linear;
+        }
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-tertiary-fixed": "#2d1600",
+                        "tertiary": "#894d00",
+                        "surface-dim": "#dad9df",
+                        "inverse-surface": "#2f3034",
+                        "primary-container": "#0070eb",
+                        "on-background": "#1a1b1f",
+                        "on-primary-fixed": "#001a41",
+                        "primary-fixed": "#d8e2ff",
+                        "inverse-on-surface": "#f1f0f5",
+                        "on-tertiary-container": "#fffbff",
+                        "surface-container-low": "#f4f3f8",
+                        "secondary": "#006e28",
+                        "inverse-primary": "#adc6ff",
+                        "on-surface": "#1a1b1f",
+                        "surface": "#faf9fe",
+                        "on-primary-container": "#fefcff",
+                        "on-error": "#ffffff",
+                        "on-error-container": "#93000a",
+                        "outline-variant": "#c1c6d7",
+                        "surface-tint": "#005bc1",
+                        "surface-container": "#eeedf3",
+                        "primary-fixed-dim": "#adc6ff",
+                        "surface-container-lowest": "#ffffff",
+                        "on-secondary": "#ffffff",
+                        "on-secondary-fixed": "#002107",
+                        "on-secondary-fixed-variant": "#00531c",
+                        "background": "#faf9fe",
+                        "secondary-fixed-dim": "#53e16f",
+                        "surface-bright": "#faf9fe",
+                        "secondary-fixed": "#72fe88",
+                        "error": "#ba1a1a",
+                        "tertiary-fixed-dim": "#ffb874",
+                        "on-primary": "#ffffff",
+                        "on-primary-fixed-variant": "#004493",
+                        "on-surface-variant": "#414755",
+                        "on-tertiary": "#ffffff",
+                        "on-secondary-container": "#00732a",
+                        "primary": "#0058bc",
+                        "surface-container-highest": "#e3e2e7",
+                        "surface-container-high": "#e9e7ed",
+                        "secondary-container": "#6ffb85",
+                        "surface-variant": "#e3e2e7",
+                        "on-tertiary-fixed-variant": "#6a3b00",
+                        "error-container": "#ffdad6",
+                        "tertiary-fixed": "#ffdcbf",
+                        "outline": "#717786",
+                        "tertiary-container": "#ac6300"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "xl": "32px",
+                        "lg": "24px",
+                        "md": "16px",
+                        "xs": "4px",
+                        "gutter": "16px",
+                        "unit": "8px",
+                        "sm": "8px",
+                        "container-margin": "24px"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "body-md": ["Inter"],
+                        "label-caps": ["Inter"],
+                        "display-lg": ["Inter"],
+                        "headline-lg-mobile": ["Inter"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "0em", "fontWeight": "600"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "label-sm": ["13px", {"lineHeight": "18px", "letterSpacing": "0em", "fontWeight": "500"}],
+                        "body-lg": ["17px", {"lineHeight": "24px", "letterSpacing": "0em", "fontWeight": "400"}],
+                        "body-md": ["15px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "400"}],
+                        "label-caps": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "headline-lg-mobile": ["28px", {"lineHeight": "34px", "letterSpacing": "-0.01em", "fontWeight": "600"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface">
+<!-- Top Navigation Bar -->
+<header class="fixed top-0 w-full z-50 bg-surface/70 backdrop-blur-3xl border-b border-white/10 shadow-[0px_4px_20px_rgba(0,0,0,0.05)] flex justify-between items-center px-container-margin py-md">
+<div class="flex items-center gap-md">
+<div class="w-10 h-10 rounded-full bg-surface-container overflow-hidden active:scale-95 transition-transform duration-200">
+<img class="w-full h-full object-cover" data-alt="A high-end professional headshot of a person for a user profile, set against a soft bokeh background of a modern smart home interior. The lighting is warm and cinematic, using the design's soft light mode aesthetic with natural textures and luxury finishes. The person looks approachable and secure, fitting the premium technology context of the Lumina brand." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDemn6uEO4jSB_0RKyKvbg18rh7ccNVCRugQpbfIdJUYdOi0yb4A2yPK3uafvYCQg1jkh7KhYOrHxkrubDSwDUt29bap0WlTYp22pB7zC09veJh0kf9xW6naFPiV6AYR58X7S0IsY6Q55-VHCu-RuJLZsabGeVjFuA-HEK8CPIKygkkpi_I-JFRUFwOwvle86Z67A8ZkIPcEPza5hIXbFatHWvV8a3QaPmE37Ak8bexdiPEUuT2RZ_vuN15x_pOU_DvogUdjq3ton8"/>
+</div>
+<span class="font-headline-md text-headline-md font-bold text-on-surface">Lumina</span>
+</div>
+<div class="flex items-center gap-md">
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-variant/20 transition-colors active:scale-95 transition-transform duration-200">
+<span class="material-symbols-outlined text-primary" data-icon="notifications">notifications</span>
+</button>
+</div>
+</header>
+<main class="pt-24 pb-32 px-container-margin max-w-7xl mx-auto space-y-lg">
+<!-- Main View: Front Door -->
+<section class="relative group">
+<div class="aspect-video w-full rounded-xl overflow-hidden shadow-[0px_4px_20px_rgba(0,0,0,0.05)] bg-black relative">
+<img class="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity duration-500" data-alt="A ultra-high-definition security camera perspective of a modern luxury home front porch during a bright, sunny day. The scene features a sleek black door, manicured greenery in minimalist concrete planters, and soft shadows. The lighting is crisp and clear, embodying an invisible technology aesthetic where the camera quality feels professional and high-fidelity, part of the premium smart home ecosystem." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBhGLV6cphkaQJHWf_HXbzqowJHIhwkmgFhCpkgPNrxjaDa3hXt-GQceSvX2m5BqrWF-oOCA7PTPwi0UQe0nzfQxGnzdjdIiE-FAbjwkp6o3HNcqqIt1xf0uTQLOlKjenil77Ie6wE5eQd-tTaU0Mjz_aCL3LlCXIzVVp7c93TKQCFfKdE8zMDUQRHDngAWwRbD1n-L5tNGvqx0JFuVWyQYypuColXYzPoIVXrDFgIQxhgfDf7g361jl9zxHVLhbAmyiwYVUFkkOMo"/>
+<!-- Overlay Elements -->
+<div class="absolute top-md left-md flex items-center gap-sm glass bg-black/40 px-sm py-xs rounded-full">
+<div class="w-2 h-2 rounded-full bg-error active-pulse"></div>
+<span class="font-label-caps text-label-caps text-white">LIVE • 4K ULTRA HD</span>
+</div>
+<div class="absolute top-md right-md flex items-center gap-sm glass bg-black/40 px-sm py-xs rounded-full">
+<span class="font-label-sm text-label-sm text-white">Front Door</span>
+</div>
+<!-- Center Playback Controls (Visible on hover/touch) -->
+<div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+<div class="flex items-center gap-xl">
+<button class="w-14 h-14 glass bg-white/20 rounded-full flex items-center justify-center text-white active:scale-90 transition-transform">
+<span class="material-symbols-outlined" data-icon="replay_10" style="font-variation-settings: 'FILL' 1;">replay_10</span>
+</button>
+<button class="w-20 h-20 glass bg-white/30 rounded-full flex items-center justify-center text-white active:scale-90 transition-transform">
+<span class="material-symbols-outlined text-4xl" data-icon="pause" style="font-variation-settings: 'FILL' 1;">pause</span>
+</button>
+<button class="w-14 h-14 glass bg-white/20 rounded-full flex items-center justify-center text-white active:scale-90 transition-transform">
+<span class="material-symbols-outlined" data-icon="forward_10" style="font-variation-settings: 'FILL' 1;">forward_10</span>
+</button>
+</div>
+</div>
+<!-- Bottom Controls Over Content -->
+<div class="absolute bottom-0 left-0 w-full p-md bg-gradient-to-t from-black/60 to-transparent flex justify-between items-end">
+<div class="flex gap-md">
+<button class="p-sm glass bg-white/10 rounded-lg text-white hover:bg-white/20 transition-colors">
+<span class="material-symbols-outlined" data-icon="volume_up">volume_up</span>
+</button>
+</div>
+<button class="p-sm glass bg-white/10 rounded-lg text-white hover:bg-white/20 transition-colors">
+<span class="material-symbols-outlined" data-icon="fullscreen">fullscreen</span>
+</button>
+</div>
+</div>
+</section>
+<!-- Quick Action Controls -->
+<section class="grid grid-cols-4 gap-md md:gap-lg">
+<button class="flex flex-col items-center justify-center p-md bg-surface-container rounded-xl hover:bg-primary-container hover:text-white transition-all active:scale-95 shadow-sm">
+<span class="material-symbols-outlined mb-sm" data-icon="motion_sensor">motion_sense</span>
+<span class="font-label-sm text-label-sm">Motion</span>
+</button>
+<button class="flex flex-col items-center justify-center p-md bg-surface-container rounded-xl hover:bg-error hover:text-white transition-all active:scale-95 shadow-sm">
+<span class="material-symbols-outlined mb-sm" data-icon="videocam">videocam</span>
+<span class="font-label-sm text-label-sm">Record</span>
+</button>
+<button class="flex flex-col items-center justify-center p-md bg-surface-container rounded-xl hover:bg-primary-container hover:text-white transition-all active:scale-95 shadow-sm">
+<span class="material-symbols-outlined mb-sm" data-icon="mic">mic</span>
+<span class="font-label-sm text-label-sm">Talk</span>
+</button>
+<button class="flex flex-col items-center justify-center p-md bg-surface-container rounded-xl hover:bg-primary-container hover:text-white transition-all active:scale-95 shadow-sm">
+<span class="material-symbols-outlined mb-sm" data-icon="photo_camera">photo_camera</span>
+<span class="font-label-sm text-label-sm">Snapshot</span>
+</button>
+</section>
+<!-- Grid View: Smaller Live Tiles -->
+<section class="space-y-md">
+<h2 class="font-headline-md text-headline-md">Active Feeds</h2>
+<div class="grid grid-cols-2 md:grid-cols-3 gap-md">
+<!-- Patio -->
+<div class="aspect-square bg-surface-container rounded-xl overflow-hidden relative group active:scale-98 transition-transform cursor-pointer shadow-sm">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" data-alt="A surveillance view of a luxurious outdoor patio area with a pool and designer lounge chairs at dusk. The lighting is soft and atmospheric, reflecting a calm evening mood. The image maintains the Lumina design ethos of high-end minimalism and clarity, focusing on the sophisticated security of a premium home environment." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCQ1_x1G4HbAl31FfgYxdVQPILGDemUvcGgOW59UW61He4TmbKlIRO-Mg3IP_BFU1TUOOpxF0Uer-XMjtPTSBVVTfyvmfsv3kTl25loH_RLGKDrJDMrxHaobJSQAFCp0CDYLcGXO4bjxJAJ_aFV5kmbcY9mg-082SAkC5cEqEleYI7GjtElFEmm_XzF-0RYKk465ateON5AZF1teI1iVWR1rzL7s2jJEE_iKEi2pEmzosH1Fvw6nUiq_e4nTwNuq7qQgSlpbuzaMNc"/>
+<div class="absolute inset-0 bg-black/10 group-hover:bg-black/0 transition-colors"></div>
+<div class="absolute top-sm left-sm flex items-center gap-xs glass bg-black/30 px-xs py-[2px] rounded-full">
+<div class="w-1.5 h-1.5 rounded-full bg-secondary"></div>
+<span class="text-[10px] font-bold text-white uppercase tracking-wider">Patio</span>
+</div>
+</div>
+<!-- Driveway -->
+<div class="aspect-square bg-surface-container rounded-xl overflow-hidden relative group active:scale-98 transition-transform cursor-pointer shadow-sm">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" data-alt="A clean, wide-angle camera view of a modern paved driveway with a sleek electric vehicle parked. The surrounding landscaping is architectural and neat. The lighting is high-key and bright, representing the daytime security monitoring of a high-end estate. The overall feeling is one of complete control and premium reliability." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDsz1-oW2GPeI1nHd1El3NfLlycXWA4YhdQn6iiTVp1IOxjeaQJbf1WQSQfP26R8dV-wBR8IKI7JZFEgpS0aw2_JwRyMf9BFGX-kVB3VhG_wAYkVV9E5luVWgqrZWidGhOeRYtKEpitHk3YJA8E-BAIkXCLLju73qN6-8ny32XVecuOMgqMrrAhKPD4lYXAbiEvUoTOVrgzTeBaFS9Zh-UuxdoYZY39J9wWOYr_FkKN7atPVTIXYpSnsEK8c_Dj_hvleLQpGWyK95E"/>
+<div class="absolute inset-0 bg-black/10 group-hover:bg-black/0 transition-colors"></div>
+<div class="absolute top-sm left-sm flex items-center gap-xs glass bg-black/30 px-xs py-[2px] rounded-full">
+<div class="w-1.5 h-1.5 rounded-full bg-secondary"></div>
+<span class="text-[10px] font-bold text-white uppercase tracking-wider">Driveway</span>
+</div>
+</div>
+<!-- Kitchen -->
+<div class="aspect-square bg-surface-container rounded-xl overflow-hidden relative group active:scale-98 transition-transform cursor-pointer shadow-sm col-span-2 md:col-span-1">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" data-alt="An interior camera feed of a minimalist white marble kitchen with high-end appliances. The scene is illuminated by soft, recessed lighting, creating a serene and premium atmosphere. This view highlights the 'invisible technology' aspect of the Lumina smart home system, where home monitoring blends seamlessly with interior design." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCGT7VC2HBdfPfgW8zLvmWOEp_q3uTQctuNQf3LcuzgaYs3TrLUNk1x6HZAaDbWdPkKs-YDE8aLelpp1y1f1DRv0tz1ejnyvh8v5WZIr8CA7S5TA5_DT4ZV1Wz7m4JuEACklSZM9O4yOKVv_Z6xToe7GgXXJ8hLuVaepF_I_JroTuVXOhzceX5NbmSUqGX_wcGSPWb160RF0sW2LAm1xPAEqm6x1rHTmXlzmiLYo9y3t66NNg7NFe3MUci9sTsYQlyQqMs717KfMrM"/>
+<div class="absolute inset-0 bg-black/10 group-hover:bg-black/0 transition-colors"></div>
+<div class="absolute top-sm left-sm flex items-center gap-xs glass bg-black/30 px-xs py-[2px] rounded-full">
+<div class="w-1.5 h-1.5 rounded-full bg-secondary"></div>
+<span class="text-[10px] font-bold text-white uppercase tracking-wider">Kitchen</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Timeline: Recording Events -->
+<section class="space-y-md">
+<div class="flex justify-between items-center">
+<h2 class="font-headline-md text-headline-md">History</h2>
+<button class="text-primary font-label-sm text-label-sm flex items-center gap-xs hover:underline">
+                    View All <span class="material-symbols-outlined text-sm" data-icon="chevron_right">chevron_right</span>
+</button>
+</div>
+<div class="flex gap-md overflow-x-auto no-scrollbar pb-md snap-x">
+<!-- Event 1 -->
+<div class="flex-shrink-0 w-32 snap-start space-y-sm">
+<div class="aspect-square rounded-lg overflow-hidden bg-surface-container relative">
+<img class="w-full h-full object-cover" data-alt="A small, focused thumbnail from a security camera showing a delivery person placing a package at the front door. The lighting is bright and the detail is sharp. The aesthetic is professional and clean, fitting the smart home security monitoring context with a focus on reliability and security." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAJmjg6uhhnkWi0nXsD-3c-Bn9-I2MueacHSVGbz5MoRJ85DdfKyOiX6IvyVvtTKdJZboKQsFqKil2plRUCqMzFkyIUgG-ZpyxKEeoxcgdEVnJVjYHyo5HSxoTPLGz-3RoX3utWjyUiU19VBaXw_e3VXFXsBKGa7QWDKfV-CRBet2mFHILnAWvGe-peP_jo4U_uD9PGpIdo9zFybotne70gJSUeNV4WD8AAVk7ZGC7K9ay-iQWAwDGRdoJNty1PZ1Ag-uJGrRV-siU"/>
+<div class="absolute bottom-xs right-xs bg-black/60 text-[10px] text-white px-xs py-[1px] rounded">10:42 AM</div>
+</div>
+<div class="px-xs">
+<p class="font-label-sm text-label-sm truncate">Package Delivery</p>
+<p class="text-[11px] text-on-surface-variant/60">Front Door</p>
+</div>
+</div>
+<!-- Event 2 -->
+<div class="flex-shrink-0 w-32 snap-start space-y-sm">
+<div class="aspect-square rounded-lg overflow-hidden bg-surface-container relative border-2 border-primary/20">
+<img class="w-full h-full object-cover" data-alt="A security camera frame showing a sleek car pulling into a driveway at sunset. The lighting is warm and golden, with the house's exterior lights starting to glow. The image quality is high, emphasizing the premium nature of the monitoring system and the secure atmosphere of the home." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBVyJi4El7zDUE13_gjG1D6ceBYSYG8hyl4ttIlqECfzWbHlns6zlkJnw5s3yF8pfF9lGOzia1eA97NR20G9dfAuDvvS_bURe0ylZ-cdSuZO9KVs_rQE3kBtzb8RnbJNQsTtBBwqv5rXR4o2WkAu37NabnyH4o3_XbVfKerEZAXqtxBX5nIuTsS38nLRsLbxkdkumN8ES6AcMod-ExGmA-yEec8y6tuaNUOBYFRs7v49pDdPhNsju07CtGkW8m7lhyjr2_vthZ74N8"/>
+<div class="absolute bottom-xs right-xs bg-black/60 text-[10px] text-white px-xs py-[1px] rounded">09:15 AM</div>
+</div>
+<div class="px-xs">
+<p class="font-label-sm text-label-sm truncate">Vehicle Detected</p>
+<p class="text-[11px] text-on-surface-variant/60">Driveway</p>
+</div>
+</div>
+<!-- Event 3 -->
+<div class="flex-shrink-0 w-32 snap-start space-y-sm">
+<div class="aspect-square rounded-lg overflow-hidden bg-surface-container relative">
+<img class="w-full h-full object-cover" data-alt="A wide camera shot of an empty patio area under moonlight. The scene is quiet and still, with soft blue tones and silver highlights. The aesthetic is minimalist and high-end, evoking a sense of calm and persistent security in the middle of the night." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBK0bX2moALZ8Ls8ByJx5N-yWA3N8xBwc7Qny2QXfFYJPfnDQrbcMPhzeiYiM6rREkey3z3HmB_NZ-vX91lgPhNYIgG4v2W4rZQzycGDGeAAoZlZKuzoADCPNCgieJ0prxa8yqnxyjMzQXbwALzGZZg_A58R5Q1I6hIWBoVuN1DbbkhGQvDz58tnVBsn8DyeQ__h1MlPP8mMIhcV-AiI404NRXrue48e7DWdp-WAgOshKB2VuluVwkOPzKMzyVVUs3AMD4Va2c0TVc"/>
+<div class="absolute bottom-xs right-xs bg-black/60 text-[10px] text-white px-xs py-[1px] rounded">03:22 AM</div>
+</div>
+<div class="px-xs">
+<p class="font-label-sm text-label-sm truncate">Pet Movement</p>
+<p class="text-[11px] text-on-surface-variant/60">Patio</p>
+</div>
+</div>
+<!-- Event 4 -->
+<div class="flex-shrink-0 w-32 snap-start space-y-sm">
+<div class="aspect-square rounded-lg overflow-hidden bg-surface-container relative">
+<img class="w-full h-full object-cover" data-alt="A clear security feed of a modern kitchen interior, with early morning sunlight streaming through a window onto a marble countertop. The scene is pristine and organized, fitting the premium home aesthetic. The camera capture is sharp, providing a sense of comfort and safety for the homeowner." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDyqO20ARNsS-gSeO_Fodyq_lSuGRzGXx9y9L7IlQiJY7gPAUy8RSpeJJgBd_Vru2pcUNEtzs833gT4uv9WoUf_sdIB87-6swwUiz_M50c9zmj7-_oQMJYC9OPu-GJhn2S6oqQyPTbgo9ef4JFKD3QVWgfh3snsCzJ13LGldaFXQstWJHSUFz219y4mw198nMV7nXkEvUWnaoIJ0GISqLnw5TK9lNLeDiDwGjiEnIaDbKB7GsBQFGouinshkE5TWwyVGT1_m2qM2Eo"/>
+<div class="absolute bottom-xs right-xs bg-black/60 text-[10px] text-white px-xs py-[1px] rounded">Yesterday</div>
+</div>
+<div class="px-xs">
+<p class="font-label-sm text-label-sm truncate">General Activity</p>
+<p class="text-[11px] text-on-surface-variant/60">Kitchen</p>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Bottom Navigation Bar -->
+<nav class="fixed bottom-0 w-full z-50 rounded-t-xl bg-surface/70 backdrop-blur-3xl border-t border-white/20 shadow-[0px_-4px_20px_rgba(0,0,0,0.05)] flex justify-around items-center px-lg py-md">
+<a class="flex flex-col items-center justify-center text-on-surface-variant/60 hover:opacity-80 transition-opacity active:scale-[0.92] transition-transform duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="home_app_fill">home_app_logo</span>
+</a>
+<a class="flex flex-col items-center justify-center text-primary dark:text-primary-fixed-dim after:content-[''] after:w-1 after:h-1 after:bg-primary after:rounded-full after:mt-1 hover:opacity-80 transition-opacity active:scale-[0.92] transition-transform duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="grid_view" style="font-variation-settings: 'FILL' 1;">grid_view</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant/60 hover:opacity-80 transition-opacity active:scale-[0.92] transition-transform duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="smart_toy">smart_toy</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant/60 hover:opacity-80 transition-opacity active:scale-[0.92] transition-transform duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="bolt">bolt</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant/60 hover:opacity-80 transition-opacity active:scale-[0.92] transition-transform duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+</a>
+</nav>
+<script>
+        // Micro-interaction for feedback
+        document.querySelectorAll('button, a').forEach(el => {
+            el.addEventListener('click', () => {
+                // Potential tactile feedback logic here
+            });
+        });
+
+        // Simple visibility observer for lazy loading / reveal effects
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('opacity-100', 'translate-y-0');
+                    entry.target.classList.remove('opacity-0', 'translate-y-4');
+                }
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('section').forEach(section => {
+            section.classList.add('transition-all', 'duration-700', 'opacity-0', 'translate-y-4');
+            observer.observe(section);
+        });
+    </script>
+</body></html>
