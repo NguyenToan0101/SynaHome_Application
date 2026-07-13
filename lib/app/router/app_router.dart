@@ -16,6 +16,7 @@ import '../../features/home/presentation/home_screen.dart';
 import '../../features/notifications/presentation/notifications_screen.dart';
 import '../../features/onboarding/presentation/onboarding_screen.dart';
 import '../../features/profile/presentation/profile_screen.dart';
+import '../../features/rooms/presentation/room_device.dart';
 import '../../features/rooms/presentation/rooms_screen.dart';
 import '../../features/settings/presentation/settings_screen.dart';
 import '../../features/splash/presentation/splash_screen.dart';
@@ -85,6 +86,15 @@ final routerProvider = Provider<GoRouter>((ref) {
                 path: '/rooms',
                 pageBuilder: (context, state) =>
                     const NoTransitionPage(child: RoomsScreen()),
+                routes: [
+                  GoRoute(
+                    name: 'room-device',
+                    path: ':roomId',
+                    builder: (context, state) => RoomDeviceScreen(
+                      roomId: state.pathParameters['roomId']!,
+                    ),
+                  ),
+                ],
               ),
             ],
           ),

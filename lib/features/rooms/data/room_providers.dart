@@ -10,8 +10,9 @@ final roomsProvider = Provider<List<Room>>((ref) {
     _room('living-room', 'Living Room', 22, devices),
     _room('bedroom', 'Bedroom', 20, devices),
     _room('kitchen', 'Kitchen', 24, devices),
-    _room('entry', 'Entry', 23, devices),
-    _room('office', 'Office', 25, devices),
+    _room('garage', 'Garage', 18, devices),
+    _room('bathroom', 'Bathroom', 23, devices),
+    _room('garden', 'Garden', 21, devices),
   ];
 });
 
