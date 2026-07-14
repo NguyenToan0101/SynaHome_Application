@@ -10,7 +10,7 @@ abstract final class AppTheme {
       seedColor: AppColors.primary,
       brightness: Brightness.light,
       primary: AppColors.primary,
-      secondary: AppColors.secondary,
+      secondary: AppColors.auroraMintOnLight,
       surface: AppColors.surface,
       error: AppColors.error,
     );
@@ -18,12 +18,14 @@ abstract final class AppTheme {
     return ThemeData(
       useMaterial3: true,
       colorScheme: colorScheme,
-      scaffoldBackgroundColor: AppColors.background,
+      scaffoldBackgroundColor: AppColors.auroraCanvasBottomLight,
       textTheme: AppTypography.textTheme(AppColors.onSurface),
+      splashFactory: NoSplash.splashFactory,
       appBarTheme: const AppBarTheme(
         elevation: 0,
         centerTitle: false,
-        backgroundColor: AppColors.background,
+        backgroundColor: Colors.transparent,
+        surfaceTintColor: Colors.transparent,
         foregroundColor: AppColors.onSurface,
       ),
       cardTheme: CardThemeData(
@@ -50,21 +52,29 @@ abstract final class AppTheme {
 
   static ThemeData dark() {
     final colorScheme = ColorScheme.fromSeed(
-      seedColor: AppColors.primary,
+      seedColor: AppColors.auroraAccent,
       brightness: Brightness.dark,
-      primary: const Color(0xFFADC6FF),
-      secondary: const Color(0xFF53E16F),
-      surface: AppColors.darkSurface,
-      error: const Color(0xFFFFB4AB),
+      primary: AppColors.auroraAccent,
+      secondary: AppColors.auroraMint,
+      surface: AppColors.auroraCanvasMid,
+      error: AppColors.auroraError,
     );
 
     return ThemeData(
       useMaterial3: true,
       colorScheme: colorScheme,
-      scaffoldBackgroundColor: AppColors.darkBackground,
-      textTheme: AppTypography.textTheme(Colors.white),
+      scaffoldBackgroundColor: AppColors.auroraCanvasTop,
+      textTheme: AppTypography.textTheme(AppColors.onDark),
+      splashFactory: NoSplash.splashFactory,
+      appBarTheme: const AppBarTheme(
+        elevation: 0,
+        centerTitle: false,
+        backgroundColor: Colors.transparent,
+        surfaceTintColor: Colors.transparent,
+        foregroundColor: AppColors.onDark,
+      ),
       cardTheme: CardThemeData(
-        color: AppColors.darkSurface,
+        color: AppColors.auroraCanvasMid,
         elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppRadius.card),

@@ -10,8 +10,8 @@ final deviceRepositoryProvider = Provider<DeviceRepository>((ref) {
 
 final devicesControllerProvider =
     StateNotifierProvider<DevicesController, AsyncValue<List<Device>>>((ref) {
-  return DevicesController(ref.watch(deviceRepositoryProvider))..load();
-});
+      return DevicesController(ref.watch(deviceRepositoryProvider))..load();
+    });
 
 class DevicesController extends StateNotifier<AsyncValue<List<Device>>> {
   DevicesController(this._repository) : super(const AsyncValue.loading());

@@ -14,15 +14,15 @@ final backendResolverProvider = Provider<BackendResolver>((ref) {
 
 final connectionModeControllerProvider =
     StateNotifierProvider<ConnectionModeController, ConnectionMode>((ref) {
-  return ConnectionModeController(ref.watch(backendResolverProvider));
-});
+      return ConnectionModeController(ref.watch(backendResolverProvider));
+    });
 
 class BackendResolver {
   BackendResolver({
     required NetworkClient edgeClient,
     required NetworkClient cloudClient,
-  })  : _edgeClient = edgeClient,
-        _cloudClient = cloudClient;
+  }) : _edgeClient = edgeClient,
+       _cloudClient = cloudClient;
 
   final NetworkClient _edgeClient;
   final NetworkClient _cloudClient;

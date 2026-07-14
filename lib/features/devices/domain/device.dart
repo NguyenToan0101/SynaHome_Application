@@ -55,11 +55,7 @@ class Device {
 }
 
 class DeviceCommand {
-  const DeviceCommand({
-    this.isOn,
-    this.brightness,
-    this.temperature,
-  });
+  const DeviceCommand({this.isOn, this.brightness, this.temperature});
 
   final bool? isOn;
   final int? brightness;

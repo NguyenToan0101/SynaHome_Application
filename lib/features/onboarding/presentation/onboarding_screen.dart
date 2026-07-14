@@ -2,10 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../app/localization/l10n_extensions.dart';
 import '../../../app/router/app_router.dart';
-import '../../../app/theme/app_colors.dart';
+import '../../../app/theme/app_radius.dart';
 import '../../../app/theme/app_spacing.dart';
+import '../../../app/theme/glass_tokens.dart';
 import '../../../core/storage/app_preferences.dart';
+import '../../../core/widgets/app_button.dart';
+import '../../../core/widgets/glass/glass.dart';
 
 class OnboardingScreen extends ConsumerStatefulWidget {
   const OnboardingScreen({super.key});
@@ -17,28 +21,13 @@ class OnboardingScreen extends ConsumerStatefulWidget {
 class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
     with SingleTickerProviderStateMixin {
   int _currentStep = 0;
-  late AnimationController _animController;
-  late Animation<double> _fadeAnim;
+  late final AnimationController _animController;
+  late final Animation<double> _fadeAnim;
 
-  static const _steps = [
-    (
-      title: 'Control your world.',
-      subtitle:
-          'Experience the future of living with seamless automation and AI-driven insights.',
-      icon: Icons.home_outlined,
-    ),
-    (
-      title: 'Intuitive Automation.',
-      subtitle:
-          'Lumina learns your routines to perfectly adjust lighting, climate, and sound automatically.',
-      icon: Icons.auto_awesome_outlined,
-    ),
-    (
-      title: 'Total Security.',
-      subtitle:
-          'Rest easy with AI-powered monitoring that keeps your sanctuary safe and private at all times.',
-      icon: Icons.security_outlined,
-    ),
+  static const _icons = [
+    Icons.home_outlined,
+    Icons.auto_awesome_outlined,
+    Icons.security_outlined,
   ];
 
   @override
@@ -46,9 +35,12 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
     super.initState();
     _animController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 300),
+      duration: GlassTokens.durationMed,
     );
-    _fadeAnim = CurvedAnimation(parent: _animController, curve: Curves.easeOut);
+    _fadeAnim = CurvedAnimation(
+      parent: _animController,
+      curve: GlassTokens.curve,
+    );
     _animController.forward();
   }
 
@@ -59,14 +51,12 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
   }
 
   Future<void> _handleNext() async {
-    if (_currentStep < _steps.length - 1) {
+    if (_currentStep < _icons.length - 1) {
       await _animController.reverse();
       setState(() => _currentStep++);
       await _animController.forward();
     } else {
-      await ref
-          .read(appPreferencesProvider)
-          .setOnboardingCompleted(true);
+      await ref.read(appPreferencesProvider).setOnboardingCompleted(true);
       ref.invalidate(appPreferencesProvider);
       ref.invalidate(routerProvider);
       if (mounted) context.go('/login');
@@ -75,255 +65,164 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
 
   @override
   Widget build(BuildContext context) {
-    final step = _steps[_currentStep];
-    final isLast = _currentStep == _steps.length - 1;
+    final l10n = context.l10n;
+    final theme = Theme.of(context);
+    final accent = theme.colorScheme.primary;
+    final steps = [
+      (title: l10n.onboarding1Title, subtitle: l10n.onboarding1Subtitle),
+      (title: l10n.onboarding2Title, subtitle: l10n.onboarding2Subtitle),
+      (title: l10n.onboarding3Title, subtitle: l10n.onboarding3Subtitle),
+    ];
+    final step = steps[_currentStep];
+    final isLast = _currentStep == steps.length - 1;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
-      body: Stack(
-        children: [
-          // Atmospheric background blobs
-          Positioned(
-            top: -80,
-            right: -80,
-            child: Container(
-              width: 280,
-              height: 280,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: AppColors.primary.withValues(alpha: 0.05),
-              ),
-            ),
-          ),
-          Positioned(
-            bottom: 160,
-            left: -60,
-            child: Container(
-              width: 220,
-              height: 220,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: AppColors.secondary.withValues(alpha: 0.05),
-              ),
-            ),
-          ),
-          Positioned(
-            top: 200,
-            left: -100,
-            child: Container(
-              width: 320,
-              height: 320,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: AppColors.primary.withValues(alpha: 0.04),
-              ),
-            ),
-          ),
-
-          SafeArea(
-            child: Column(
-              children: [
-                // Brand header
-                Padding(
-                  padding: const EdgeInsets.only(top: AppSpacing.xl),
-                  child: Text(
-                    'Lumina',
-                    style: TextStyle(
-                      fontFamily: 'Inter',
-                      fontSize: 24,
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.onSurface,
-                      letterSpacing: -0.5,
-                    ),
+      backgroundColor: Colors.transparent,
+      body: AmbientBackground(
+        child: SafeArea(
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(top: AppSpacing.xl),
+                child: Text(
+                  l10n.appName,
+                  style: theme.textTheme.headlineMedium?.copyWith(
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
+              ),
 
-                // Large central illustration
-                Expanded(
-                  child: Center(
-                    child: AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 400),
-                      switchInCurve: Curves.easeOut,
-                      switchOutCurve: Curves.easeIn,
-                      child: Container(
-                        key: ValueKey(_currentStep),
-                        width: 160,
-                        height: 160,
-                        decoration: BoxDecoration(
-                          color: AppColors.primary.withValues(alpha: 0.08),
-                          borderRadius: BorderRadius.circular(40),
-                          border: Border.all(
-                            color: AppColors.primary.withValues(alpha: 0.12),
-                          ),
-                        ),
+              // Minh hoạ trung tâm.
+              Expanded(
+                child: Center(
+                  child: AnimatedSwitcher(
+                    duration: GlassTokens.durationSlow,
+                    switchInCurve: GlassTokens.curve,
+                    switchOutCurve: Curves.easeIn,
+                    child: GlassContainer(
+                      key: ValueKey(_currentStep),
+                      radius: AppRadius.hero + 8,
+                      shadows: GlassTokens.glow(accent, intensity: 0.35),
+                      child: SizedBox.square(
+                        dimension: 160,
                         child: Icon(
-                          step.icon,
+                          _icons[_currentStep],
                           size: 72,
-                          color: AppColors.primary,
+                          color: accent,
                         ),
                       ),
                     ),
                   ),
                 ),
+              ),
 
-                // Glass content card
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(
-                    AppSpacing.screen,
-                    0,
-                    AppSpacing.screen,
-                    0,
-                  ),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.7),
-                      borderRadius: BorderRadius.circular(32),
-                      border: Border.all(
-                        color: Colors.white.withValues(alpha: 0.4),
+              // Card nội dung kính.
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.screen,
+                ),
+                child: GlassContainer(
+                  radius: AppRadius.hero,
+                  padding: const EdgeInsets.all(AppSpacing.xl),
+                  shadows: GlassTokens.shadowSoft,
+                  child: Column(
+                    children: [
+                      FadeTransition(
+                        opacity: _fadeAnim,
+                        child: Column(
+                          children: [
+                            Text(
+                              step.title,
+                              textAlign: TextAlign.center,
+                              style: theme.textTheme.headlineSmall?.copyWith(
+                                fontSize: 26,
+                              ),
+                            ),
+                            const SizedBox(height: AppSpacing.md),
+                            Text(
+                              step.subtitle,
+                              textAlign: TextAlign.center,
+                              style: theme.textTheme.bodyMedium?.copyWith(
+                                height: 1.5,
+                                color: theme.colorScheme.onSurface.withValues(
+                                  alpha: 0.65,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                      boxShadow: const [
-                        BoxShadow(
-                          color: Color(0x0D000000),
-                          blurRadius: 20,
-                          offset: Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    padding: const EdgeInsets.all(AppSpacing.xl),
-                    child: Column(
-                      children: [
-                        // Content with fade animation
-                        FadeTransition(
-                          opacity: _fadeAnim,
-                          child: Column(
-                            children: [
-                              Text(
-                                step.title,
-                                textAlign: TextAlign.center,
-                                style: const TextStyle(
-                                  fontFamily: 'Inter',
-                                  fontSize: 28,
-                                  fontWeight: FontWeight.w600,
-                                  height: 1.2,
-                                  letterSpacing: -0.5,
-                                  color: AppColors.onSurface,
-                                ),
-                              ),
-                              const SizedBox(height: AppSpacing.md),
-                              Text(
-                                step.subtitle,
-                                textAlign: TextAlign.center,
-                                style: const TextStyle(
-                                  fontFamily: 'Inter',
-                                  fontSize: 15,
-                                  height: 1.5,
-                                  color: AppColors.onSurfaceVariant,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
+                      const SizedBox(height: AppSpacing.lg),
 
-                        const SizedBox(height: AppSpacing.xl),
-
-                        // Progress pills
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: List.generate(_steps.length, (i) {
-                            final isActive = i == _currentStep;
-                            return AnimatedContainer(
-                              duration: const Duration(milliseconds: 300),
-                              curve: Curves.easeOut,
-                              width: isActive ? 32 : 6,
-                              height: 6,
-                              margin: const EdgeInsets.symmetric(horizontal: 3),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(3),
-                                color: isActive
-                                    ? AppColors.primary
-                                    : AppColors.outlineVariant,
-                              ),
-                            );
-                          }),
-                        ),
-
-                        const SizedBox(height: AppSpacing.xl),
-
-                        // Primary action button
-                        SizedBox(
-                          width: double.infinity,
-                          child: FilledButton(
-                            onPressed: _handleNext,
-                            style: FilledButton.styleFrom(
-                              backgroundColor: AppColors.primary,
-                              foregroundColor: Colors.white,
-                              minimumSize: const Size.fromHeight(52),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(16),
-                              ),
-                              elevation: 0,
+                      // Progress pills.
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: List.generate(steps.length, (i) {
+                          final isActive = i == _currentStep;
+                          return AnimatedContainer(
+                            duration: GlassTokens.durationMed,
+                            curve: GlassTokens.curve,
+                            width: isActive ? 32 : 6,
+                            height: 6,
+                            margin: const EdgeInsets.symmetric(horizontal: 3),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(3),
+                              color: isActive
+                                  ? accent
+                                  : theme.colorScheme.onSurface.withValues(
+                                      alpha: 0.2,
+                                    ),
                             ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(
-                                  isLast ? 'Complete Setup' : (_currentStep == 0 ? 'Get Started' : 'Continue'),
-                                  style: const TextStyle(
-                                    fontFamily: 'Inter',
-                                    fontSize: 17,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                                const SizedBox(width: AppSpacing.sm),
-                                Icon(
-                                  isLast
-                                      ? Icons.check_circle_outline_rounded
-                                      : Icons.arrow_forward_rounded,
-                                  size: 20,
-                                ),
-                              ],
+                          );
+                        }),
+                      ),
+                      const SizedBox(height: AppSpacing.lg),
+
+                      AppButton(
+                        label: isLast
+                            ? l10n.completeSetup
+                            : (_currentStep == 0
+                                  ? l10n.getStarted
+                                  : l10n.continueAction),
+                        icon: isLast
+                            ? Icons.check_circle_outline_rounded
+                            : Icons.arrow_forward_rounded,
+                        onPressed: _handleNext,
+                      ),
+                      const SizedBox(height: AppSpacing.sm),
+                      TextButton(
+                        onPressed: () => context.go('/login'),
+                        child: Text(
+                          l10n.alreadyHaveAccount,
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: theme.colorScheme.onSurface.withValues(
+                              alpha: 0.6,
                             ),
                           ),
                         ),
-
-                        const SizedBox(height: AppSpacing.md),
-
-                        TextButton(
-                          onPressed: () => context.go('/login'),
-                          child: const Text(
-                            'Already have an account? Sign In',
-                            style: TextStyle(
-                              fontFamily: 'Inter',
-                              fontSize: 13,
-                              color: AppColors.onSurfaceVariant,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
+              ),
 
-                // Terms footer
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                    vertical: AppSpacing.lg,
-                    horizontal: AppSpacing.screen,
-                  ),
-                  child: Text(
-                    "By continuing, you agree to Lumina's Terms & Privacy.",
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontFamily: 'Inter',
-                      fontSize: 12,
-                      color: AppColors.onSurfaceVariant.withValues(alpha: 0.6),
-                    ),
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  vertical: AppSpacing.lg,
+                  horizontal: AppSpacing.screen,
+                ),
+                child: Text(
+                  l10n.termsFooter,
+                  textAlign: TextAlign.center,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    fontSize: 12,
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.45),
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }

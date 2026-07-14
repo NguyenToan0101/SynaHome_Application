@@ -1,612 +1,491 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:syna/l10n/app_localizations.dart';
 
+import '../../../app/localization/l10n_extensions.dart';
 import '../../../app/theme/app_colors.dart';
+import '../../../app/theme/app_radius.dart';
 import '../../../app/theme/app_spacing.dart';
+import '../../../app/theme/glass_tokens.dart';
+import '../../../core/widgets/glass/glass.dart';
+import '../../../core/widgets/state_views.dart';
+import '../../devices/data/device_providers.dart';
+import '../../devices/domain/device.dart';
+import '../../devices/presentation/device_visuals.dart';
+import '../data/room_providers.dart';
 
-class RoomDeviceScreen extends StatefulWidget {
+/// Nhóm filter map theo [DeviceType].
+enum _DeviceFilter { all, lighting, electric, sensors, other }
+
+extension _DeviceFilterX on _DeviceFilter {
+  bool matches(DeviceType type) => switch (this) {
+    _DeviceFilter.all => true,
+    _DeviceFilter.lighting => type == DeviceType.light,
+    _DeviceFilter.electric =>
+      type == DeviceType.thermostat ||
+          type == DeviceType.fan ||
+          type == DeviceType.speaker,
+    _DeviceFilter.sensors =>
+      type == DeviceType.sensor || type == DeviceType.camera,
+    _DeviceFilter.other => type == DeviceType.lock,
+  };
+}
+
+class RoomDeviceScreen extends ConsumerStatefulWidget {
   const RoomDeviceScreen({required this.roomId, super.key});
 
   final String roomId;
 
   @override
-  State<RoomDeviceScreen> createState() => _RoomDeviceScreenState();
+  ConsumerState<RoomDeviceScreen> createState() => _RoomDeviceScreenState();
 }
 
-class _RoomDeviceScreenState extends State<RoomDeviceScreen> {
-  static const _livingRoomBg =
-      'stitch_syna_home_systems/room_device/livingroom_devices/'
-      'premium_hyper_realistic_3d_render_of_a_luxury_modern_living_room_at_night/'
-      'screen.png';
-
-  static const _categories = [
-    'All',
-    'Lighting',
-    'Climate',
-    'Cleaning',
-    'Entertainment',
-    'Security',
-  ];
-
-  String _selectedCategory = 'All';
-  String _searchQuery = '';
-
-  late List<_RoomDeviceItem> _devices;
+class _RoomDeviceScreenState extends ConsumerState<RoomDeviceScreen> {
+  _DeviceFilter _filter = _DeviceFilter.all;
+  final _scrollController = ScrollController();
+  double _parallax = 0;
+  bool _precached = false;
 
   @override
   void initState() {
     super.initState();
-    _devices = _livingRoomDevices;
-  }
-
-  static const _livingRoomDevices = [
-    _RoomDeviceItem(
-      id: 'ceiling-light',
-      name: 'Ceiling Light',
-      category: 'Lighting',
-      imageAsset:
-          'stitch_syna_home_systems/room_device/livingroom_devices/celling light.png',
-      isOn: true,
-      statusLabel: '100%',
-    ),
-    _RoomDeviceItem(
-      id: 'pendant-light',
-      name: 'Pendant Light',
-      category: 'Lighting',
-      imageAsset:
-          'stitch_syna_home_systems/room_device/livingroom_devices/pendant light.png',
-      isOn: true,
-      statusLabel: '80%',
-    ),
-    _RoomDeviceItem(
-      id: 'air-conditioner',
-      name: 'Air Conditioner',
-      category: 'Climate',
-      imageAsset:
-          'stitch_syna_home_systems/room_device/livingroom_devices/Air conditioner.png',
-      isOn: true,
-      statusLabel: '23°C',
-    ),
-    _RoomDeviceItem(
-      id: 'ceiling-fan',
-      name: 'Ceiling Fan',
-      category: 'Climate',
-      imageAsset:
-          'stitch_syna_home_systems/room_device/livingroom_devices/fan.jpg',
-      isOn: true,
-      statusLabel: '84%',
-    ),
-  ];
-
-  List<_RoomDeviceItem> get _filteredDevices {
-    return _devices.where((device) {
-      final matchesCategory = _selectedCategory == 'All' ||
-          device.category == _selectedCategory;
-      final matchesSearch = _searchQuery.isEmpty ||
-          device.name.toLowerCase().contains(_searchQuery.toLowerCase());
-      return matchesCategory && matchesSearch;
-    }).toList();
-  }
-
-  int get _activeCount => _devices.where((d) => d.isOn).length;
-
-  void _toggleDevice(String id) {
-    setState(() {
-      _devices = _devices
-          .map(
-            (d) => d.id == id ? d.copyWith(isOn: !d.isOn) : d,
-          )
-          .toList();
+    _scrollController.addListener(() {
+      setState(() => _parallax = _scrollController.offset * 0.25);
     });
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_precached) {
+      _precached = true;
+      final background = DeviceVisuals.roomBackground(widget.roomId);
+      if (background != null) {
+        precacheImage(AssetImage(background), context);
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  String _filterLabel(_DeviceFilter filter) {
+    final l10n = context.l10n;
+    return switch (filter) {
+      _DeviceFilter.all => l10n.filterAll,
+      _DeviceFilter.lighting => l10n.filterLighting,
+      _DeviceFilter.electric => l10n.filterElectric,
+      _DeviceFilter.sensors => l10n.filterSensors,
+      _DeviceFilter.other => l10n.filterOther,
+    };
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final roomName = widget.roomId == 'living-room'
-        ? 'Living Room'
-        : widget.roomId.replaceAll('-', ' ').split(' ').map(
-              (word) =>
-                  '${word[0].toUpperCase()}${word.substring(1).toLowerCase()}',
-            ).join(' ');
+    final l10n = context.l10n;
+    final theme = Theme.of(context);
+    final devicesAsync = ref.watch(devicesControllerProvider);
+    final rooms = ref.watch(roomsProvider);
+    final matchedRooms = rooms.where((r) => r.id == widget.roomId).toList();
+    final roomName = matchedRooms.isEmpty
+        ? widget.roomId
+        : matchedRooms.first.name;
+    final background = DeviceVisuals.roomBackground(widget.roomId);
+
+    final allDevices = devicesAsync.valueOrNull ?? const <Device>[];
+    final roomDevices = allDevices
+        .where((d) => d.roomId == widget.roomId)
+        .toList();
+    final filtered = roomDevices.where((d) => _filter.matches(d.type)).toList();
+    final activeCount = roomDevices.where((d) => d.isOn).length;
 
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: AppColors.auroraCanvasTop,
       extendBodyBehindAppBar: true,
       body: Stack(
         fit: StackFit.expand,
         children: [
-          // Cinematic background
-          Image.asset(
-            _livingRoomBg,
-            fit: BoxFit.cover,
-            alignment: Alignment.center,
-          ),
+          // Ảnh nền phòng full-bleed + parallax nhẹ khi scroll.
+          if (background != null)
+            Positioned.fill(
+              child: Transform.translate(
+                offset: Offset(0, -_parallax),
+                child: Image.asset(
+                  background,
+                  fit: BoxFit.cover,
+                  alignment: Alignment.center,
+                ),
+              ),
+            ),
+          // Scrim tối dần để chữ trắng đạt contrast ≥ 4.5:1.
           DecoratedBox(
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [
-                  Colors.black.withValues(alpha: 0.4),
-                  Colors.black.withValues(alpha: 0.6),
-                  Colors.black.withValues(alpha: 0.9),
+                  Colors.black.withValues(alpha: 0.45),
+                  Colors.black.withValues(alpha: 0.55),
+                  Colors.black.withValues(alpha: 0.88),
                 ],
               ),
             ),
           ),
-
-          // Content
-          SafeArea(
-            child: Column(
-              children: [
-                _RoomDeviceHeader(
-                  title: roomName,
-                  subtitle: '${_devices.length} Devices • $_activeCount on',
-                  onBack: () => context.pop(),
-                ),
-                Expanded(
-                  child: CustomScrollView(
-                    slivers: [
-                      SliverPadding(
-                        padding: const EdgeInsets.fromLTRB(
-                          AppSpacing.screen,
-                          AppSpacing.md,
-                          AppSpacing.screen,
-                          0,
-                        ),
-                        sliver: SliverToBoxAdapter(
-                          child: _GlassSearchBar(
-                            onChanged: (value) =>
-                                setState(() => _searchQuery = value),
-                          ),
-                        ),
-                      ),
-                      SliverToBoxAdapter(
-                        child: SizedBox(
-                          height: 44,
-                          child: ListView.separated(
-                            scrollDirection: Axis.horizontal,
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: AppSpacing.screen,
-                              vertical: AppSpacing.sm,
-                            ),
-                            itemCount: _categories.length,
-                            separatorBuilder: (_, __) =>
-                                const SizedBox(width: AppSpacing.sm),
-                            itemBuilder: (context, index) {
-                              final category = _categories[index];
-                              final isActive = _selectedCategory == category;
-                              return GestureDetector(
-                                onTap: () => setState(
-                                  () => _selectedCategory = category,
-                                ),
-                                child: AnimatedContainer(
-                                  duration: const Duration(milliseconds: 200),
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: AppSpacing.lg,
-                                    vertical: AppSpacing.sm,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: isActive
-                                        ? Colors.white.withValues(alpha: 0.9)
-                                        : Colors.white.withValues(alpha: 0.1),
-                                    borderRadius: BorderRadius.circular(999),
-                                    border: isActive
-                                        ? null
-                                        : Border.all(
-                                            color: Colors.white
-                                                .withValues(alpha: 0.1),
-                                          ),
-                                  ),
-                                  child: Text(
-                                    category,
-                                    style: TextStyle(
-                                      fontFamily: 'Inter',
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.w500,
-                                      color: isActive
-                                          ? AppColors.onSurface
-                                          : Colors.white
-                                              .withValues(alpha: 0.8),
-                                    ),
-                                  ),
-                                ),
-                              );
-                            },
-                          ),
-                        ),
-                      ),
-                      SliverPadding(
-                        padding: const EdgeInsets.fromLTRB(
-                          AppSpacing.screen,
-                          AppSpacing.md,
-                          AppSpacing.screen,
-                          100,
-                        ),
-                        sliver: SliverGrid(
-                          gridDelegate:
-                              const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2,
-                            mainAxisSpacing: AppSpacing.md,
-                            crossAxisSpacing: AppSpacing.md,
-                            childAspectRatio: 3 / 4,
-                          ),
-                          delegate: SliverChildBuilderDelegate(
-                            (context, index) {
-                              final device = _filteredDevices[index];
-                              return _GlassDeviceCard(
-                                device: device,
-                                onToggle: () => _toggleDevice(device.id),
-                              );
-                            },
-                            childCount: _filteredDevices.length,
-                          ),
-                        ),
+          // Ép dark theme cho nội dung đặt trên ảnh tối.
+          Theme(
+            data: Theme.of(context).brightness == Brightness.dark
+                ? theme
+                : ThemeData(
+                    useMaterial3: true,
+                    brightness: Brightness.dark,
+                    colorScheme: ColorScheme.fromSeed(
+                      seedColor: AppColors.auroraAccent,
+                      brightness: Brightness.dark,
+                      primary: AppColors.auroraAccent,
+                    ),
+                    textTheme: theme.textTheme.apply(
+                      bodyColor: AppColors.onDark,
+                      displayColor: AppColors.onDark,
+                    ),
+                    splashFactory: NoSplash.splashFactory,
+                  ),
+            child: SafeArea(
+              child: Column(
+                children: [
+                  GlassAppBar(
+                    transparent: true,
+                    onBack: () => context.pop(),
+                    actions: [
+                      GlassIconButton(
+                        icon: Icons.more_horiz_rounded,
+                        onTap: () {},
                       ),
                     ],
                   ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _RoomDeviceItem {
-  const _RoomDeviceItem({
-    required this.id,
-    required this.name,
-    required this.category,
-    required this.imageAsset,
-    required this.isOn,
-    required this.statusLabel,
-  });
-
-  final String id;
-  final String name;
-  final String category;
-  final String imageAsset;
-  final bool isOn;
-  final String statusLabel;
-
-  _RoomDeviceItem copyWith({bool? isOn}) {
-    return _RoomDeviceItem(
-      id: id,
-      name: name,
-      category: category,
-      imageAsset: imageAsset,
-      isOn: isOn ?? this.isOn,
-      statusLabel: statusLabel,
-    );
-  }
-}
-
-class _RoomDeviceHeader extends StatelessWidget {
-  const _RoomDeviceHeader({
-    required this.title,
-    required this.subtitle,
-    required this.onBack,
-  });
-
-  final String title;
-  final String subtitle;
-  final VoidCallback onBack;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.screen,
-        vertical: AppSpacing.sm,
-      ),
-      child: Row(
-        children: [
-          _GlassIconButton(
-            icon: Icons.arrow_back_rounded,
-            onTap: onBack,
-          ),
-          Expanded(
-            child: Column(
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontFamily: 'Inter',
-                    fontSize: 22,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  subtitle,
-                  style: TextStyle(
-                    fontFamily: 'Inter',
-                    fontSize: 13,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.white.withValues(alpha: 0.6),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          _GlassIconButton(
-            icon: Icons.more_horiz_rounded,
-            onTap: () {},
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _GlassIconButton extends StatelessWidget {
-  const _GlassIconButton({required this.icon, required this.onTap});
-
-  final IconData icon;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: ClipOval(
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
-          child: Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.1),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(icon, color: Colors.white, size: 22),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _GlassSearchBar extends StatelessWidget {
-  const _GlassSearchBar({required this.onChanged});
-
-  final ValueChanged<String> onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(16),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
-        child: Container(
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppSpacing.md,
-            vertical: AppSpacing.sm,
-          ),
-          decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.08),
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
-          ),
-          child: Row(
-            children: [
-              Icon(
-                Icons.search_rounded,
-                color: Colors.white.withValues(alpha: 0.4),
-                size: 22,
-              ),
-              const SizedBox(width: AppSpacing.sm),
-              Expanded(
-                child: TextField(
-                  onChanged: onChanged,
-                  style: const TextStyle(
-                    fontFamily: 'Inter',
-                    fontSize: 15,
-                    color: Colors.white,
-                  ),
-                  decoration: InputDecoration(
-                    isDense: true,
-                    border: InputBorder.none,
-                    hintText: 'Search device...',
-                    hintStyle: TextStyle(
-                      fontFamily: 'Inter',
-                      fontSize: 15,
-                      color: Colors.white.withValues(alpha: 0.4),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.screen,
                     ),
-                    contentPadding: EdgeInsets.zero,
-                  ),
-                ),
-              ),
-              Icon(
-                Icons.filter_list_rounded,
-                color: Colors.white.withValues(alpha: 0.6),
-                size: 22,
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _GlassDeviceCard extends StatefulWidget {
-  const _GlassDeviceCard({
-    required this.device,
-    required this.onToggle,
-  });
-
-  final _RoomDeviceItem device;
-  final VoidCallback onToggle;
-
-  @override
-  State<_GlassDeviceCard> createState() => _GlassDeviceCardState();
-}
-
-class _GlassDeviceCardState extends State<_GlassDeviceCard> {
-  double _scale = 1.0;
-
-  @override
-  Widget build(BuildContext context) {
-    final device = widget.device;
-
-    return GestureDetector(
-      onTapDown: (_) => setState(() => _scale = 0.98),
-      onTapUp: (_) => setState(() => _scale = 1.0),
-      onTapCancel: () => setState(() => _scale = 1.0),
-      child: AnimatedScale(
-        duration: const Duration(milliseconds: 100),
-        scale: _scale,
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(28),
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
-            child: Container(
-              padding: const EdgeInsets.all(AppSpacing.md),
-              decoration: BoxDecoration(
-                color: device.isOn
-                    ? Colors.white.withValues(alpha: 0.1)
-                    : Colors.white.withValues(alpha: 0.05),
-                borderRadius: BorderRadius.circular(28),
-                border: Border.all(
-                  color: device.isOn
-                      ? Colors.white.withValues(alpha: 0.15)
-                      : Colors.white.withValues(alpha: 0.08),
-                ),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Align(
-                    alignment: Alignment.topRight,
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 200),
-                      width: 8,
-                      height: 8,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: device.isOn
-                            ? AppColors.success
-                            : Colors.white.withValues(alpha: 0.3),
-                        boxShadow: device.isOn
-                            ? [
-                                BoxShadow(
-                                  color: AppColors.success.withValues(
-                                    alpha: 0.8,
-                                  ),
-                                  blurRadius: 8,
-                                ),
-                              ]
-                            : null,
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                    child: Center(
-                      child: Image.asset(
-                        device.imageAsset,
-                        width: 96,
-                        height: 96,
-                        fit: BoxFit.contain,
-                        color: device.isOn
-                            ? null
-                            : Colors.white.withValues(alpha: 0.4),
-                        colorBlendMode:
-                            device.isOn ? null : BlendMode.modulate,
-                      ),
-                    ),
-                  ),
-                  Text(
-                    device.name,
-                    style: TextStyle(
-                      fontFamily: 'Inter',
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                      color: device.isOn
-                          ? Colors.white
-                          : Colors.white.withValues(alpha: 0.6),
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    device.category,
-                    style: TextStyle(
-                      fontFamily: 'Inter',
-                      fontSize: 13,
-                      color: Colors.white.withValues(alpha: 0.5),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            roomName,
+                            style: Theme.of(context).textTheme.headlineLarge
+                                ?.copyWith(color: Colors.white),
+                          ),
+                        ),
+                        const SizedBox(height: AppSpacing.xs),
+                        Text(
+                          l10n.roomDevicesSummary(
+                            roomDevices.length,
+                            activeCount,
+                          ),
+                          style: Theme.of(context).textTheme.bodyMedium
+                              ?.copyWith(
+                                color: Colors.white.withValues(alpha: 0.7),
+                              ),
+                        ),
+                      ],
                     ),
                   ),
                   const SizedBox(height: AppSpacing.md),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      _AppleToggle(
-                        value: device.isOn,
-                        onChanged: (_) => widget.onToggle(),
+                  SizedBox(
+                    height: 44,
+                    child: ListView.separated(
+                      scrollDirection: Axis.horizontal,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppSpacing.screen,
+                        vertical: AppSpacing.xs,
                       ),
-                      Text(
-                        device.isOn ? device.statusLabel : 'Off',
-                        style: TextStyle(
-                          fontFamily: 'Inter',
-                          fontSize: 13,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.white.withValues(alpha: 0.8),
-                        ),
-                      ),
-                    ],
+                      itemCount: _DeviceFilter.values.length,
+                      separatorBuilder: (_, __) =>
+                          const SizedBox(width: AppSpacing.sm),
+                      itemBuilder: (context, index) {
+                        final filter = _DeviceFilter.values[index];
+                        return GlassFilterChip(
+                          label: _filterLabel(filter),
+                          selected: _filter == filter,
+                          onTap: () => setState(() => _filter = filter),
+                        );
+                      },
+                    ),
+                  ),
+                  Expanded(
+                    child: devicesAsync.isLoading && roomDevices.isEmpty
+                        ? const LoadingView()
+                        : filtered.isEmpty
+                        ? EmptyView(
+                            message: l10n.emptyTitle,
+                            icon: Icons.devices_other_rounded,
+                          )
+                        : LayoutBuilder(
+                            builder: (context, constraints) {
+                              final cols = constraints.maxWidth > 700 ? 4 : 2;
+                              return GridView.builder(
+                                controller: _scrollController,
+                                padding: const EdgeInsets.fromLTRB(
+                                  AppSpacing.screen,
+                                  AppSpacing.md,
+                                  AppSpacing.screen,
+                                  AppSpacing.navClearance,
+                                ),
+                                gridDelegate:
+                                    SliverGridDelegateWithFixedCrossAxisCount(
+                                      crossAxisCount: cols,
+                                      mainAxisSpacing: AppSpacing.md,
+                                      crossAxisSpacing: AppSpacing.md,
+                                      childAspectRatio: 3 / 4,
+                                    ),
+                                itemCount: filtered.length,
+                                itemBuilder: (context, index) {
+                                  final device = filtered[index];
+                                  return _RoomDeviceCard(
+                                    device: device,
+                                    onOpen: () => context.push(
+                                      '/rooms/${widget.roomId}'
+                                      '/devices/${device.id}',
+                                    ),
+                                  );
+                                },
+                              );
+                            },
+                          ),
                   ),
                 ],
               ),
             ),
           ),
-        ),
+        ],
       ),
     );
   }
 }
 
-class _AppleToggle extends StatelessWidget {
-  const _AppleToggle({required this.value, required this.onChanged});
+/// Card kính của một thiết bị trong phòng: ảnh sản phẩm phía trên,
+/// tên + loại, control ở đáy đổi theo [DeviceType].
+class _RoomDeviceCard extends ConsumerWidget {
+  const _RoomDeviceCard({required this.device, required this.onOpen});
 
-  final bool value;
-  final ValueChanged<bool> onChanged;
+  final Device device;
+  final VoidCallback onOpen;
+
+  // Ma trận desaturate cho ảnh khi thiết bị OFF.
+  static const _greyscale = ColorFilter.matrix(<double>[
+    0.2126,
+    0.7152,
+    0.0722,
+    0,
+    0,
+    0.2126,
+    0.7152,
+    0.0722,
+    0,
+    0,
+    0.2126,
+    0.7152,
+    0.0722,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+  ]);
 
   @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => onChanged(!value),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        curve: Curves.easeOut,
-        width: 48,
-        height: 24,
-        decoration: BoxDecoration(
-          color: value
-              ? AppColors.success
-              : Colors.white.withValues(alpha: 0.2),
-          borderRadius: BorderRadius.circular(999),
-        ),
-        child: AnimatedAlign(
-          duration: const Duration(milliseconds: 200),
-          curve: Curves.easeOut,
-          alignment: value ? Alignment.centerRight : Alignment.centerLeft,
-          child: Container(
-            width: 16,
-            height: 16,
-            margin: const EdgeInsets.symmetric(horizontal: 4),
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              shape: BoxShape.circle,
+  Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    final l10n = context.l10n;
+    final accent = DeviceVisuals.accent(device.type, Brightness.dark);
+    final image = DeviceVisuals.productImage(device);
+    final isOn = device.isOn;
+
+    return GlassCard(
+      onTap: onOpen,
+      active: isOn,
+      radius: AppRadius.hero - 4,
+      padding: const EdgeInsets.all(AppSpacing.md),
+      borderGradient: isOn
+          ? LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                accent.withValues(alpha: 0.6),
+                accent.withValues(alpha: 0.08),
+              ],
+            )
+          : null,
+      shadows: isOn ? GlassTokens.glow(accent, intensity: 0.3) : null,
+      semanticLabel: device.name,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Align(
+            alignment: Alignment.topRight,
+            child: Container(
+              width: 8,
+              height: 8,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: device.status == DeviceStatus.offline
+                    ? Colors.white.withValues(alpha: 0.3)
+                    : (isOn
+                          ? AppColors.auroraMint
+                          : Colors.white.withValues(alpha: 0.4)),
+                boxShadow: isOn
+                    ? GlassTokens.glow(AppColors.auroraMint, intensity: 0.7)
+                    : null,
+              ),
             ),
           ),
-        ),
+          // Ảnh sản phẩm — Hero sang màn detail; OFF thì desaturate.
+          Expanded(
+            child: Center(
+              child: Hero(
+                tag: 'device-image-${device.id}',
+                child: image != null
+                    ? ColorFiltered(
+                        colorFilter: isOn
+                            ? const ColorFilter.mode(
+                                Colors.transparent,
+                                BlendMode.dst,
+                              )
+                            : _greyscale,
+                        child: AnimatedOpacity(
+                          duration: GlassTokens.durationMed,
+                          opacity: isOn ? 1 : 0.55,
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(AppRadius.md),
+                            child: Image.asset(
+                              image,
+                              width: 96,
+                              height: 96,
+                              fit: BoxFit.contain,
+                            ),
+                          ),
+                        ),
+                      )
+                    : Icon(
+                        DeviceVisuals.icon(device.type),
+                        size: 56,
+                        color: isOn
+                            ? accent
+                            : Colors.white.withValues(alpha: 0.4),
+                      ),
+              ),
+            ),
+          ),
+          Text(
+            device.name,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: theme.textTheme.labelMedium?.copyWith(
+              fontWeight: FontWeight.w600,
+              color: Colors.white.withValues(alpha: isOn ? 1 : 0.6),
+            ),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            _categoryLabel(l10n, device.type),
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: Colors.white.withValues(alpha: 0.5),
+            ),
+          ),
+          const SizedBox(height: AppSpacing.sm + 4),
+          _CardControl(device: device),
+        ],
       ),
     );
+  }
+
+  String _categoryLabel(AppLocalizations l10n, DeviceType type) =>
+      switch (type) {
+        DeviceType.light => l10n.filterLighting,
+        DeviceType.thermostat ||
+        DeviceType.fan ||
+        DeviceType.speaker => l10n.filterElectric,
+        DeviceType.sensor || DeviceType.camera => l10n.filterSensors,
+        DeviceType.lock => l10n.filterOther,
+      };
+}
+
+/// Control ở đáy card, đổi theo loại thiết bị. Tap control KHÔNG mở
+/// màn detail (GestureDetector chặn event nổi bọt lên card).
+class _CardControl extends ConsumerWidget {
+  const _CardControl({required this.device});
+
+  final Device device;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    final l10n = context.l10n;
+    final controller = ref.read(devicesControllerProvider.notifier);
+    final offline = device.status == DeviceStatus.offline;
+
+    void toggle(bool value) {
+      controller.updateDevice(device.id, DeviceCommand(isOn: value));
+    }
+
+    switch (device.type) {
+      case DeviceType.light:
+      case DeviceType.fan:
+      case DeviceType.speaker:
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            GlassToggle(value: device.isOn, onChanged: offline ? null : toggle),
+            Text(
+              device.isOn
+                  ? (device.brightness != null
+                        ? '${device.brightness}%'
+                        : l10n.deviceOn)
+                  : l10n.deviceOff,
+              style: theme.textTheme.labelMedium?.copyWith(
+                color: Colors.white.withValues(alpha: 0.8),
+              ),
+            ),
+          ],
+        );
+
+      case DeviceType.thermostat:
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            GlassToggle(value: device.isOn, onChanged: offline ? null : toggle),
+            Text(
+              device.isOn ? '${device.temperature ?? '--'}°C' : l10n.deviceOff,
+              style: theme.textTheme.labelMedium?.copyWith(
+                color: Colors.white.withValues(alpha: 0.8),
+              ),
+            ),
+          ],
+        );
+
+      case DeviceType.lock:
+        return GlassStatusPill(
+          icon: device.isOn ? Icons.lock_rounded : Icons.lock_open_rounded,
+          label: device.isOn ? l10n.locked : l10n.unlocked,
+          color: device.isOn ? AppColors.auroraMint : AppColors.auroraWarning,
+        );
+
+      case DeviceType.sensor:
+      case DeviceType.camera:
+        return GlassStatusPill(
+          label:
+              device.subtitle ?? (device.isOn ? l10n.deviceOn : l10n.deviceOff),
+          color: device.isOn
+              ? AppColors.auroraMint
+              : Colors.white.withValues(alpha: 0.4),
+        );
+    }
   }
 }

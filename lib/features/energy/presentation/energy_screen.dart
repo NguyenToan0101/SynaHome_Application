@@ -1,10 +1,13 @@
-import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../app/localization/l10n_extensions.dart';
 import '../../../app/theme/app_colors.dart';
 import '../../../app/theme/app_radius.dart';
 import '../../../app/theme/app_spacing.dart';
+import '../../../app/theme/glass_tokens.dart';
+import '../../../core/widgets/glass/glass.dart';
 import '../../devices/data/device_providers.dart';
 
 class EnergyScreen extends ConsumerStatefulWidget {
@@ -17,10 +20,8 @@ class EnergyScreen extends ConsumerStatefulWidget {
 class _EnergyScreenState extends ConsumerState<EnergyScreen>
     with SingleTickerProviderStateMixin {
   int _selectedTab = 0;
-  late AnimationController _barAnimCtrl;
-  late Animation<double> _barAnim;
-
-  static const _tabs = ['Daily', 'Weekly', 'Monthly'];
+  late final AnimationController _barAnimCtrl;
+  late final Animation<double> _barAnim;
 
   @override
   void initState() {
@@ -29,10 +30,7 @@ class _EnergyScreenState extends ConsumerState<EnergyScreen>
       vsync: this,
       duration: const Duration(milliseconds: 1200),
     );
-    _barAnim = CurvedAnimation(
-      parent: _barAnimCtrl,
-      curve: const Interval(0, 1, curve: Curves.easeOut),
-    );
+    _barAnim = CurvedAnimation(parent: _barAnimCtrl, curve: GlassTokens.curve);
     _barAnimCtrl.forward();
   }
 
@@ -44,184 +42,91 @@ class _EnergyScreenState extends ConsumerState<EnergyScreen>
 
   @override
   Widget build(BuildContext context) {
-    final devices = ref.watch(devicesControllerProvider).valueOrNull ?? [];
-    final totalWatts = devices.fold<double>(
-      0,
-      (sum, d) => sum + (d.energyWatts ?? 0),
-    );
-    final totalKwh = 24.5;
-    final estimatedCost = 18.42;
-    final carbonKg = 12.8;
+    final l10n = context.l10n;
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final mint = isDark ? AppColors.auroraMint : AppColors.auroraMintOnLight;
+    // Giữ liên kết provider để số liệu tổng dùng dữ liệu thật khi có.
+    ref.watch(devicesControllerProvider);
+    const totalKwh = 24.5;
+    const estimatedCost = 18.42;
+    const carbonKg = 12.8;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Colors.transparent,
       body: CustomScrollView(
         slivers: [
-          // Glassmorphic App Bar
           SliverAppBar(
             pinned: true,
             elevation: 0,
-            backgroundColor: AppColors.surface.withValues(alpha: 0.7),
+            backgroundColor: Colors.transparent,
             surfaceTintColor: Colors.transparent,
+            automaticallyImplyLeading: false,
             toolbarHeight: 68,
-            title: Row(
-              children: [
-                Container(
-                  width: 36,
-                  height: 36,
-                  decoration: const BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: AppColors.surfaceContainer,
-                  ),
-                  child: const Icon(
-                    Icons.person_rounded,
-                    size: 20,
-                    color: AppColors.onSurfaceVariant,
-                  ),
-                ),
-                const SizedBox(width: AppSpacing.md),
-                const Text(
-                  'Lumina',
-                  style: TextStyle(
-                    fontFamily: 'Inter',
-                    fontSize: 22,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.onSurface,
-                  ),
+            flexibleSpace: GlassAppBar(
+              centerTitle: false,
+              title: l10n.appName,
+              actions: [
+                GlassIconButton(
+                  icon: Icons.notifications_outlined,
+                  tooltip: l10n.notifications,
+                  onTap: () => context.go('/profile/notifications'),
                 ),
               ],
             ),
-            actions: [
-              IconButton(
-                icon: const Icon(
-                  Icons.notifications_outlined,
-                  color: AppColors.onSurfaceVariant,
-                ),
-                onPressed: () {},
-              ),
-            ],
           ),
-
           SliverPadding(
             padding: const EdgeInsets.fromLTRB(
               AppSpacing.screen,
               AppSpacing.lg,
               AppSpacing.screen,
-              100,
+              AppSpacing.navClearance,
             ),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
-                // Header + Tabs
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    const Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Energy Usage',
-                            style: TextStyle(
-                              fontFamily: 'Inter',
-                              fontSize: 28,
-                              fontWeight: FontWeight.w600,
-                              letterSpacing: -0.5,
-                              color: AppColors.onSurface,
-                            ),
-                          ),
-                          SizedBox(height: 4),
-                          Text(
-                            'Real-time consumption monitoring',
-                            style: TextStyle(
-                              fontFamily: 'Inter',
-                              fontSize: 14,
-                              color: AppColors.onSurfaceVariant,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+                Text(
+                  l10n.energyUsage,
+                  style: theme.textTheme.headlineSmall?.copyWith(fontSize: 26),
+                ),
+                const SizedBox(height: AppSpacing.xs),
+                Text(
+                  l10n.energySubtitle,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.lg),
+
+                GlassSegmentedControl(
+                  segments: [
+                    GlassSegment(label: l10n.periodDaily),
+                    GlassSegment(label: l10n.periodWeekly),
+                    GlassSegment(label: l10n.periodMonthly),
                   ],
+                  selectedIndex: _selectedTab,
+                  onChanged: (index) {
+                    setState(() => _selectedTab = index);
+                    _barAnimCtrl
+                      ..reset()
+                      ..forward();
+                  },
                 ),
                 const SizedBox(height: AppSpacing.lg),
 
-                // Period tab selector
-                Container(
-                  padding: const EdgeInsets.all(4),
-                  decoration: BoxDecoration(
-                    color: AppColors.surfaceContainer,
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                  child: Row(
-                    children: List.generate(
-                      _tabs.length,
-                      (i) => Expanded(
-                        child: GestureDetector(
-                          onTap: () {
-                            setState(() => _selectedTab = i);
-                            _barAnimCtrl
-                              ..reset()
-                              ..forward();
-                          },
-                          child: AnimatedContainer(
-                            duration: const Duration(milliseconds: 200),
-                            padding: const EdgeInsets.symmetric(vertical: 8),
-                            decoration: BoxDecoration(
-                              color: _selectedTab == i
-                                  ? Colors.white
-                                  : Colors.transparent,
-                              borderRadius: BorderRadius.circular(10),
-                              boxShadow: _selectedTab == i
-                                  ? [
-                                      const BoxShadow(
-                                        color: Color(0x14000000),
-                                        blurRadius: 4,
-                                        offset: Offset(0, 1),
-                                      ),
-                                    ]
-                                  : null,
-                            ),
-                            child: Center(
-                              child: Text(
-                                _tabs[i],
-                                style: TextStyle(
-                                  fontFamily: 'Inter',
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w500,
-                                  color: _selectedTab == i
-                                      ? AppColors.primary
-                                      : AppColors.onSurfaceVariant,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: AppSpacing.lg),
-
-                // Chart Card
-                _EnergyChartCard(),
+                const _EnergyChartCard(),
                 const SizedBox(height: AppSpacing.md),
 
-                // Distribution Card
-                _animatedCard(
-                  child: _DeviceDistributionCard(animation: _barAnim),
-                ),
+                _DeviceDistributionCard(animation: _barAnim),
                 const SizedBox(height: AppSpacing.md),
 
-                // Stats row
                 Row(
                   children: [
                     Expanded(
                       child: _StatCard(
                         icon: Icons.bolt_rounded,
-                        iconColor: AppColors.primary,
-                        iconBg: AppColors.primary.withValues(alpha: 0.1),
-                        label: 'Total Usage',
-                        value: '${totalKwh}',
+                        iconColor: theme.colorScheme.primary,
+                        label: l10n.totalUsage,
+                        value: '$totalKwh',
                         unit: 'kWh',
                       ),
                     ),
@@ -229,10 +134,9 @@ class _EnergyScreenState extends ConsumerState<EnergyScreen>
                     Expanded(
                       child: _StatCard(
                         icon: Icons.payments_outlined,
-                        iconColor: AppColors.tertiary,
-                        iconBg: AppColors.tertiary.withValues(alpha: 0.1),
-                        label: 'Est. Cost',
-                        value: '\$${estimatedCost}',
+                        iconColor: AppColors.auroraWarning,
+                        label: l10n.estimatedCost,
+                        value: '\$$estimatedCost',
                         unit: 'USD',
                       ),
                     ),
@@ -241,12 +145,10 @@ class _EnergyScreenState extends ConsumerState<EnergyScreen>
                 const SizedBox(height: AppSpacing.md),
                 _StatCard(
                   icon: Icons.forest_outlined,
-                  iconColor: AppColors.secondary,
-                  iconBg: AppColors.secondary.withValues(alpha: 0.1),
-                  label: 'Carbon Footprint',
+                  iconColor: mint,
+                  label: l10n.carbonFootprint,
                   value: '$carbonKg',
                   unit: 'kgCO₂',
-                  isWide: true,
                 ),
               ]),
             ),
@@ -255,22 +157,22 @@ class _EnergyScreenState extends ConsumerState<EnergyScreen>
       ),
     );
   }
-
-  Widget _animatedCard({required Widget child}) => child;
 }
 
 // ─────────────────────────────────────────────────────────────────────
-// Chart Card with custom painter
+// Chart Card
 // ─────────────────────────────────────────────────────────────────────
 class _EnergyChartCard extends StatefulWidget {
+  const _EnergyChartCard();
+
   @override
   State<_EnergyChartCard> createState() => _EnergyChartCardState();
 }
 
 class _EnergyChartCardState extends State<_EnergyChartCard>
     with SingleTickerProviderStateMixin {
-  late AnimationController _ctrl;
-  late Animation<double> _anim;
+  late final AnimationController _ctrl;
+  late final Animation<double> _anim;
 
   @override
   void initState() {
@@ -279,7 +181,7 @@ class _EnergyChartCardState extends State<_EnergyChartCard>
       vsync: this,
       duration: const Duration(milliseconds: 2000),
     );
-    _anim = CurvedAnimation(parent: _ctrl, curve: Curves.easeOut);
+    _anim = CurvedAnimation(parent: _ctrl, curve: GlassTokens.curve);
     _ctrl.forward();
   }
 
@@ -291,71 +193,58 @@ class _EnergyChartCardState extends State<_EnergyChartCard>
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    final l10n = context.l10n;
+    final theme = Theme.of(context);
+
+    return GlassContainer(
+      radius: AppRadius.card,
       padding: const EdgeInsets.all(AppSpacing.lg),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.7),
-        borderRadius: BorderRadius.circular(AppRadius.card),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.4)),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x0D000000),
-            blurRadius: 20,
-            offset: Offset(0, 4),
-          ),
-        ],
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'Consumption Over Time',
-                style: TextStyle(
-                  fontFamily: 'Inter',
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.onSurface,
+              Flexible(
+                child: Text(
+                  l10n.consumptionOverTime,
+                  style: theme.textTheme.titleMedium,
                 ),
               ),
-              Row(
-                children: [
-                  _Legend(color: AppColors.primary, label: 'Consumption'),
-                  const SizedBox(width: 12),
-                  _Legend(color: AppColors.error, label: 'Peak'),
-                ],
+              _Legend(
+                color: theme.colorScheme.primary,
+                label: l10n.consumption,
               ),
             ],
           ),
           const SizedBox(height: AppSpacing.lg),
-
-          // Custom chart
           SizedBox(
             height: 180,
             child: AnimatedBuilder(
               animation: _anim,
               builder: (context, _) => CustomPaint(
                 size: const Size(double.infinity, 180),
-                painter: _EnergyChartPainter(progress: _anim.value),
+                painter: _EnergyChartPainter(
+                  progress: _anim.value,
+                  lineColor: theme.colorScheme.primary,
+                  gridColor: theme.colorScheme.onSurface.withValues(
+                    alpha: 0.08,
+                  ),
+                  peakColor: AppColors.auroraError,
+                ),
               ),
             ),
           ),
-
           const SizedBox(height: AppSpacing.sm),
-
-          // X-axis labels
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: const ['06:00', '09:00', '12:00', '15:00', '18:00', '21:00']
+            children: ['06:00', '09:00', '12:00', '15:00', '18:00', '21:00']
                 .map(
                   (t) => Text(
                     t,
-                    style: const TextStyle(
-                      fontFamily: 'Inter',
+                    style: theme.textTheme.bodySmall?.copyWith(
                       fontSize: 11,
-                      color: AppColors.onSurfaceVariant,
+                      color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
                     ),
                   ),
                 )
@@ -374,20 +263,21 @@ class _Legend extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Row(
+      mainAxisSize: MainAxisSize.min,
       children: [
         Container(
           width: 8,
           height: 8,
           decoration: BoxDecoration(shape: BoxShape.circle, color: color),
         ),
-        const SizedBox(width: 4),
+        const SizedBox(width: AppSpacing.xs),
         Text(
           label,
-          style: const TextStyle(
-            fontFamily: 'Inter',
+          style: theme.textTheme.bodySmall?.copyWith(
             fontSize: 11,
-            color: AppColors.onSurfaceVariant,
+            color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
           ),
         ),
       ],
@@ -396,16 +286,24 @@ class _Legend extends StatelessWidget {
 }
 
 class _EnergyChartPainter extends CustomPainter {
-  _EnergyChartPainter({required this.progress});
+  _EnergyChartPainter({
+    required this.progress,
+    required this.lineColor,
+    required this.gridColor,
+    required this.peakColor,
+  });
+
   final double progress;
+  final Color lineColor;
+  final Color gridColor;
+  final Color peakColor;
 
   @override
   void paint(Canvas canvas, Size size) {
     final w = size.width;
     final h = size.height;
 
-    // Data points (normalized 0-1, y is inverted)
-    final points = [
+    final points = const [
       Offset(0, 0.15),
       Offset(0.14, 0.13),
       Offset(0.25, 0.18),
@@ -417,103 +315,83 @@ class _EnergyChartPainter extends CustomPainter {
       Offset(1.0, 0.45),
     ].map((p) => Offset(p.dx * w, (1 - p.dy) * h)).toList();
 
-    // Clip to progress
     canvas.save();
     canvas.clipRect(Rect.fromLTWH(0, 0, w * progress, h));
 
-    // Grid lines
     final gridPaint = Paint()
-      ..color = AppColors.surfaceContainerHighest
+      ..color = gridColor
       ..strokeWidth = 1
       ..style = PaintingStyle.stroke;
     for (final y in [0.25, 0.5, 0.75]) {
-      canvas.drawLine(
-        Offset(0, h * y),
-        Offset(w, h * y),
-        gridPaint,
-      );
+      canvas.drawLine(Offset(0, h * y), Offset(w, h * y), gridPaint);
     }
 
-    // Area gradient
-    final path = Path();
-    path.moveTo(points.first.dx, points.first.dy);
-    for (var i = 1; i < points.length; i++) {
-      final cp1 = Offset(
-        (points[i - 1].dx + points[i].dx) / 2,
-        points[i - 1].dy,
-      );
-      final cp2 = Offset(
-        (points[i - 1].dx + points[i].dx) / 2,
-        points[i].dy,
-      );
-      path.cubicTo(cp1.dx, cp1.dy, cp2.dx, cp2.dy, points[i].dx, points[i].dy);
+    Path buildLine() {
+      final path = Path()..moveTo(points.first.dx, points.first.dy);
+      for (var i = 1; i < points.length; i++) {
+        final cp1 = Offset(
+          (points[i - 1].dx + points[i].dx) / 2,
+          points[i - 1].dy,
+        );
+        final cp2 = Offset((points[i - 1].dx + points[i].dx) / 2, points[i].dy);
+        path.cubicTo(
+          cp1.dx,
+          cp1.dy,
+          cp2.dx,
+          cp2.dy,
+          points[i].dx,
+          points[i].dy,
+        );
+      }
+      return path;
     }
-    path.lineTo(w, h);
-    path.lineTo(0, h);
-    path.close();
 
+    final areaPath = buildLine()
+      ..lineTo(w, h)
+      ..lineTo(0, h)
+      ..close();
     final gradPaint = Paint()
       ..shader = LinearGradient(
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
         colors: [
-          AppColors.primary.withValues(alpha: 0.12),
-          AppColors.primary.withValues(alpha: 0),
+          lineColor.withValues(alpha: 0.18),
+          lineColor.withValues(alpha: 0),
         ],
       ).createShader(Rect.fromLTWH(0, 0, w, h));
-    canvas.drawPath(path, gradPaint);
+    canvas.drawPath(areaPath, gradPaint);
 
-    // Line
-    final linePath = Path();
-    linePath.moveTo(points.first.dx, points.first.dy);
-    for (var i = 1; i < points.length; i++) {
-      final cp1 = Offset(
-        (points[i - 1].dx + points[i].dx) / 2,
-        points[i - 1].dy,
-      );
-      final cp2 = Offset(
-        (points[i - 1].dx + points[i].dx) / 2,
-        points[i].dy,
-      );
-      linePath.cubicTo(
-          cp1.dx, cp1.dy, cp2.dx, cp2.dy, points[i].dx, points[i].dy);
-    }
     final linePaint = Paint()
-      ..color = AppColors.primary
+      ..color = lineColor
       ..strokeWidth = 3
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round
       ..strokeJoin = StrokeJoin.round;
-    canvas.drawPath(linePath, linePaint);
+    canvas.drawPath(buildLine(), linePaint);
 
-    // Peak point
-    final peakPoint = points[3]; // highest point
-    final peakCirclePaint = Paint()
-      ..color = AppColors.error
-      ..style = PaintingStyle.fill;
-    canvas.drawCircle(peakPoint, 6, peakCirclePaint);
+    final peakPoint = points[3];
+    canvas.drawCircle(peakPoint, 6, Paint()..color = peakColor);
 
-    // Peak label
     final textPainter = TextPainter(
-      text: const TextSpan(
+      text: TextSpan(
         text: 'Peak: 4.2 kW',
         style: TextStyle(
           fontFamily: 'Inter',
           fontSize: 11,
           fontWeight: FontWeight.w600,
-          color: AppColors.error,
+          color: peakColor,
         ),
       ),
       textDirection: TextDirection.ltr,
-    );
-    textPainter.layout();
+    )..layout();
     textPainter.paint(canvas, peakPoint + const Offset(10, -8));
 
     canvas.restore();
   }
 
   @override
-  bool shouldRepaint(_EnergyChartPainter old) => old.progress != progress;
+  bool shouldRepaint(_EnergyChartPainter old) =>
+      old.progress != progress || old.lineColor != lineColor;
 }
 
 // ─────────────────────────────────────────────────────────────────────
@@ -525,43 +403,28 @@ class _DeviceDistributionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const items = [
-      ('Climate Control', 12.4, 0.65),
-      ('Refrigeration', 4.2, 0.25),
-      ('Smart Lighting', 2.8, 0.15),
-      ('Others', 1.5, 0.08),
+    final l10n = context.l10n;
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final mint = isDark ? AppColors.auroraMint : AppColors.auroraMintOnLight;
+    final items = [
+      (l10n.categoryClimate, 12.4, 0.65),
+      (l10n.categoryRefrigeration, 4.2, 0.25),
+      (l10n.categoryLighting, 2.8, 0.15),
+      (l10n.categoryOthers, 1.5, 0.08),
     ];
 
-    return Container(
+    return GlassContainer(
+      radius: AppRadius.card,
       padding: const EdgeInsets.all(AppSpacing.lg),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.7),
-        borderRadius: BorderRadius.circular(AppRadius.card),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.4)),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x0D000000),
-            blurRadius: 20,
-            offset: Offset(0, 4),
-          ),
-        ],
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Device Distribution',
-            style: TextStyle(
-              fontFamily: 'Inter',
-              fontSize: 18,
-              fontWeight: FontWeight.w600,
-              color: AppColors.onSurface,
-            ),
-          ),
+          Text(l10n.deviceDistribution, style: theme.textTheme.titleMedium),
           const SizedBox(height: AppSpacing.lg),
           ...items.map((item) {
             return Padding(
-              padding: const EdgeInsets.only(bottom: AppSpacing.lg),
+              padding: const EdgeInsets.only(bottom: AppSpacing.md),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -570,48 +433,53 @@ class _DeviceDistributionCard extends StatelessWidget {
                     children: [
                       Text(
                         item.$1,
-                        style: const TextStyle(
-                          fontFamily: 'Inter',
-                          fontSize: 13,
+                        style: theme.textTheme.labelMedium?.copyWith(
                           fontWeight: FontWeight.w600,
-                          color: AppColors.onSurface,
                         ),
                       ),
                       Text(
                         '${item.$2} kWh',
-                        style: const TextStyle(
-                          fontFamily: 'Inter',
-                          fontSize: 13,
-                          fontWeight: FontWeight.w500,
-                          color: AppColors.primary,
+                        style: theme.textTheme.labelMedium?.copyWith(
+                          color: theme.colorScheme.primary,
                         ),
                       ),
                     ],
                   ),
                   const SizedBox(height: AppSpacing.sm),
                   Container(
-                    height: 32,
+                    height: 24,
                     decoration: BoxDecoration(
-                      color: AppColors.surfaceContainer,
-                      borderRadius: BorderRadius.circular(100),
+                      color: theme.colorScheme.onSurface.withValues(
+                        alpha: 0.08,
+                      ),
+                      borderRadius: BorderRadius.circular(AppRadius.pill),
                     ),
                     child: AnimatedBuilder(
                       animation: animation,
                       builder: (context, _) => LayoutBuilder(
                         builder: (context, constraints) {
-                          return Stack(
-                            children: [
-                              Container(
-                                width: constraints.maxWidth *
-                                    item.$3 *
-                                    animation.value,
-                                height: 32,
-                                decoration: BoxDecoration(
-                                  color: AppColors.primary,
-                                  borderRadius: BorderRadius.circular(100),
+                          return Align(
+                            alignment: Alignment.centerLeft,
+                            child: Container(
+                              width:
+                                  constraints.maxWidth *
+                                  item.$3 *
+                                  animation.value,
+                              height: 24,
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [
+                                    theme.colorScheme.primary,
+                                    theme.colorScheme.primary.withValues(
+                                      alpha: 0.6,
+                                    ),
+                                  ],
+                                ),
+                                borderRadius: BorderRadius.circular(
+                                  AppRadius.pill,
                                 ),
                               ),
-                            ],
+                            ),
                           );
                         },
                       ),
@@ -623,51 +491,41 @@ class _DeviceDistributionCard extends StatelessWidget {
           }),
 
           // Eco tip
-          Container(
+          GlassContainer(
+            radius: AppRadius.lg,
+            blur: GlassTokens.blurSm,
+            fill: mint.withValues(alpha: 0.1),
             padding: const EdgeInsets.all(AppSpacing.md),
-            decoration: BoxDecoration(
-              color: AppColors.secondary.withValues(alpha: 0.08),
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(
-                color: AppColors.secondary.withValues(alpha: 0.15),
-              ),
-            ),
             child: Row(
               children: [
                 Container(
                   width: 40,
                   height: 40,
                   decoration: BoxDecoration(
-                    color: AppColors.secondary.withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(10),
+                    color: mint.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(AppRadius.md),
                   ),
-                  child: const Icon(
-                    Icons.eco_outlined,
-                    color: AppColors.secondary,
-                    size: 22,
-                  ),
+                  child: Icon(Icons.eco_outlined, color: mint, size: 22),
                 ),
                 const SizedBox(width: AppSpacing.md),
-                const Expanded(
+                Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Efficiency Tip',
-                        style: TextStyle(
-                          fontFamily: 'Inter',
-                          fontSize: 13,
+                        l10n.efficiencyTip,
+                        style: theme.textTheme.labelMedium?.copyWith(
+                          color: mint,
                           fontWeight: FontWeight.w700,
-                          color: AppColors.secondary,
                         ),
                       ),
-                      SizedBox(height: 2),
+                      const SizedBox(height: 2),
                       Text(
-                        'Lowering AC by 2°C could save you \$12 this month.',
-                        style: TextStyle(
-                          fontFamily: 'Inter',
-                          fontSize: 12,
-                          color: AppColors.onSurfaceVariant,
+                        l10n.efficiencyTipBody,
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.colorScheme.onSurface.withValues(
+                            alpha: 0.6,
+                          ),
                         ),
                       ),
                     ],
@@ -689,47 +547,33 @@ class _StatCard extends StatelessWidget {
   const _StatCard({
     required this.icon,
     required this.iconColor,
-    required this.iconBg,
     required this.label,
     required this.value,
     required this.unit,
-    this.isWide = false,
   });
 
   final IconData icon;
   final Color iconColor;
-  final Color iconBg;
   final String label;
   final String value;
   final String unit;
-  final bool isWide;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    final theme = Theme.of(context);
+    return GlassContainer(
+      radius: AppRadius.card,
       padding: const EdgeInsets.all(AppSpacing.lg),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.7),
-        borderRadius: BorderRadius.circular(AppRadius.card),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.4)),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x0D000000),
-            blurRadius: 20,
-            offset: Offset(0, 4),
-          ),
-        ],
-      ),
       child: Row(
         children: [
           Container(
-            width: 52,
-            height: 52,
+            width: 48,
+            height: 48,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: iconBg,
+              color: iconColor.withValues(alpha: 0.15),
             ),
-            child: Icon(icon, color: iconColor, size: 28),
+            child: Icon(icon, color: iconColor, size: 24),
           ),
           const SizedBox(width: AppSpacing.md),
           Expanded(
@@ -738,11 +582,8 @@ class _StatCard extends StatelessWidget {
               children: [
                 Text(
                   label,
-                  style: const TextStyle(
-                    fontFamily: 'Inter',
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                    color: AppColors.onSurfaceVariant,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
                   ),
                 ),
                 const SizedBox(height: 2),
@@ -750,24 +591,22 @@ class _StatCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.baseline,
                   textBaseline: TextBaseline.alphabetic,
                   children: [
-                    Text(
-                      value,
-                      style: const TextStyle(
-                        fontFamily: 'Inter',
-                        fontSize: 28,
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: -0.5,
-                        color: AppColors.onSurface,
+                    Flexible(
+                      child: Text(
+                        value,
+                        overflow: TextOverflow.ellipsis,
+                        style: theme.textTheme.headlineMedium?.copyWith(
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
                     ),
-                    const SizedBox(width: 4),
+                    const SizedBox(width: AppSpacing.xs),
                     Text(
                       unit,
-                      style: const TextStyle(
-                        fontFamily: 'Inter',
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                        color: AppColors.onSurfaceVariant,
+                      style: theme.textTheme.labelMedium?.copyWith(
+                        color: theme.colorScheme.onSurface.withValues(
+                          alpha: 0.6,
+                        ),
                       ),
                     ),
                   ],

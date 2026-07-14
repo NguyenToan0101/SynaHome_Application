@@ -11,10 +11,10 @@ class AuthState {
   });
 
   const AuthState.checking()
-      : status = AuthStatus.checking,
-        session = null,
-        errorMessage = null,
-        isSubmitting = false;
+    : status = AuthStatus.checking,
+      session = null,
+      errorMessage = null,
+      isSubmitting = false;
 
   final AuthStatus status;
   final AuthSession? session;

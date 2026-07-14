@@ -22,4 +22,37 @@ abstract final class AppColors {
   static const outlineVariant = Color(0xFFC1C6D7);
   static const darkBackground = Color(0xFF000000);
   static const darkSurface = Color(0xFF1C1C1E);
+
+  // ── Midnight Aurora (dark-first glassmorphism) ────────────────────
+  /// Accent chính trên nền tối — azure lạnh, gợi công nghệ tin cậy.
+  static const auroraAccent = Color(0xFF4C9EFF);
+
+  /// Trạng thái "đang bật / an toàn" — mint, chỉ dùng cho ON state.
+  static const auroraMint = Color(0xFF34D399);
+
+  /// Mint đậm dùng trên nền sáng để đảm bảo contrast.
+  static const auroraMintOnLight = Color(0xFF1DA653);
+
+  /// Cảnh báo / lỗi trên nền tối.
+  static const auroraWarning = Color(0xFFFBBF24);
+  static const auroraError = Color(0xFFF87171);
+
+  /// Ba lớp canvas tối (trên → giữa → dưới) của gradient nền.
+  static const auroraCanvasTop = Color(0xFF070B14);
+  static const auroraCanvasMid = Color(0xFF0C1424);
+  static const auroraCanvasBottom = Color(0xFF0A101E);
+
+  /// Canvas sáng tương ứng cho light theme.
+  static const auroraCanvasTopLight = Color(0xFFF4F6FC);
+  static const auroraCanvasBottomLight = Color(0xFFFAF9FE);
+
+  /// Màu orb ambient đặt sau lớp kính.
+  static const orbAzure = Color(0xFF3B82F6);
+  static const orbViolet = Color(0xFF8B5CF6);
+  static const orbTeal = Color(0xFF2DD4BF);
+
+  /// Chữ trên nền tối.
+  static const onDark = Color(0xFFF1F3F9);
+  static const onDarkMuted = Color(0xFFA6ADC2);
+  static const onDarkFaint = Color(0xFF6B7288);
 }

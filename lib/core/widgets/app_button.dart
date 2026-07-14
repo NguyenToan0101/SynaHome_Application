@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../../app/theme/app_radius.dart';
+import '../../app/theme/glass_tokens.dart';
 
-class AppButton extends StatelessWidget {
+/// Nút chính: nền accent + glow, press-scale theo motion token.
+class AppButton extends StatefulWidget {
   const AppButton({
     required this.label,
     required this.onPressed,
@@ -17,61 +20,81 @@ class AppButton extends StatelessWidget {
   final bool isLoading;
 
   @override
+  State<AppButton> createState() => _AppButtonState();
+}
+
+class _AppButtonState extends State<AppButton> {
+  bool _pressed = false;
+
+  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: onPressed == null || isLoading
-            ? null
-            : [
-                BoxShadow(
-                  color: theme.colorScheme.primary.withValues(alpha: 0.25),
-                  blurRadius: 20,
-                  offset: const Offset(0, 8),
-                ),
-              ],
-      ),
-      child: FilledButton(
-        onPressed: isLoading ? null : onPressed,
-        style: FilledButton.styleFrom(
-          minimumSize: const Size.fromHeight(52),
-          backgroundColor: theme.colorScheme.primary,
-          foregroundColor: theme.colorScheme.onPrimary,
-          disabledBackgroundColor: theme.colorScheme.primary.withValues(alpha: 0.6),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
+    final accent = theme.colorScheme.primary;
+    final enabled = widget.onPressed != null && !widget.isLoading;
+
+    return Listener(
+      onPointerDown: enabled ? (_) => setState(() => _pressed = true) : null,
+      onPointerUp: (_) => setState(() => _pressed = false),
+      onPointerCancel: (_) => setState(() => _pressed = false),
+      child: AnimatedScale(
+        duration: GlassTokens.durationFast,
+        curve: GlassTokens.curve,
+        scale: _pressed ? GlassTokens.pressedScale : 1.0,
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(AppRadius.lg),
+            boxShadow: enabled
+                ? GlassTokens.glow(accent, intensity: 0.7)
+                : null,
           ),
-          elevation: 0,
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            if (isLoading)
-              const SizedBox.square(
-                dimension: 18,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  valueColor: AlwaysStoppedAnimation(Colors.white),
-                ),
-              )
-            else ...[
-              Text(
-                label,
-                style: const TextStyle(
-                  fontFamily: 'Inter',
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: -0.1,
-                ),
+          child: FilledButton(
+            onPressed: enabled
+                ? () {
+                    HapticFeedback.selectionClick();
+                    widget.onPressed!();
+                  }
+                : null,
+            style: FilledButton.styleFrom(
+              minimumSize: const Size.fromHeight(52),
+              backgroundColor: accent,
+              foregroundColor: Colors.white,
+              disabledBackgroundColor: accent.withValues(alpha: 0.5),
+              disabledForegroundColor: Colors.white.withValues(alpha: 0.8),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(AppRadius.lg),
               ),
-              if (icon != null) ...[
-                const SizedBox(width: 8),
-                Icon(icon, size: 20),
+              elevation: 0,
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                if (widget.isLoading)
+                  const SizedBox.square(
+                    dimension: 18,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation(Colors.white),
+                    ),
+                  )
+                else ...[
+                  Text(
+                    widget.label,
+                    style: const TextStyle(
+                      fontFamily: 'Inter',
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: -0.1,
+                    ),
+                  ),
+                  if (widget.icon != null) ...[
+                    const SizedBox(width: 8),
+                    Icon(widget.icon, size: 20),
+                  ],
+                ],
               ],
-            ],
-          ],
+            ),
+          ),
         ),
       ),
     );

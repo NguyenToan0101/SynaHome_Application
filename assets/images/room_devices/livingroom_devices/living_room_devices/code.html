@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
+<title>Living Room Devices - Smart Home</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-low": "#f4f3f8",
+                        "on-surface-variant": "#414755",
+                        "on-primary-fixed-variant": "#004493",
+                        "on-primary": "#ffffff",
+                        "on-error-container": "#93000a",
+                        "surface-bright": "#faf9fe",
+                        "tertiary-container": "#ac6300",
+                        "on-primary-fixed": "#001a41",
+                        "outline-variant": "#c1c6d7",
+                        "secondary-fixed-dim": "#53e16f",
+                        "error-container": "#ffdad6",
+                        "surface-tint": "#005bc1",
+                        "on-error": "#ffffff",
+                        "on-secondary-fixed": "#002107",
+                        "on-surface": "#1a1b1f",
+                        "primary-fixed-dim": "#adc6ff",
+                        "surface": "#faf9fe",
+                        "tertiary-fixed": "#ffdcbf",
+                        "inverse-primary": "#adc6ff",
+                        "surface-dim": "#dad9df",
+                        "on-background": "#1a1b1f",
+                        "surface-container-lowest": "#ffffff",
+                        "secondary-container": "#6ffb85",
+                        "on-tertiary": "#ffffff",
+                        "secondary": "#006e28",
+                        "primary-fixed": "#d8e2ff",
+                        "on-secondary-fixed-variant": "#00531c",
+                        "surface-variant": "#e3e2e7",
+                        "on-tertiary-fixed": "#2d1600",
+                        "on-tertiary-fixed-variant": "#6a3b00",
+                        "on-secondary": "#ffffff",
+                        "error": "#ba1a1a",
+                        "inverse-on-surface": "#f1f0f5",
+                        "inverse-surface": "#2f3034",
+                        "on-primary-container": "#fefcff",
+                        "surface-container-high": "#e9e7ed",
+                        "background": "#faf9fe",
+                        "tertiary-fixed-dim": "#ffb874",
+                        "primary": "#0058bc",
+                        "secondary-fixed": "#72fe88",
+                        "on-tertiary-container": "#fffbff",
+                        "outline": "#717786",
+                        "primary-container": "#0070eb",
+                        "on-secondary-container": "#00732a",
+                        "tertiary": "#894d00",
+                        "surface-container-highest": "#e3e2e7",
+                        "surface-container": "#eeedf3"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "2xl": "1rem",
+                        "3xl": "1.5rem",
+                        "device-card": "28px",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "unit": "8px",
+                        "xl": "32px",
+                        "xs": "4px",
+                        "md": "16px",
+                        "lg": "24px",
+                        "container-margin": "24px",
+                        "gutter": "16px",
+                        "sm": "8px"
+                    },
+                    "fontFamily": {
+                        "label-sm": ["Inter"],
+                        "label-caps": ["Inter"],
+                        "headline-lg-mobile": ["Inter"],
+                        "display-lg": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "body-md": ["Inter"]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .active-chip {
+            background: rgba(255, 255, 255, 0.9);
+            color: #1a1b1f;
+        }
+
+        .inactive-chip {
+            background: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+        }
+
+        .switch-on {
+            background: #34C759;
+        }
+
+        .switch-thumb {
+            transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* Material Symbols Customization */
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            vertical-align: middle;
+        }
+        
+        .fill-icon {
+            font-variation-settings: 'FILL' 1;
+        }
+    </style>
+</head>
+<body class="bg-black text-white h-screen overflow-hidden selection:bg-primary-container">
+<!-- Cinematic Background -->
+<div class="fixed inset-0 z-0">
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-1000 scale-105" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuC_8XJQ70GWL4lkYb7ADMc5D6hwQ4K9fEU8blyK-f3dEG8TCf8Mr6JggkgzDuC58NhUrV_Sb-Bn_z1WVVNPvig0jrPlCk-KCKiBaMTlBLE0-PvTUNnW0eRERMXMqOYvLfyZmAa36YHzJwaa3E2J_L_iHWTN2h_ZUZmVAe8EEVC0yEroS0_3dcevGqENvT8Aixg9DcZYWciff_6f05rrugh8QI8MUv2IUfGUl9YvjSOnHsnpzel-JJwYggY9jIy1ZI8uX6GTqKkjW-A')">
+</div>
+<div class="absolute inset-0 bg-gradient-to-b from-black/40 via-black/60 to-black/90 backdrop-blur-[2px]"></div>
+</div>
+<!-- Top App Bar -->
+<header class="fixed top-0 left-0 right-0 z-50 h-20 px-container-margin flex items-center justify-between">
+<button class="w-10 h-10 flex items-center justify-center rounded-full bg-white/10 backdrop-blur-md active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-white">arrow_back</span>
+</button>
+<div class="flex flex-col items-center">
+<h1 class="font-headline-md text-headline-md text-white">Living Room</h1>
+<span class="font-label-sm text-label-sm text-white/60">8 Devices • 5 on</span>
+</div>
+<button class="w-10 h-10 flex items-center justify-center rounded-full bg-white/10 backdrop-blur-md active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-white">more_horiz</span>
+</button>
+</header>
+<!-- Content Canvas -->
+<main class="relative z-10 h-full pt-20 pb-24 px-container-margin overflow-y-auto hide-scrollbar">
+<!-- Search & Filter -->
+<section class="mt-md mb-lg">
+<div class="glass-card rounded-2xl flex items-center px-md py-sm">
+<span class="material-symbols-outlined text-white/40 mr-sm">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-white placeholder:text-white/40 font-body-md w-full" placeholder="Search device..." type="text"/>
+<button class="p-1">
+<span class="material-symbols-outlined text-white/60">filter_list</span>
+</button>
+</div>
+</section>
+<!-- Categories -->
+<section class="mb-lg -mx-container-margin px-container-margin overflow-x-auto hide-scrollbar flex gap-sm">
+<button class="active-chip px-lg py-sm rounded-full font-label-sm text-label-sm whitespace-nowrap">All</button>
+<button class="inactive-chip px-lg py-sm rounded-full font-label-sm text-label-sm whitespace-nowrap">Lighting</button>
+<button class="inactive-chip px-lg py-sm rounded-full font-label-sm text-label-sm whitespace-nowrap">Climate</button>
+<button class="inactive-chip px-lg py-sm rounded-full font-label-sm text-label-sm whitespace-nowrap">Cleaning</button>
+<button class="inactive-chip px-lg py-sm rounded-full font-label-sm text-label-sm whitespace-nowrap">Entertainment</button>
+<button class="inactive-chip px-lg py-sm rounded-full font-label-sm text-label-sm whitespace-nowrap">Security</button>
+</section>
+<!-- Device Grid -->
+<section class="grid grid-cols-2 gap-md pb-8">
+<!-- Ceiling Light -->
+<div class="glass-card rounded-device-card p-md flex flex-col items-start aspect-[3/4] active:scale-[0.98] transition-transform">
+<div class="w-full flex justify-end mb-sm">
+<div class="w-2 h-2 rounded-full bg-[#34C759] shadow-[0_0_8px_rgba(52,199,89,0.8)]"></div>
+</div>
+<div class="flex-1 flex items-center justify-center w-full">
+<img alt="Ceiling Light" class="w-32 h-32 object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCeHdN4ztx4NQatO1_47xdiOW8Cg0lYMCfk5eez_tG4KE_U6vUlp3SITxC1c-UAdNlw3cw6tJrEP-6pgmgCGzmxDzJPMoOwhuclntGvZMs1q57z4BThyaIcDtAjvMKrzw5qR6Vv0m2_91LfJAy8KZspxYXq06FbSOs6RJhslXrliwURbVef3cmcC6USWFYGfaYwXRn-Egu6OobQ1AoOf_5-2NWcQGHhLvrqsbhMgWMRhm37AZLc6gowi1bG7nAheFZRae1Nk_FeCE0"/>
+</div>
+<div class="mt-md">
+<h3 class="font-body-md text-body-md text-white font-semibold">Ceiling Light</h3>
+<p class="font-label-sm text-label-sm text-white/50 mb-md">Lighting</p>
+<div class="flex items-center justify-between w-full">
+<div class="w-12 h-6 bg-white/20 rounded-full relative cursor-pointer switch-on" onclick="toggleSwitch(this)">
+<div class="absolute left-1 top-1 w-4 h-4 bg-white rounded-full switch-thumb translate-x-6"></div>
+</div>
+<span class="font-label-sm text-label-sm text-white/80">100%</span>
+</div>
+</div>
+</div>
+<!-- Pendant Light -->
+<div class="glass-card rounded-device-card p-md flex flex-col items-start aspect-[3/4] active:scale-[0.98] transition-transform">
+<div class="w-full flex justify-end mb-sm">
+<div class="w-2 h-2 rounded-full bg-[#34C759] shadow-[0_0_8px_rgba(52,199,89,0.8)]"></div>
+</div>
+<div class="flex-1 flex items-center justify-center w-full">
+<img alt="Pendant Light" class="w-32 h-32 object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDZCS2dWPBbNWtARBDqFKvJXKnCjaETw-UYyylZVAalHBxNN2gqfZQQnfBMZt1Wgpie62cfN4OyyqcaWT6ttNPE0O1nGlO5TQPPqqxmVjFQ0952UdzUfF-i4gUZSlXCFVXjH_pO4JyJ9GEtwzPhJr8egjIAMTD1UYlhhPAOCkWzBWfUg57Hzc4BK6BC3t-QxeoqG-TfBAMmehwC4zlU_DJ9CpbrA1wxPPk7gHyV10wV4AM_pmt76qvSDoebtOFsi7aGAclko9-_OtA"/>
+</div>
+<div class="mt-md">
+<h3 class="font-body-md text-body-md text-white font-semibold">Pendant Light</h3>
+<p class="font-label-sm text-label-sm text-white/50 mb-md">Lighting</p>
+<div class="flex items-center justify-between w-full">
+<div class="w-12 h-6 bg-white/20 rounded-full relative cursor-pointer switch-on" onclick="toggleSwitch(this)">
+<div class="absolute left-1 top-1 w-4 h-4 bg-white rounded-full switch-thumb translate-x-6"></div>
+</div>
+<span class="font-label-sm text-label-sm text-white/80">80%</span>
+</div>
+</div>
+</div>
+<!-- Air Conditioner -->
+<div class="glass-card rounded-device-card p-md flex flex-col items-start aspect-[3/4] active:scale-[0.98] transition-transform">
+<div class="w-full flex justify-end mb-sm">
+<div class="w-2 h-2 rounded-full bg-[#34C759] shadow-[0_0_8px_rgba(52,199,89,0.8)]"></div>
+</div>
+<div class="flex-1 flex items-center justify-center w-full">
+<img alt="Air Conditioner" class="w-32 h-32 object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDKxMgQHUpDcZYLDOwNwoeQ9ihdtj5Dij2smd8aBq9jLiHHukC-5Cgsm-j7HU6thywjQ39ly_VZES6jp8TPapA66q2uMcK9irgiQC15ZB1heYOY-qa78vG_f6dywAqqw6UNB-S29RMxm7oviJp0deAOU--N0xb47Zstr27k0EJTEtjtarH2Edw0-apvCBaN39TZxnfvW98JqFzPwU3tGOymu8n69uX3c7QoYaTDOXyC0rDvTu41howFyfzOlKHeyq7IBhAk3vdY8Zs"/>
+</div>
+<div class="mt-md">
+<h3 class="font-body-md text-body-md text-white font-semibold">Air Conditioner</h3>
+<p class="font-label-sm text-label-sm text-white/50 mb-md">Climate</p>
+<div class="flex items-center justify-between w-full">
+<div class="w-12 h-6 bg-white/20 rounded-full relative cursor-pointer switch-on" onclick="toggleSwitch(this)">
+<div class="absolute left-1 top-1 w-4 h-4 bg-white rounded-full switch-thumb translate-x-6"></div>
+</div>
+<span class="font-label-sm text-label-sm text-white/80">23°C</span>
+</div>
+</div>
+</div>
+<!-- Robot Vacuum -->
+<div class="glass-card rounded-device-card p-md flex flex-col items-start aspect-[3/4] active:scale-[0.98] transition-transform">
+<div class="w-full flex justify-end mb-sm">
+<div class="w-2 h-2 rounded-full bg-[#34C759] shadow-[0_0_8px_rgba(52,199,89,0.8)]"></div>
+</div>
+<div class="flex-1 flex items-center justify-center w-full">
+<img alt="Robot Vacuum" class="w-32 h-32 object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA9GwlyzBjcfqQn6A3F3tTtXAyBXPKwramJuq_Kq4Daht5IqP2D1xSwDy0P0WJSGit3rN9n0FUpvuhxyj0EqhVxii3mfdnTFuUTZ7ONxs1X4AMMd1bOq4Fuax98orwmhfTBgPskG5brL6jVOPv1RkPX9JAEJmPGys8fsDOwX7_kuHUXxchVSYhkI__KZeyH9YghGQnbLGLea9ejf43NzQo76dzcxnB2xcP4zj0Ch8zfaN29OZM3sLUbHPJmQX_JZd5gje9qo8viJvA"/>
+</div>
+<div class="mt-md">
+<h3 class="font-body-md text-body-md text-white font-semibold">Robot Vacuum</h3>
+<p class="font-label-sm text-label-sm text-white/50 mb-md">Cleaning</p>
+<div class="flex items-center justify-between w-full">
+<div class="w-12 h-6 bg-white/20 rounded-full relative cursor-pointer switch-on" onclick="toggleSwitch(this)">
+<div class="absolute left-1 top-1 w-4 h-4 bg-white rounded-full switch-thumb translate-x-6"></div>
+</div>
+<span class="font-label-sm text-label-sm text-white/80">84%</span>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Bottom Navigation Bar -->
+<nav class="fixed bottom-0 left-0 w-full h-20 bg-black/60 backdrop-blur-2xl rounded-t-[32px] flex justify-around items-center px-lg z-50">
+<a class="flex flex-col items-center justify-center text-white/40" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="font-label-sm text-label-sm mt-1">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-primary-fixed-dim after:content-[''] after:w-1 after:h-1 after:bg-primary-fixed-dim after:rounded-full after:mt-1" href="#">
+<span class="material-symbols-outlined fill-icon">grid_view</span>
+<span class="font-label-sm text-label-sm mt-1">Rooms</span>
+</a>
+<a class="flex flex-col items-center justify-center text-white/40" href="#">
+<span class="material-symbols-outlined">bolt</span>
+<span class="font-label-sm text-label-sm mt-1">Auto</span>
+</a>
+<a class="flex flex-col items-center justify-center text-white/40" href="#">
+<span class="material-symbols-outlined">shield</span>
+<span class="font-label-sm text-label-sm mt-1">Security</span>
+</a>
+<a class="flex flex-col items-center justify-center text-white/40" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="font-label-sm text-label-sm mt-1">Profile</span>
+</a>
+</nav>
+<script>
+        function toggleSwitch(el) {
+            const thumb = el.querySelector('.switch-thumb');
+            if (el.classList.contains('switch-on')) {
+                el.classList.remove('switch-on');
+                el.classList.add('bg-white/20');
+                thumb.style.transform = 'translateX(0)';
+            } else {
+                el.classList.add('switch-on');
+                el.classList.remove('bg-white/20');
+                thumb.style.transform = 'translateX(24px)';
+            }
+        }
+
+        // Horizontal Scroll Interaction
+        const scrollContainer = document.querySelector('.overflow-x-auto');
+        let isDown = false;
+        let startX;
+        let scrollLeft;
+
+        scrollContainer.addEventListener('mousedown', (e) => {
+            isDown = true;
+            startX = e.pageX - scrollContainer.offsetLeft;
+            scrollLeft = scrollContainer.scrollLeft;
+        });
+        scrollContainer.addEventListener('mouseleave', () => {
+            isDown = false;
+        });
+        scrollContainer.addEventListener('mouseup', () => {
+            isDown = false;
+        });
+        scrollContainer.addEventListener('mousemove', (e) => {
+            if (!isDown) return;
+            e.preventDefault();
+            const x = e.pageX - scrollContainer.offsetLeft;
+            const walk = (x - startX) * 2;
+            scrollContainer.scrollLeft = scrollLeft - walk;
+        });
+    </script>
+</body></html>

@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -24,17 +23,15 @@ import 'shell_scaffold.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
   final authState = ref.watch(authControllerProvider);
-  final onboardingCompleted =
-      ref.watch(appPreferencesProvider).onboardingCompleted;
+  final onboardingCompleted = ref
+      .watch(appPreferencesProvider)
+      .onboardingCompleted;
 
   return GoRouter(
     initialLocation: '/splash',
     debugLogDiagnostics: true,
     routes: [
-      GoRoute(
-        path: '/',
-        redirect: (context, state) => '/splash',
-      ),
+      GoRoute(path: '/', redirect: (context, state) => '/splash'),
       GoRoute(
         name: 'splash',
         path: '/splash',
@@ -93,6 +90,15 @@ final routerProvider = Provider<GoRouter>((ref) {
                     builder: (context, state) => RoomDeviceScreen(
                       roomId: state.pathParameters['roomId']!,
                     ),
+                    routes: [
+                      GoRoute(
+                        name: 'room-device-detail',
+                        path: 'devices/:deviceId',
+                        builder: (context, state) => DeviceDetailScreen(
+                          deviceId: state.pathParameters['deviceId']!,
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),

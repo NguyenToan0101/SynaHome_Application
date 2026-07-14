@@ -16,12 +16,7 @@ final roomsProvider = Provider<List<Room>>((ref) {
   ];
 });
 
-Room _room(
-  String id,
-  String name,
-  int temperature,
-  List<Device> devices,
-) {
+Room _room(String id, String name, int temperature, List<Device> devices) {
   final inRoom = devices.where((device) => device.roomId == id).toList();
   return Room(
     id: id,

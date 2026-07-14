@@ -6,39 +6,67 @@ import 'package:intl/intl.dart';
 import '../../../app/localization/l10n_extensions.dart';
 import '../../../app/theme/app_colors.dart';
 import '../../../app/theme/app_radius.dart';
+import '../../../app/theme/app_shadows.dart';
 import '../../../app/theme/app_spacing.dart';
+import '../../../app/theme/glass_tokens.dart';
 import '../../../core/services/backend_resolver.dart';
-import '../../../core/widgets/app_card.dart';
+import '../../../core/widgets/glass/glass.dart';
 import '../../../core/widgets/state_views.dart';
 import '../../authentication/presentation/auth_controller.dart';
 import '../../devices/data/device_providers.dart';
 import '../../devices/domain/device.dart';
+import '../../devices/presentation/device_visuals.dart';
+import 'widgets/hero_house_model.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
     final devices = ref.watch(devicesControllerProvider);
     final mode = ref.watch(connectionModeControllerProvider);
     final session = ref.watch(authControllerProvider).session;
-    final date = DateFormat('EEEE, d MMMM').format(DateTime.now());
+    final date = DateFormat(
+      'EEEE, d MMMM',
+      l10n.localeName,
+    ).format(DateTime.now());
+    final theme = Theme.of(context);
 
     return Scaffold(
-      backgroundColor: AppColors.background,
-      extendBodyBehindAppBar: true,
+      backgroundColor: Colors.transparent,
       body: CustomScrollView(
         slivers: [
-          // Glassmorphic App Bar
           SliverAppBar(
             pinned: true,
             elevation: 0,
             backgroundColor: Colors.transparent,
-            expandedHeight: 0,
-            flexibleSpace: _GlassAppBar(
-              onNotificationTap: () => context.go('/profile/notifications'),
-            ),
+            surfaceTintColor: Colors.transparent,
+            automaticallyImplyLeading: false,
             toolbarHeight: 68,
+            flexibleSpace: GlassAppBar(
+              centerTitle: false,
+              leading: GlassContainer(
+                shape: BoxShape.circle,
+                blur: GlassTokens.blurSm,
+                child: SizedBox.square(
+                  dimension: 40,
+                  child: Icon(
+                    Icons.person_rounded,
+                    size: 22,
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+                  ),
+                ),
+              ),
+              title: l10n.appName,
+              actions: [
+                GlassIconButton(
+                  icon: Icons.notifications_outlined,
+                  tooltip: l10n.notifications,
+                  onTap: () => context.go('/profile/notifications'),
+                ),
+              ],
+            ),
           ),
           SliverToBoxAdapter(
             child: SafeArea(
@@ -48,84 +76,15 @@ class HomeScreen extends ConsumerWidget {
                   AppSpacing.screen,
                   AppSpacing.sm,
                   AppSpacing.screen,
-                  100, // nav bar clearance
+                  AppSpacing.navClearance,
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     _ConnectionBanner(mode: mode),
                     const SizedBox(height: AppSpacing.lg),
-
-                    // Greeting Section
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                date.toUpperCase(),
-                                style: const TextStyle(
-                                  fontFamily: 'Inter',
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w600,
-                                  letterSpacing: 0.8,
-                                  color: AppColors.onSurfaceVariant,
-                                ),
-                              ),
-                              const SizedBox(height: AppSpacing.xs),
-                              Text(
-                                'Good Morning, ${session?.name ?? 'Alex'}',
-                                style: const TextStyle(
-                                  fontFamily: 'Inter',
-                                  fontSize: 28,
-                                  fontWeight: FontWeight.w600,
-                                  height: 1.2,
-                                  letterSpacing: -0.5,
-                                  color: AppColors.onSurface,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            Row(
-                              children: [
-                                const Icon(
-                                  Icons.wb_sunny_rounded,
-                                  color: AppColors.primary,
-                                  size: 22,
-                                ),
-                                const SizedBox(width: 4),
-                                const Text(
-                                  '72°F',
-                                  style: TextStyle(
-                                    fontFamily: 'Inter',
-                                    fontSize: 22,
-                                    fontWeight: FontWeight.w600,
-                                    color: AppColors.primary,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const Text(
-                              '08:45 AM • Sunny',
-                              style: TextStyle(
-                                fontFamily: 'Inter',
-                                fontSize: 13,
-                                color: AppColors.onSurfaceVariant,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
+                    _GreetingHeader(date: date, name: session?.name ?? 'Alex'),
                     const SizedBox(height: AppSpacing.lg),
-
-                    // Device state / error
                     devices.when(
                       data: (items) => _DashboardContent(devices: items),
                       loading: () =>
@@ -134,8 +93,9 @@ class HomeScreen extends ConsumerWidget {
                         height: 420,
                         child: ErrorView(
                           message: error.toString(),
-                          onRetry: () =>
-                              ref.read(devicesControllerProvider.notifier).load(),
+                          onRetry: () => ref
+                              .read(devicesControllerProvider.notifier)
+                              .load(),
                         ),
                       ),
                     ),
@@ -150,99 +110,58 @@ class HomeScreen extends ConsumerWidget {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────
-// Glassmorphic App Bar
-// ─────────────────────────────────────────────────────────────────────
-class _GlassAppBar extends StatelessWidget {
-  const _GlassAppBar({required this.onNotificationTap});
-  final VoidCallback onNotificationTap;
+class _GreetingHeader extends StatelessWidget {
+  const _GreetingHeader({required this.date, required this.name});
+
+  final String date;
+  final String name;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: AppColors.surface.withValues(alpha: 0.7),
-        border: Border(
-          bottom: BorderSide(
-            color: Colors.white.withValues(alpha: 0.1),
-            width: 0.5,
-          ),
-        ),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x0D000000),
-            blurRadius: 20,
-            offset: Offset(0, 4),
-          ),
-        ],
-      ),
-      child: SafeArea(
-        bottom: false,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppSpacing.screen,
-            vertical: AppSpacing.md,
-          ),
-          child: Row(
+    final theme = Theme.of(context);
+    final l10n = context.l10n;
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Profile avatar
-              Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: AppColors.surfaceContainer,
-                  border: Border.all(
-                    color: Colors.white,
-                    width: 2,
-                  ),
-                ),
-                child: const Icon(
-                  Icons.person_rounded,
-                  size: 22,
-                  color: AppColors.onSurfaceVariant,
+              Text(
+                date.toUpperCase(),
+                style: theme.textTheme.labelSmall?.copyWith(
+                  color: theme.colorScheme.onSurface.withValues(alpha: 0.55),
                 ),
               ),
-              const SizedBox(width: AppSpacing.md),
-              const Text(
-                'Lumina',
-                style: TextStyle(
-                  fontFamily: 'Inter',
-                  fontSize: 22,
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.onSurface,
-                  letterSpacing: -0.3,
-                ),
-              ),
-              const Spacer(),
-              // Notification button
-              GestureDetector(
-                onTap: onNotificationTap,
-                child: Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.transparent,
-                  ),
-                  child: const Icon(
-                    Icons.notifications_outlined,
-                    color: AppColors.primary,
-                    size: 24,
-                  ),
-                ),
+              const SizedBox(height: AppSpacing.xs),
+              Text(
+                l10n.goodMorning(name),
+                style: theme.textTheme.headlineSmall?.copyWith(fontSize: 26),
               ),
             ],
           ),
         ),
-      ),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Row(
+              children: [
+                Icon(
+                  Icons.wb_sunny_rounded,
+                  color: AppColors.auroraWarning,
+                  size: 20,
+                ),
+                const SizedBox(width: AppSpacing.xs),
+                Text('22°C', style: theme.textTheme.headlineSmall),
+              ],
+            ),
+          ],
+        ),
+      ],
     );
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────
-// Dashboard Content
-// ─────────────────────────────────────────────────────────────────────
 class _DashboardContent extends ConsumerWidget {
   const _DashboardContent({required this.devices});
   final List<Device> devices;
@@ -250,8 +169,8 @@ class _DashboardContent extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
+    final theme = Theme.of(context);
     final favorites = devices.where((d) => d.isFavorite).toList();
-    final activeCount = devices.where((d) => d.isOn).length;
 
     if (devices.isEmpty) {
       return EmptyView(message: l10n.emptyTitle);
@@ -260,57 +179,62 @@ class _DashboardContent extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Security Status Hero Card
-        _SecurityHeroCard(activeCount: activeCount),
+        _HomeHeroCard(devices: devices),
+        const SizedBox(height: AppSpacing.md),
+        _StatusPillsRow(devices: devices),
         const SizedBox(height: AppSpacing.lg),
 
-        // Quick Scenes
-        const Text(
-          'QUICK SCENES',
-          style: TextStyle(
-            fontFamily: 'Inter',
-            fontSize: 12,
-            fontWeight: FontWeight.w600,
-            letterSpacing: 0.8,
-            color: AppColors.onSurfaceVariant,
-          ),
+        // Lối vào Automation & Camera.
+        _SectionLabel(label: l10n.quickAccess),
+        const SizedBox(height: AppSpacing.md),
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final tileWidth = (constraints.maxWidth - AppSpacing.md) / 2;
+            return Wrap(
+              spacing: AppSpacing.md,
+              runSpacing: AppSpacing.md,
+              children: [
+                SizedBox(
+                  width: tileWidth,
+                  child: GlassIconTile(
+                    icon: Icons.auto_awesome_rounded,
+                    label: l10n.automations,
+                    subtitle: l10n.automationsSubtitle,
+                    onTap: () => context.push('/automation'),
+                  ),
+                ),
+                SizedBox(
+                  width: tileWidth,
+                  child: GlassIconTile(
+                    icon: Icons.videocam_rounded,
+                    label: l10n.camera,
+                    subtitle: l10n.cameraSubtitle,
+                    color: AppColors.orbTeal,
+                    onTap: () => context.push('/camera'),
+                  ),
+                ),
+              ],
+            );
+          },
         ),
+        const SizedBox(height: AppSpacing.lg),
+
+        _SectionLabel(label: l10n.quickScenes),
         const SizedBox(height: AppSpacing.md),
         const _QuickScenes(),
         const SizedBox(height: AppSpacing.lg),
 
-        // AI Optimizer Card
-        _LuminaAICard(),
-        const SizedBox(height: AppSpacing.lg),
-
-        // Favorite Devices
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text(
-              'FAVORITE DEVICES',
-              style: TextStyle(
-                fontFamily: 'Inter',
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                letterSpacing: 0.8,
-                color: AppColors.onSurfaceVariant,
-              ),
-            ),
-            TextButton(
-              onPressed: () => context.go('/rooms'),
-              style: TextButton.styleFrom(
-                padding: EdgeInsets.zero,
-                minimumSize: Size.zero,
-                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              ),
-              child: const Text(
-                'View All',
-                style: TextStyle(
-                  fontFamily: 'Inter',
-                  fontSize: 13,
+            _SectionLabel(label: l10n.favoriteDevices),
+            GestureDetector(
+              onTap: () => context.go('/rooms'),
+              child: Text(
+                l10n.viewAll,
+                style: theme.textTheme.labelMedium?.copyWith(
+                  color: theme.colorScheme.primary,
                   fontWeight: FontWeight.w600,
-                  color: AppColors.primary,
                 ),
               ),
             ),
@@ -337,17 +261,7 @@ class _DashboardContent extends ConsumerWidget {
         ),
         const SizedBox(height: AppSpacing.lg),
 
-        // Recent Activity
-        const Text(
-          'RECENT ACTIVITY',
-          style: TextStyle(
-            fontFamily: 'Inter',
-            fontSize: 12,
-            fontWeight: FontWeight.w600,
-            letterSpacing: 0.8,
-            color: AppColors.onSurfaceVariant,
-          ),
-        ),
+        _SectionLabel(label: l10n.recentActivity),
         const SizedBox(height: AppSpacing.md),
         const _ActivityList(),
       ],
@@ -355,196 +269,165 @@ class _DashboardContent extends ConsumerWidget {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────
-// Security Hero Card
-// ─────────────────────────────────────────────────────────────────────
-class _SecurityHeroCard extends StatefulWidget {
-  const _SecurityHeroCard({required this.activeCount});
-  final int activeCount;
-
-  @override
-  State<_SecurityHeroCard> createState() => _SecurityHeroCardState();
-}
-
-class _SecurityHeroCardState extends State<_SecurityHeroCard>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _pulseCtrl;
-
-  @override
-  void initState() {
-    super.initState();
-    _pulseCtrl = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 2),
-    )..repeat(reverse: false);
-  }
-
-  @override
-  void dispose() {
-    _pulseCtrl.dispose();
-    super.dispose();
-  }
+class _SectionLabel extends StatelessWidget {
+  const _SectionLabel({required this.label});
+  final String label;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(AppSpacing.lg),
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Colors.white, Color(0xFFEEEDF3)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(AppRadius.hero),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.4)),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x0D000000),
-            blurRadius: 20,
-            offset: Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Stack(
-        children: [
-          // Atmospheric decoration
-          Positioned(
-            right: -20,
-            top: -20,
-            child: Container(
-              width: 100,
-              height: 100,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: AppColors.secondary.withValues(alpha: 0.05),
-              ),
-            ),
-          ),
-          Positioned(
-            left: -20,
-            bottom: -20,
-            child: Container(
-              width: 100,
-              height: 100,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: AppColors.primary.withValues(alpha: 0.05),
-              ),
-            ),
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  // Pulsing green dot indicator
-                  SizedBox(
-                    width: 48,
-                    height: 48,
-                    child: Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        AnimatedBuilder(
-                          animation: _pulseCtrl,
-                          builder: (context, _) => Container(
-                            width: 48 * _pulseCtrl.value,
-                            height: 48 * _pulseCtrl.value,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: AppColors.secondary
-                                  .withValues(alpha: 0.15 * (1 - _pulseCtrl.value)),
-                            ),
-                          ),
-                        ),
-                        Container(
-                          width: 48,
-                          height: 48,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: AppColors.secondary.withValues(alpha: 0.1),
-                          ),
-                          child: Center(
-                            child: Container(
-                              width: 16,
-                              height: 16,
-                              decoration: const BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: AppColors.secondary,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: AppSpacing.md),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Everything is secure',
-                        style: TextStyle(
-                          fontFamily: 'Inter',
-                          fontSize: 20,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.onSurface,
-                        ),
-                      ),
-                      Text(
-                        '${widget.activeCount} devices active • 0 alerts',
-                        style: const TextStyle(
-                          fontFamily: 'Inter',
-                          fontSize: 14,
-                          color: AppColors.onSurfaceVariant,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-              const SizedBox(height: AppSpacing.lg),
-
-              // Status pills
-              Wrap(
-                spacing: AppSpacing.sm,
-                runSpacing: AppSpacing.sm,
-                children: [
-                  _StatusPill(label: 'Front Door Locked'),
-                  _StatusPill(label: 'Cameras On'),
-                ],
-              ),
-            ],
-          ),
-        ],
+    final theme = Theme.of(context);
+    return Text(
+      label.toUpperCase(),
+      style: theme.textTheme.labelSmall?.copyWith(
+        color: theme.colorScheme.onSurface.withValues(alpha: 0.55),
+        letterSpacing: 0.8,
       ),
     );
   }
 }
 
-class _StatusPill extends StatelessWidget {
-  const _StatusPill({required this.label});
-  final String label;
+// ─────────────────────────────────────────────────────────────────────
+// Hero card: trạng thái nhà + mô hình 3D isometric tràn nhẹ ra mép
+// ─────────────────────────────────────────────────────────────────────
+class _HomeHeroCard extends StatelessWidget {
+  const _HomeHeroCard({required this.devices});
+  final List<Device> devices;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.md,
-        vertical: AppSpacing.sm,
-      ),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.6),
-        borderRadius: BorderRadius.circular(100),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
-      ),
-      child: Text(
-        label,
-        style: const TextStyle(
-          fontFamily: 'Inter',
-          fontSize: 13,
-          fontWeight: FontWeight.w500,
-          color: AppColors.onSurface,
+    final theme = Theme.of(context);
+    final l10n = context.l10n;
+    final isDark = theme.brightness == Brightness.dark;
+    final mint = isDark ? AppColors.auroraMint : AppColors.auroraMintOnLight;
+
+    final locks = devices.where((d) => d.type == DeviceType.lock);
+    final allSecured = locks.isNotEmpty && locks.every((d) => d.isOn);
+
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        GlassContainer(
+          radius: AppRadius.hero,
+          blur: GlassTokens.blurLg,
+          shadows: GlassTokens.shadowSoft,
+          padding: const EdgeInsets.all(AppSpacing.lg),
+          child: Row(
+            children: [
+              Expanded(
+                flex: 5,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      width: 44,
+                      height: 44,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: mint.withValues(alpha: 0.15),
+                        boxShadow: GlassTokens.glow(mint, intensity: 0.4),
+                      ),
+                      child: Icon(
+                        allSecured
+                            ? Icons.verified_user_rounded
+                            : Icons.gpp_maybe_rounded,
+                        color: allSecured ? mint : AppColors.auroraWarning,
+                        size: 24,
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.md),
+                    Text(
+                      allSecured ? l10n.homeSecure : l10n.homeAttention,
+                      style: theme.textTheme.headlineMedium,
+                    ),
+                    const SizedBox(height: AppSpacing.xs),
+                    Text(
+                      allSecured
+                          ? l10n.homeSecureSubtitle
+                          : l10n.homeAttentionSubtitle,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.colorScheme.onSurface.withValues(
+                          alpha: 0.6,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              // Chừa chỗ cho mô hình 3D tràn ra mép phải.
+              const Expanded(flex: 4, child: SizedBox(height: 170)),
+            ],
+          ),
         ),
+        // Mô hình 3D nổi phía trên, tràn nhẹ khỏi mép thẻ.
+        Positioned(
+          right: -AppSpacing.md,
+          top: -AppSpacing.md,
+          bottom: -AppSpacing.xs,
+          width: 190,
+          child: IgnorePointer(
+            ignoring: false,
+            child: Container(
+              decoration: BoxDecoration(
+                boxShadow: AppShadows.heroModel(theme.brightness),
+                borderRadius: BorderRadius.circular(AppRadius.hero),
+              ),
+              child: const HeroHouseModel(),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// 3 pill số liệu thật bên dưới hero
+// ─────────────────────────────────────────────────────────────────────
+class _StatusPillsRow extends StatelessWidget {
+  const _StatusPillsRow({required this.devices});
+  final List<Device> devices;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final mint = isDark ? AppColors.auroraMint : AppColors.auroraMintOnLight;
+
+    final locks = devices.where((d) => d.type == DeviceType.lock).toList();
+    final openLocks = locks.where((d) => !d.isOn).length;
+    final lights = devices.where((d) => d.type == DeviceType.light).toList();
+    final lightsOn = lights.where((d) => d.isOn).length;
+    final cameras = devices.where((d) => d.type == DeviceType.camera);
+    final armed = cameras.isNotEmpty && cameras.every((d) => d.isOn);
+
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      clipBehavior: Clip.none,
+      child: Row(
+        children: [
+          GlassStatusPill(
+            icon: Icons.door_front_door_outlined,
+            value: '$openLocks/${locks.length}',
+            label: l10n.doorsOpen,
+            color: openLocks == 0 ? mint : AppColors.auroraWarning,
+            onTap: () => context.go('/rooms'),
+          ),
+          const SizedBox(width: AppSpacing.sm),
+          GlassStatusPill(
+            icon: Icons.lightbulb_outline_rounded,
+            value: '$lightsOn/${lights.length}',
+            label: l10n.lightsOn,
+            color: AppColors.auroraWarning,
+            onTap: () => context.go('/rooms'),
+          ),
+          const SizedBox(width: AppSpacing.sm),
+          GlassStatusPill(
+            icon: Icons.shield_outlined,
+            label: armed ? l10n.systemArmed : l10n.systemDisarmed,
+            color: armed ? mint : AppColors.auroraWarning,
+            onTap: () => context.push('/camera'),
+          ),
+        ],
       ),
     );
   }
@@ -558,18 +441,20 @@ class _QuickScenes extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const scenes = [
-      (Icons.power_settings_new_rounded, 'All Off', false),
-      (Icons.home_rounded, 'Arrive Home', true),
-      (Icons.movie_rounded, 'Movie Night', false),
-      (Icons.bedtime_rounded, 'Good Night', false),
-      (Icons.add_rounded, 'Add Scene', false),
+    final l10n = context.l10n;
+    final scenes = [
+      (Icons.power_settings_new_rounded, l10n.sceneAllOff, false),
+      (Icons.home_rounded, l10n.sceneArriveHome, true),
+      (Icons.movie_rounded, l10n.sceneMovieNight, false),
+      (Icons.bedtime_rounded, l10n.sceneGoodNight, false),
+      (Icons.add_rounded, l10n.sceneAdd, false),
     ];
 
     return SizedBox(
-      height: 96,
+      height: 100,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
+        clipBehavior: Clip.none,
         itemCount: scenes.length,
         separatorBuilder: (_, __) => const SizedBox(width: AppSpacing.md),
         itemBuilder: (context, index) {
@@ -585,7 +470,7 @@ class _QuickScenes extends StatelessWidget {
   }
 }
 
-class _SceneButton extends StatefulWidget {
+class _SceneButton extends StatelessWidget {
   const _SceneButton({
     required this.icon,
     required this.label,
@@ -597,160 +482,47 @@ class _SceneButton extends StatefulWidget {
   final bool isActive;
 
   @override
-  State<_SceneButton> createState() => _SceneButtonState();
-}
-
-class _SceneButtonState extends State<_SceneButton> {
-  double _scale = 1.0;
-
-  @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTapDown: (_) => setState(() => _scale = 0.95),
-      onTapUp: (_) => setState(() => _scale = 1.0),
-      onTapCancel: () => setState(() => _scale = 1.0),
-      child: AnimatedScale(
-        duration: const Duration(milliseconds: 100),
-        scale: _scale,
-        child: Column(
-          children: [
-            Container(
-              width: 64,
-              height: 64,
-              decoration: BoxDecoration(
-                color: widget.isActive
-                    ? AppColors.primaryContainer
-                    : Colors.white.withValues(alpha: 0.7),
-                borderRadius: BorderRadius.circular(18),
-                border: Border.all(
-                  color: Colors.white.withValues(alpha: 0.4),
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: widget.isActive
-                        ? AppColors.primary.withValues(alpha: 0.2)
-                        : const Color(0x0A000000),
-                    blurRadius: widget.isActive ? 12 : 4,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: Icon(
-                widget.icon,
-                color: widget.isActive ? Colors.white : AppColors.onSurfaceVariant,
-                size: 26,
-              ),
+    final theme = Theme.of(context);
+    final accent = theme.colorScheme.primary;
+
+    return Column(
+      children: [
+        GlassCard(
+          onTap: () {},
+          active: isActive,
+          radius: AppRadius.lg + 2,
+          padding: EdgeInsets.zero,
+          fill: isActive ? accent : null,
+          shadows: isActive ? GlassTokens.glow(accent, intensity: 0.6) : null,
+          semanticLabel: label,
+          child: SizedBox.square(
+            dimension: 64,
+            child: Icon(
+              icon,
+              color: isActive
+                  ? Colors.white
+                  : theme.colorScheme.onSurface.withValues(alpha: 0.7),
+              size: 26,
             ),
-            const SizedBox(height: AppSpacing.sm),
-            Text(
-              widget.label,
-              style: TextStyle(
-                fontFamily: 'Inter',
-                fontSize: 12,
-                fontWeight: FontWeight.w500,
-                color: widget.isActive
-                    ? AppColors.onSurface
-                    : AppColors.onSurfaceVariant,
-              ),
-            ),
-          ],
+          ),
         ),
-      ),
+        const SizedBox(height: AppSpacing.sm),
+        Text(
+          label,
+          style: theme.textTheme.labelMedium?.copyWith(
+            color: theme.colorScheme.onSurface.withValues(
+              alpha: isActive ? 1 : 0.6,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
 
 // ─────────────────────────────────────────────────────────────────────
-// Lumina AI Card
-// ─────────────────────────────────────────────────────────────────────
-class _LuminaAICard extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(AppSpacing.lg),
-      decoration: BoxDecoration(
-        color: const Color(0xFF2F3034), // inverse-surface
-        borderRadius: BorderRadius.circular(AppRadius.card),
-      ),
-      child: Stack(
-        children: [
-          // Purple/blue glow effects
-          Positioned(
-            right: -30,
-            bottom: -30,
-            child: Container(
-              width: 120,
-              height: 120,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: AppColors.tertiary.withValues(alpha: 0.2),
-              ),
-            ),
-          ),
-          Positioned(
-            left: -30,
-            top: 0,
-            child: Container(
-              width: 120,
-              height: 120,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: AppColors.primary.withValues(alpha: 0.2),
-              ),
-            ),
-          ),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(AppSpacing.sm),
-                decoration: BoxDecoration(
-                  color: AppColors.primary.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: const Icon(
-                  Icons.auto_awesome_rounded,
-                  color: Color(0xFFADC6FF), // primary-fixed-dim
-                  size: 22,
-                ),
-              ),
-              const SizedBox(width: AppSpacing.md),
-              const Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Lumina AI Optimizer',
-                      style: TextStyle(
-                        fontFamily: 'Inter',
-                        fontSize: 17,
-                        fontWeight: FontWeight.w600,
-                        color: Color(0xFFF1F0F5), // inverse-on-surface
-                      ),
-                    ),
-                    SizedBox(height: AppSpacing.xs),
-                    Text(
-                      'System optimized. Energy usage is 12% lower today compared to last week.',
-                      style: TextStyle(
-                        fontFamily: 'Inter',
-                        fontSize: 14,
-                        color: Color(0xFFC1C6D7), // outline-variant
-                        height: 1.4,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// ─────────────────────────────────────────────────────────────────────
-// Device Card
+// Device Card (favorites)
 // ─────────────────────────────────────────────────────────────────────
 class DeviceCard extends ConsumerWidget {
   const DeviceCard({required this.device, super.key});
@@ -758,28 +530,18 @@ class DeviceCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final icon = switch (device.type) {
-      DeviceType.light => Icons.lightbulb_rounded,
-      DeviceType.thermostat => Icons.ac_unit_rounded,
-      DeviceType.lock => Icons.lock_rounded,
-      DeviceType.speaker => Icons.speaker_rounded,
-      DeviceType.camera => Icons.videocam_rounded,
-      DeviceType.fan => Icons.air_rounded,
-      DeviceType.sensor => Icons.sensors_rounded,
-    };
+    final theme = Theme.of(context);
+    final l10n = context.l10n;
+    final accent = DeviceVisuals.accent(device.type, theme.brightness);
 
-    final accentColor = switch (device.type) {
-      DeviceType.lock => AppColors.secondary,
-      _ => AppColors.primary,
-    };
-
-    return AppCard(
+    return GlassCard(
       onTap: () => context.go('/home/devices/${device.id}'),
+      active: device.isOn,
+      shadows: device.isOn ? GlassTokens.glow(accent, intensity: 0.25) : null,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          // Icon + toggle row
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -789,28 +551,24 @@ class DeviceCard extends ConsumerWidget {
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   color: device.isOn
-                      ? accentColor.withValues(alpha: 0.1)
-                      : AppColors.surfaceContainer,
+                      ? accent.withValues(alpha: 0.15)
+                      : theme.colorScheme.onSurface.withValues(alpha: 0.06),
                 ),
                 child: Icon(
-                  icon,
-                  color: device.isOn ? accentColor : AppColors.onSurfaceVariant,
+                  DeviceVisuals.icon(device.type),
+                  color: device.isOn
+                      ? accent
+                      : theme.colorScheme.onSurface.withValues(alpha: 0.5),
                   size: 22,
                 ),
               ),
               if (device.type == DeviceType.lock)
                 Text(
-                  device.isOn ? 'LOCKED' : 'UNLOCKED',
-                  style: TextStyle(
-                    fontFamily: 'Inter',
-                    fontSize: 11,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 0.5,
-                    color: accentColor,
-                  ),
+                  device.isOn ? l10n.locked : l10n.unlocked,
+                  style: theme.textTheme.labelSmall?.copyWith(color: accent),
                 )
               else
-                Switch.adaptive(
+                GlassToggle(
                   value: device.isOn,
                   onChanged: device.status == DeviceStatus.offline
                       ? null
@@ -825,8 +583,6 @@ class DeviceCard extends ConsumerWidget {
                 ),
             ],
           ),
-
-          // Name + subtitle + type-specific control
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -834,11 +590,8 @@ class DeviceCard extends ConsumerWidget {
                 device.name,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  fontFamily: 'Inter',
-                  fontSize: 14,
+                style: theme.textTheme.labelMedium?.copyWith(
                   fontWeight: FontWeight.w600,
-                  color: AppColors.onSurface,
                 ),
               ),
               const SizedBox(height: 2),
@@ -846,82 +599,88 @@ class DeviceCard extends ConsumerWidget {
                 device.subtitle ?? '',
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  fontFamily: 'Inter',
-                  fontSize: 12,
-                  color: AppColors.onSurfaceVariant,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.colorScheme.onSurface.withValues(alpha: 0.55),
                 ),
               ),
               const SizedBox(height: AppSpacing.md),
-
-              // Type-specific bottom controls
-              if (device.type == DeviceType.light && device.brightness != null)
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(4),
-                  child: LinearProgressIndicator(
-                    value: device.brightness! / 100,
-                    minHeight: 6,
-                    backgroundColor: AppColors.surfaceContainer,
-                    valueColor: AlwaysStoppedAnimation(accentColor),
-                  ),
-                )
-              else if (device.type == DeviceType.thermostat &&
-                  device.temperature != null)
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    _TempButton(
-                      icon: Icons.remove,
-                      onPressed: () {},
-                    ),
-                    Text(
-                      '${device.temperature?.toInt()}°',
-                      style: const TextStyle(
-                        fontFamily: 'Inter',
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.onSurface,
-                      ),
-                    ),
-                    _TempButton(
-                      icon: Icons.add,
-                      onPressed: () {},
-                    ),
-                  ],
-                )
-              else if (device.type == DeviceType.speaker)
-                // Sound wave indicator
-                Row(
-                  children: List.generate(
-                    4,
-                    (i) => _SoundBar(index: i),
-                  ),
-                )
-              else if (device.type == DeviceType.lock)
-                SizedBox(
-                  width: double.infinity,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(vertical: 6),
-                    decoration: BoxDecoration(
-                      color: AppColors.surfaceContainer,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: const Center(
-                      child: Text(
-                        'Tap to Unlock',
-                        style: TextStyle(
-                          fontFamily: 'Inter',
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.onSurfaceVariant,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
+              _DeviceCardFooter(device: device, accent: accent),
             ],
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _DeviceCardFooter extends ConsumerWidget {
+  const _DeviceCardFooter({required this.device, required this.accent});
+
+  final Device device;
+  final Color accent;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    final l10n = context.l10n;
+
+    if (device.type == DeviceType.light && device.brightness != null) {
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(AppRadius.sm),
+        child: LinearProgressIndicator(
+          value: device.brightness! / 100,
+          minHeight: 6,
+          backgroundColor: theme.colorScheme.onSurface.withValues(alpha: 0.08),
+          valueColor: AlwaysStoppedAnimation(accent),
+        ),
+      );
+    }
+
+    if (device.type == DeviceType.thermostat && device.temperature != null) {
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          _TempButton(
+            icon: Icons.remove,
+            onPressed: () => ref
+                .read(devicesControllerProvider.notifier)
+                .updateDevice(
+                  device.id,
+                  DeviceCommand(
+                    temperature: ((device.temperature ?? 20) - 1).clamp(16, 30),
+                  ),
+                ),
+          ),
+          Text('${device.temperature}°', style: theme.textTheme.titleMedium),
+          _TempButton(
+            icon: Icons.add,
+            onPressed: () => ref
+                .read(devicesControllerProvider.notifier)
+                .updateDevice(
+                  device.id,
+                  DeviceCommand(
+                    temperature: ((device.temperature ?? 20) + 1).clamp(16, 30),
+                  ),
+                ),
+          ),
+        ],
+      );
+    }
+
+    if (device.type == DeviceType.lock) {
+      return GlassStatusPill(
+        icon: device.isOn ? Icons.lock_rounded : Icons.lock_open_rounded,
+        label: device.isOn ? l10n.secured : l10n.unlocked,
+        color: accent,
+      );
+    }
+
+    return Text(
+      device.status == DeviceStatus.offline
+          ? l10n.deviceOffline
+          : (device.isOn ? l10n.deviceOn : l10n.deviceOff),
+      style: theme.textTheme.bodySmall?.copyWith(
+        color: theme.colorScheme.onSurface.withValues(alpha: 0.55),
       ),
     );
   }
@@ -934,6 +693,7 @@ class _TempButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return GestureDetector(
       onTap: onPressed,
       child: Container(
@@ -941,60 +701,14 @@ class _TempButton extends StatelessWidget {
         height: 28,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          border: Border.all(color: AppColors.outlineVariant),
-        ),
-        child: Icon(icon, size: 16, color: AppColors.onSurfaceVariant),
-      ),
-    );
-  }
-}
-
-class _SoundBar extends StatefulWidget {
-  const _SoundBar({required this.index});
-  final int index;
-
-  @override
-  State<_SoundBar> createState() => _SoundBarState();
-}
-
-class _SoundBarState extends State<_SoundBar>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _ctrl;
-  late Animation<double> _anim;
-
-  static const _heights = [12.0, 16.0, 8.0, 14.0];
-
-  @override
-  void initState() {
-    super.initState();
-    _ctrl = AnimationController(
-      vsync: this,
-      duration: Duration(milliseconds: 400 + widget.index * 80),
-    )..repeat(reverse: true);
-    _anim = CurvedAnimation(parent: _ctrl, curve: Curves.easeInOut);
-  }
-
-  @override
-  void dispose() {
-    _ctrl.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final minH = _heights[widget.index] * 0.4;
-    final maxH = _heights[widget.index];
-    return Padding(
-      padding: const EdgeInsets.only(right: 3),
-      child: AnimatedBuilder(
-        animation: _anim,
-        builder: (context, _) => Container(
-          width: 3,
-          height: minH + (maxH - minH) * _anim.value,
-          decoration: BoxDecoration(
-            color: AppColors.primary,
-            borderRadius: BorderRadius.circular(2),
+          border: Border.all(
+            color: theme.colorScheme.onSurface.withValues(alpha: 0.25),
           ),
+        ),
+        child: Icon(
+          icon,
+          size: 16,
+          color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
         ),
       ),
     );
@@ -1009,72 +723,55 @@ class _ActivityList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const activities = [
-      (Icons.person_rounded, 'Alex arrived home', '08:30 AM • Smart Lock', false),
-      (Icons.light_mode_rounded, 'Morning routine activated', '07:00 AM • Scene', true),
-      (Icons.security_rounded, 'Patio motion detected', '03:12 AM • Camera', true),
+    final theme = Theme.of(context);
+    final l10n = context.l10n;
+    final activities = [
+      (Icons.person_rounded, l10n.activityArrived, '08:30'),
+      (Icons.light_mode_rounded, l10n.activityMorningRoutine, '07:00'),
+      (Icons.security_rounded, l10n.activityPatioMotion, '03:12'),
     ];
 
-    return Column(
-      children: activities.asMap().entries.map((entry) {
-        final i = entry.key;
-        final a = entry.value;
-        return Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: AppColors.surfaceContainer,
+    return GlassContainer(
+      radius: AppRadius.card,
+      padding: const EdgeInsets.all(AppSpacing.md),
+      child: Column(
+        children: [
+          for (final (index, activity) in activities.indexed) ...[
+            if (index > 0)
+              Divider(
+                height: AppSpacing.md,
+                color: theme.colorScheme.onSurface.withValues(alpha: 0.08),
               ),
-              child: Icon(
-                a.$1,
-                size: 20,
-                color: AppColors.onSurfaceVariant,
-              ),
-            ),
-            if (i > 0)
-              // Vertical connector line
-              Container(
-                width: 1,
-                height: 40,
-                color: AppColors.surfaceContainer,
-                margin: const EdgeInsets.only(left: 19),
-              ),
-            const SizedBox(width: AppSpacing.md),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.only(bottom: AppSpacing.md),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      a.$2,
-                      style: const TextStyle(
-                        fontFamily: 'Inter',
-                        fontSize: 15,
-                        fontWeight: FontWeight.w500,
-                        color: AppColors.onSurface,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      a.$3,
-                      style: const TextStyle(
-                        fontFamily: 'Inter',
-                        fontSize: 13,
-                        color: AppColors.onSurfaceVariant,
-                      ),
-                    ),
-                  ],
+            Row(
+              children: [
+                Container(
+                  width: 36,
+                  height: 36,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.06),
+                  ),
+                  child: Icon(
+                    activity.$1,
+                    size: 18,
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                  ),
                 ),
-              ),
+                const SizedBox(width: AppSpacing.md),
+                Expanded(
+                  child: Text(activity.$2, style: theme.textTheme.labelMedium),
+                ),
+                Text(
+                  activity.$3,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+                  ),
+                ),
+              ],
             ),
           ],
-        );
-      }).toList(),
+        ],
+      ),
     );
   }
 }
@@ -1089,6 +786,7 @@ class _ConnectionBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
+    final theme = Theme.of(context);
     final text = switch (mode) {
       ConnectionMode.edge => l10n.localMode,
       ConnectionMode.cloud => l10n.cloudMode,
@@ -1100,18 +798,16 @@ class _ConnectionBanner extends StatelessWidget {
       ConnectionMode.offline => Icons.cloud_off_rounded,
     };
     final color = switch (mode) {
-      ConnectionMode.offline => AppColors.error,
-      _ => AppColors.primary,
+      ConnectionMode.offline => theme.colorScheme.error,
+      _ => theme.colorScheme.primary,
     };
 
-    return Container(
+    return GlassContainer(
+      radius: AppRadius.lg,
+      blur: GlassTokens.blurSm,
       padding: const EdgeInsets.symmetric(
         horizontal: AppSpacing.md,
         vertical: AppSpacing.sm,
-      ),
-      decoration: BoxDecoration(
-        color: AppColors.surfaceContainerLowest,
-        borderRadius: BorderRadius.circular(AppRadius.lg),
       ),
       child: Row(
         children: [
@@ -1120,10 +816,8 @@ class _ConnectionBanner extends StatelessWidget {
           Expanded(
             child: Text(
               text,
-              style: const TextStyle(
-                fontFamily: 'Inter',
-                fontSize: 13,
-                color: AppColors.onSurfaceVariant,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
               ),
             ),
           ),

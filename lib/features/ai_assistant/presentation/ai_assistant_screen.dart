@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../app/localization/l10n_extensions.dart';
 import '../../../app/theme/app_colors.dart';
 import '../../../app/theme/app_radius.dart';
 import '../../../app/theme/app_spacing.dart';
+import '../../../app/theme/glass_tokens.dart';
+import '../../../core/widgets/glass/glass.dart';
 
 class AiAssistantScreen extends StatefulWidget {
   const AiAssistantScreen({super.key});
@@ -16,12 +19,13 @@ class _AiAssistantScreenState extends State<AiAssistantScreen>
     with SingleTickerProviderStateMixin {
   final _textCtrl = TextEditingController();
   final _scrollCtrl = ScrollController();
-  late AnimationController _micCtrl;
+  late final AnimationController _micCtrl;
   bool _isListening = false;
 
   final List<_ChatMessage> _messages = [
     const _ChatMessage(
-      text: 'Hello! I\'m Lumina AI. How can I help you with your smart home today?',
+      text:
+          "Hello! I'm Syna AI. How can I help you with your smart home today?",
       isUser: false,
     ),
     const _ChatMessage(
@@ -29,16 +33,10 @@ class _AiAssistantScreenState extends State<AiAssistantScreen>
       isUser: true,
     ),
     const _ChatMessage(
-      text: 'Done! I\'ve turned off all lights in the Bedroom. Energy usage is now 12% lower.',
+      text:
+          "Done! I've turned off all lights in the Bedroom. Energy usage is now 12% lower.",
       isUser: false,
     ),
-  ];
-
-  static const _suggestions = [
-    'Set evening scene',
-    'Lower AC temp',
-    'Lock front door',
-    'Show energy report',
   ];
 
   @override
@@ -62,17 +60,20 @@ class _AiAssistantScreenState extends State<AiAssistantScreen>
     if (text.trim().isEmpty) return;
     setState(() {
       _messages.add(_ChatMessage(text: text, isUser: true));
-      _messages.add(const _ChatMessage(
-        text: 'Got it! Processing your request...',
-        isUser: false,
-      ));
+      _messages.add(
+        const _ChatMessage(
+          text: 'Got it! Processing your request...',
+          isUser: false,
+        ),
+      );
     });
     _textCtrl.clear();
     Future.delayed(const Duration(milliseconds: 100), () {
+      if (!mounted || !_scrollCtrl.hasClients) return;
       _scrollCtrl.animateTo(
         _scrollCtrl.position.maxScrollExtent,
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeOut,
+        duration: GlassTokens.durationMed,
+        curve: GlassTokens.curve,
       );
     });
   }
@@ -89,88 +90,106 @@ class _AiAssistantScreenState extends State<AiAssistantScreen>
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final theme = Theme.of(context);
+    final suggestions = [
+      l10n.suggestionEveningScene,
+      l10n.suggestionLowerAc,
+      l10n.suggestionLockDoor,
+      l10n.suggestionEnergyReport,
+    ];
+
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Colors.transparent,
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(68),
-        child: Container(
-          color: AppColors.surface.withValues(alpha: 0.7),
-          child: SafeArea(
-            bottom: false,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppSpacing.screen,
-                vertical: AppSpacing.md,
+        child: GlassAppBar(
+          centerTitle: false,
+          leading: Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: theme.colorScheme.primary.withValues(alpha: 0.15),
+              shape: BoxShape.circle,
+              boxShadow: GlassTokens.glow(
+                theme.colorScheme.primary,
+                intensity: 0.4,
               ),
+            ),
+            child: Icon(
+              Icons.smart_toy_outlined,
+              color: theme.colorScheme.primary,
+              size: 22,
+            ),
+          ),
+          title: l10n.assistantTitle,
+          subtitle: l10n.assistantOnline,
+        ),
+      ),
+      body: Column(
+        children: [
+          // Entry Automation nổi bật.
+          Padding(
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.screen,
+              AppSpacing.md,
+              AppSpacing.screen,
+              0,
+            ),
+            child: GlassCard(
+              onTap: () => context.push('/automation'),
+              radius: AppRadius.card,
+              padding: const EdgeInsets.all(AppSpacing.md),
+              semanticLabel: l10n.automations,
               child: Row(
                 children: [
                   Container(
-                    width: 40,
-                    height: 40,
+                    width: 44,
+                    height: 44,
                     decoration: BoxDecoration(
-                      color: AppColors.primary.withValues(alpha: 0.1),
-                      shape: BoxShape.circle,
+                      borderRadius: BorderRadius.circular(AppRadius.md),
+                      color: theme.colorScheme.primary.withValues(alpha: 0.15),
+                      boxShadow: GlassTokens.glow(
+                        theme.colorScheme.primary,
+                        intensity: 0.35,
+                      ),
                     ),
-                    child: const Icon(
-                      Icons.smart_toy_outlined,
-                      color: AppColors.primary,
+                    child: Icon(
+                      Icons.auto_awesome_rounded,
+                      color: theme.colorScheme.primary,
                       size: 22,
                     ),
                   ),
                   const SizedBox(width: AppSpacing.md),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Text(
-                        'Lumina AI',
-                        style: TextStyle(
-                          fontFamily: 'Inter',
-                          fontSize: 17,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.onSurface,
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          l10n.automations,
+                          style: theme.textTheme.titleMedium,
                         ),
-                      ),
-                      Row(
-                        children: [
-                          Container(
-                            width: 6,
-                            height: 6,
-                            decoration: const BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: Color(0xFF34C759),
+                        const SizedBox(height: 2),
+                        Text(
+                          l10n.automationsSubtitle,
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: theme.colorScheme.onSurface.withValues(
+                              alpha: 0.6,
                             ),
                           ),
-                          const SizedBox(width: 4),
-                          const Text(
-                            'Online • Ready',
-                            style: TextStyle(
-                              fontFamily: 'Inter',
-                              fontSize: 12,
-                              color: AppColors.onSurfaceVariant,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                  const Spacer(),
-                  IconButton(
-                    icon: const Icon(
-                      Icons.auto_awesome_rounded,
-                      color: AppColors.primary,
+                        ),
+                      ],
                     ),
-                    onPressed: () => context.push('/automation'),
-                    tooltip: 'Automations',
+                  ),
+                  Icon(
+                    Icons.chevron_right_rounded,
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
                   ),
                 ],
               ),
             ),
           ),
-        ),
-      ),
-      body: Column(
-        children: [
+
           // Chat list
           Expanded(
             child: ListView.builder(
@@ -193,143 +212,129 @@ class _AiAssistantScreenState extends State<AiAssistantScreen>
             height: 40,
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.screen),
-              itemCount: _suggestions.length,
-              separatorBuilder: (_, __) =>
-                  const SizedBox(width: AppSpacing.sm),
+              clipBehavior: Clip.none,
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.screen,
+              ),
+              itemCount: suggestions.length,
+              separatorBuilder: (_, __) => const SizedBox(width: AppSpacing.sm),
               itemBuilder: (context, i) {
-                return GestureDetector(
-                  onTap: () => _sendMessage(_suggestions[i]),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 14,
-                      vertical: 8,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.7),
-                      borderRadius: BorderRadius.circular(100),
-                      border: Border.all(
-                        color: AppColors.outlineVariant.withValues(alpha: 0.4),
-                      ),
-                    ),
-                    child: Text(
-                      _suggestions[i],
-                      style: const TextStyle(
-                        fontFamily: 'Inter',
-                        fontSize: 13,
-                        fontWeight: FontWeight.w500,
-                        color: AppColors.onSurface,
-                      ),
-                    ),
-                  ),
+                return GlassFilterChip(
+                  label: suggestions[i],
+                  selected: false,
+                  onTap: () => _sendMessage(suggestions[i]),
                 );
               },
             ),
           ),
           const SizedBox(height: AppSpacing.md),
 
-          // Input bar
-          Container(
-            margin: const EdgeInsets.fromLTRB(
+          // Input bar kính
+          Padding(
+            padding: EdgeInsets.fromLTRB(
               AppSpacing.screen,
               0,
               AppSpacing.screen,
-              AppSpacing.lg,
+              AppSpacing.navClearance - AppSpacing.md,
             ),
-            padding: const EdgeInsets.symmetric(
-              horizontal: AppSpacing.md,
-              vertical: 8,
-            ),
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.8),
-              borderRadius: BorderRadius.circular(100),
-              border: Border.all(
-                color: AppColors.outlineVariant.withValues(alpha: 0.3),
+            child: GlassContainer(
+              radius: AppRadius.pill,
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.md,
+                vertical: AppSpacing.sm,
               ),
-              boxShadow: const [
-                BoxShadow(
-                  color: Color(0x0A000000),
-                  blurRadius: 20,
-                  offset: Offset(0, 4),
-                ),
-              ],
-            ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _textCtrl,
-                    decoration: const InputDecoration(
-                      hintText: 'Ask Lumina anything...',
-                      hintStyle: TextStyle(
-                        fontFamily: 'Inter',
-                        fontSize: 15,
-                        color: AppColors.onSurfaceVariant,
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _textCtrl,
+                      style: theme.textTheme.bodyMedium,
+                      decoration: InputDecoration(
+                        hintText: l10n.askAnything,
+                        hintStyle: theme.textTheme.bodyMedium?.copyWith(
+                          color: theme.colorScheme.onSurface.withValues(
+                            alpha: 0.45,
+                          ),
+                        ),
+                        filled: false,
+                        border: InputBorder.none,
+                        enabledBorder: InputBorder.none,
+                        focusedBorder: InputBorder.none,
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                        ),
                       ),
-                      border: InputBorder.none,
-                      contentPadding: EdgeInsets.symmetric(horizontal: 8),
-                    ),
-                    onSubmitted: _sendMessage,
-                  ),
-                ),
-
-                // Send button
-                GestureDetector(
-                  onTap: () => _sendMessage(_textCtrl.text),
-                  child: Container(
-                    width: 36,
-                    height: 36,
-                    margin: const EdgeInsets.only(left: 4),
-                    decoration: const BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: AppColors.primary,
-                    ),
-                    child: const Icon(
-                      Icons.arrow_upward_rounded,
-                      color: Colors.white,
-                      size: 18,
+                      onSubmitted: _sendMessage,
                     ),
                   ),
-                ),
-
-                // Mic button
-                GestureDetector(
-                  onTap: _toggleMic,
-                  child: AnimatedBuilder(
-                    animation: _micCtrl,
-                    builder: (context, _) {
-                      return Container(
-                        width: 36,
-                        height: 36,
-                        margin: const EdgeInsets.only(left: 6),
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: _isListening
-                              ? AppColors.error
-                              : AppColors.surfaceContainer,
-                          boxShadow: _isListening
-                              ? [
-                                  BoxShadow(
-                                    color: AppColors.error
-                                        .withValues(alpha: 0.3 + _micCtrl.value * 0.3),
-                                    blurRadius: 8 + _micCtrl.value * 8,
-                                    spreadRadius: _micCtrl.value * 2,
+                  GestureDetector(
+                    onTap: () => _sendMessage(_textCtrl.text),
+                    child: Container(
+                      width: 36,
+                      height: 36,
+                      margin: const EdgeInsets.only(left: AppSpacing.xs),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: theme.colorScheme.primary,
+                        boxShadow: GlassTokens.glow(
+                          theme.colorScheme.primary,
+                          intensity: 0.5,
+                        ),
+                      ),
+                      child: const Icon(
+                        Icons.arrow_upward_rounded,
+                        color: Colors.white,
+                        size: 18,
+                      ),
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: _toggleMic,
+                    child: AnimatedBuilder(
+                      animation: _micCtrl,
+                      builder: (context, _) {
+                        return Container(
+                          width: 36,
+                          height: 36,
+                          margin: const EdgeInsets.only(
+                            left: AppSpacing.xs + 2,
+                          ),
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: _isListening
+                                ? AppColors.auroraError
+                                : theme.colorScheme.onSurface.withValues(
+                                    alpha: 0.08,
                                   ),
-                                ]
-                              : null,
-                        ),
-                        child: Icon(
-                          _isListening ? Icons.stop_rounded : Icons.mic_rounded,
-                          color: _isListening
-                              ? Colors.white
-                              : AppColors.onSurfaceVariant,
-                          size: 18,
-                        ),
-                      );
-                    },
+                            boxShadow: _isListening
+                                ? [
+                                    BoxShadow(
+                                      color: AppColors.auroraError.withValues(
+                                        alpha: 0.3 + _micCtrl.value * 0.3,
+                                      ),
+                                      blurRadius: 8 + _micCtrl.value * 8,
+                                      spreadRadius: _micCtrl.value * 2,
+                                    ),
+                                  ]
+                                : null,
+                          ),
+                          child: Icon(
+                            _isListening
+                                ? Icons.stop_rounded
+                                : Icons.mic_rounded,
+                            color: _isListening
+                                ? Colors.white
+                                : theme.colorScheme.onSurface.withValues(
+                                    alpha: 0.6,
+                                  ),
+                            size: 18,
+                          ),
+                        );
+                      },
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ],
@@ -350,6 +355,9 @@ class _MessageBubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final accent = theme.colorScheme.primary;
+
     return Padding(
       padding: const EdgeInsets.only(bottom: AppSpacing.md),
       child: Row(
@@ -365,51 +373,30 @@ class _MessageBubble extends StatelessWidget {
               margin: const EdgeInsets.only(right: AppSpacing.sm),
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: AppColors.primary.withValues(alpha: 0.1),
+                color: accent.withValues(alpha: 0.15),
               ),
-              child: const Icon(
-                Icons.smart_toy_outlined,
-                color: AppColors.primary,
-                size: 18,
-              ),
+              child: Icon(Icons.smart_toy_outlined, color: accent, size: 18),
             ),
           ],
           Flexible(
-            child: Container(
+            child: GlassContainer(
+              radius: AppRadius.lg + 2,
+              blur: GlassTokens.blurSm,
+              fill: message.isUser ? accent : null,
+              shadows: message.isUser
+                  ? GlassTokens.glow(accent, intensity: 0.3)
+                  : null,
               padding: const EdgeInsets.symmetric(
                 horizontal: AppSpacing.md,
                 vertical: 10,
               ),
-              decoration: BoxDecoration(
-                color: message.isUser
-                    ? AppColors.primary
-                    : Colors.white.withValues(alpha: 0.8),
-                borderRadius: BorderRadius.only(
-                  topLeft: const Radius.circular(18),
-                  topRight: const Radius.circular(18),
-                  bottomLeft: Radius.circular(message.isUser ? 18 : 4),
-                  bottomRight: Radius.circular(message.isUser ? 4 : 18),
-                ),
-                border: message.isUser
-                    ? null
-                    : Border.all(
-                        color: AppColors.outlineVariant.withValues(alpha: 0.3),
-                      ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.05),
-                    blurRadius: 10,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
               child: Text(
                 message.text,
-                style: TextStyle(
-                  fontFamily: 'Inter',
-                  fontSize: 15,
+                style: theme.textTheme.bodyMedium?.copyWith(
                   height: 1.4,
-                  color: message.isUser ? Colors.white : AppColors.onSurface,
+                  color: message.isUser
+                      ? Colors.white
+                      : theme.colorScheme.onSurface,
                 ),
               ),
             ),

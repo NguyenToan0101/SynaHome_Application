@@ -41,14 +41,14 @@ class NetworkClient {
     required AuthRepository authRepository,
     required Logger logger,
   }) : dio = Dio(
-          BaseOptions(
-            baseUrl: baseUrl,
-            connectTimeout: const Duration(seconds: 10),
-            receiveTimeout: const Duration(seconds: 20),
-            sendTimeout: const Duration(seconds: 20),
-            headers: {'Accept': 'application/json'},
-          ),
-        ) {
+         BaseOptions(
+           baseUrl: baseUrl,
+           connectTimeout: const Duration(seconds: 10),
+           receiveTimeout: const Duration(seconds: 20),
+           sendTimeout: const Duration(seconds: 20),
+           headers: {'Accept': 'application/json'},
+         ),
+       ) {
     dio.interceptors.add(
       AuthInterceptor(
         tokenStorage: tokenStorage,

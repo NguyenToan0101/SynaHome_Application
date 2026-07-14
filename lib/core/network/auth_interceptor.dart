@@ -9,8 +9,8 @@ class AuthInterceptor extends Interceptor {
   AuthInterceptor({
     required TokenStore tokenStorage,
     required AuthRepository authRepository,
-  })  : _tokenStorage = tokenStorage,
-        _authRepository = authRepository;
+  }) : _tokenStorage = tokenStorage,
+       _authRepository = authRepository;
 
   final TokenStore _tokenStorage;
   final AuthRepository _authRepository;

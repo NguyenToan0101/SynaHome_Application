@@ -8,5 +8,7 @@ final appEnvironmentProvider = Provider<AppEnvironment>((ref) {
 });
 
 final sharedPreferencesProvider = Provider<SharedPreferences>((ref) {
-  throw UnimplementedError('SharedPreferences must be overridden in bootstrap.');
+  throw UnimplementedError(
+    'SharedPreferences must be overridden in bootstrap.',
+  );
 });

@@ -1,10 +1,17 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../app/localization/l10n_extensions.dart';
 import '../../../app/theme/app_colors.dart';
 import '../../../app/theme/app_radius.dart';
 import '../../../app/theme/app_spacing.dart';
-import '../../../core/widgets/app_card.dart';
+import '../../../app/theme/glass_tokens.dart';
+import '../../../core/widgets/glass/glass.dart';
+import '../../../core/widgets/state_views.dart';
+
+/// Loại trigger của một rule — quyết định badge hiển thị.
+enum _TriggerKind { time, sensor, location }
 
 class AutomationScreen extends StatefulWidget {
   const AutomationScreen({super.key});
@@ -15,33 +22,32 @@ class AutomationScreen extends StatefulWidget {
 
 class _AutomationScreenState extends State<AutomationScreen> {
   final List<_AutomationRule> _rules = [
-    _AutomationRule(
+    const _AutomationRule(
       id: 'sunset',
       title: 'Sunset Routine',
       subtitle: 'Daily • Local Time',
       icon: Icons.wb_twilight_rounded,
-      iconColor: AppColors.tertiaryContainer,
-      iconTextColor: Colors.white,
-      leftLabel: 'IF SUNSET',
-      leftValue: 'Close Living Blinds',
-      rightLabel: 'STATUS',
-      rightValue: 'Active',
+      trigger: _TriggerKind.time,
+      action: 'Close Living Blinds',
       isActive: true,
-      showStatusDot: true,
     ),
-    _AutomationRule(
+    const _AutomationRule(
       id: 'arrive-home',
       title: 'Arrive Home',
       subtitle: 'Geofence • < 50m',
       icon: Icons.home_work_rounded,
-      iconColor: AppColors.primaryContainer,
-      iconTextColor: Colors.white,
-      leftLabel: 'THEN ACTIONS',
-      leftValue: 'Unlock Door & AC 72°F',
-      rightLabel: 'FREQUENCY',
-      rightValue: '2x Today',
+      trigger: _TriggerKind.location,
+      action: 'Unlock Door & AC 23°C',
       isActive: true,
-      showStatusDot: false,
+    ),
+    const _AutomationRule(
+      id: 'motion-lights',
+      title: 'Night Motion Lights',
+      subtitle: 'Hallway sensor',
+      icon: Icons.sensors_rounded,
+      trigger: _TriggerKind.sensor,
+      action: 'Hallway lights 30%',
+      isActive: false,
     ),
   ];
 
@@ -69,125 +75,67 @@ class _AutomationScreenState extends State<AutomationScreen> {
   void _toggleRule(String id) {
     setState(() {
       final index = _rules.indexWhere((rule) => rule.id == id);
-      _rules[index] = _rules[index].copyWith(
-        isActive: !_rules[index].isActive,
-      );
+      _rules[index] = _rules[index].copyWith(isActive: !_rules[index].isActive);
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final theme = Theme.of(context);
+
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Colors.transparent,
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.only(bottom: AppSpacing.xl * 2),
+        child: _CreateRuleFab(onPressed: () {}),
+      ),
       body: CustomScrollView(
         slivers: [
           SliverAppBar(
             pinned: true,
             elevation: 0,
-            backgroundColor: AppColors.surface.withValues(alpha: 0.7),
+            backgroundColor: Colors.transparent,
             surfaceTintColor: Colors.transparent,
+            automaticallyImplyLeading: false,
             toolbarHeight: 68,
-            leading: IconButton(
-              icon: const Icon(
-                Icons.arrow_back_rounded,
-                color: AppColors.onSurfaceVariant,
-              ),
-              onPressed: () => Navigator.of(context).maybePop(),
-            ),
-            title: Row(
-              children: [
-                Container(
-                  width: 36,
-                  height: 36,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: AppColors.surfaceContainer,
-                    border: Border.all(color: AppColors.outlineVariant),
-                  ),
-                  child: const Icon(
-                    Icons.person_rounded,
-                    size: 20,
-                    color: AppColors.onSurfaceVariant,
-                  ),
-                ),
-                const SizedBox(width: AppSpacing.md),
-                const Text(
-                  'Lumina',
-                  style: TextStyle(
-                    fontFamily: 'Inter',
-                    fontSize: 22,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.onSurface,
-                  ),
+            flexibleSpace: GlassAppBar(
+              title: l10n.automations,
+              onBack: () => Navigator.of(context).maybePop(),
+              actions: [
+                GlassIconButton(
+                  icon: Icons.notifications_outlined,
+                  tooltip: l10n.notifications,
+                  onTap: () => context.go('/profile/notifications'),
                 ),
               ],
             ),
-            actions: [
-              IconButton(
-                icon: const Icon(
-                  Icons.notifications_outlined,
-                  color: AppColors.onSurfaceVariant,
-                ),
-                onPressed: () {},
-              ),
-            ],
           ),
           SliverPadding(
             padding: const EdgeInsets.fromLTRB(
               AppSpacing.screen,
               AppSpacing.lg,
               AppSpacing.screen,
-              AppSpacing.xl,
+              AppSpacing.navClearance,
             ),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 // Header
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    const Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'MANAGEMENT',
-                            style: TextStyle(
-                              fontFamily: 'Inter',
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
-                              letterSpacing: 1.2,
-                              color: AppColors.primary,
-                            ),
-                          ),
-                          SizedBox(height: AppSpacing.xs),
-                          Text(
-                            'Automations',
-                            style: TextStyle(
-                              fontFamily: 'Inter',
-                              fontSize: 32,
-                              fontWeight: FontWeight.w600,
-                              letterSpacing: -0.5,
-                              color: AppColors.onSurface,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    _CreateNewButton(onPressed: () {}),
-                  ],
+                Text(
+                  l10n.management.toUpperCase(),
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    color: theme.colorScheme.primary,
+                    letterSpacing: 1.2,
+                  ),
                 ),
-                const SizedBox(height: AppSpacing.xl),
+                const SizedBox(height: AppSpacing.xs),
+                Text(l10n.automations, style: theme.textTheme.headlineLarge),
+                const SizedBox(height: AppSpacing.lg),
 
                 // IF-THEN builder
-                AppCard(
+                GlassContainer(
+                  radius: AppRadius.hero,
                   padding: const EdgeInsets.all(AppSpacing.lg),
-                  decoration: BoxDecoration(
-                    color: AppColors.surfaceContainerLow,
-                    borderRadius: BorderRadius.circular(AppRadius.hero),
-                    border: Border.all(
-                      color: AppColors.outlineVariant.withValues(alpha: 0.3),
-                    ),
-                  ),
                   child: LayoutBuilder(
                     builder: (context, constraints) {
                       final isWide = constraints.maxWidth > 520;
@@ -203,9 +151,10 @@ class _AutomationScreenState extends State<AutomationScreen> {
                               ),
                               child: Icon(
                                 Icons.arrow_forward_ios_rounded,
-                                size: 28,
-                                color:
-                                    AppColors.outline.withValues(alpha: 0.8),
+                                size: 24,
+                                color: theme.colorScheme.onSurface.withValues(
+                                  alpha: 0.4,
+                                ),
                               ),
                             ),
                             const Expanded(child: _ThenSection()),
@@ -221,8 +170,10 @@ class _AutomationScreenState extends State<AutomationScreen> {
                             ),
                             child: Icon(
                               Icons.arrow_downward_rounded,
-                              size: 28,
-                              color: AppColors.outline.withValues(alpha: 0.8),
+                              size: 24,
+                              color: theme.colorScheme.onSurface.withValues(
+                                alpha: 0.4,
+                              ),
                             ),
                           ),
                           const _ThenSection(),
@@ -231,51 +182,46 @@ class _AutomationScreenState extends State<AutomationScreen> {
                     },
                   ),
                 ),
-                const SizedBox(height: AppSpacing.xl),
+                const SizedBox(height: AppSpacing.lg),
 
                 // Active rules
-                const Text(
-                  'Active Rules',
-                  style: TextStyle(
-                    fontFamily: 'Inter',
-                    fontSize: 24,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.onSurface,
-                  ),
-                ),
+                Text(l10n.activeRules, style: theme.textTheme.headlineMedium),
                 const SizedBox(height: AppSpacing.md),
-                ..._rules.map(
-                  (rule) => Padding(
-                    padding: const EdgeInsets.only(bottom: AppSpacing.lg),
-                    child: _RuleCard(
-                      rule: rule,
-                      onToggle: () => _toggleRule(rule.id),
+                if (_rules.isEmpty)
+                  SizedBox(
+                    height: 200,
+                    child: EmptyView(
+                      message: l10n.noAutomationsYet,
+                      icon: Icons.auto_awesome_outlined,
+                    ),
+                  )
+                else
+                  ..._rules.map(
+                    (rule) => Padding(
+                      padding: const EdgeInsets.only(bottom: AppSpacing.md),
+                      child: _RuleCard(
+                        rule: rule,
+                        onToggle: () => _toggleRule(rule.id),
+                      ),
                     ),
                   ),
-                ),
+                const SizedBox(height: AppSpacing.sm),
 
                 // Quick scenes
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text(
-                      'Quick Scenes',
-                      style: TextStyle(
-                        fontFamily: 'Inter',
-                        fontSize: 24,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.onSurface,
-                      ),
+                    Text(
+                      l10n.quickScenes,
+                      style: theme.textTheme.headlineMedium,
                     ),
-                    TextButton(
-                      onPressed: () {},
-                      child: const Text(
-                        'View All',
-                        style: TextStyle(
-                          fontFamily: 'Inter',
-                          fontSize: 13,
-                          fontWeight: FontWeight.w500,
-                          color: AppColors.primary,
+                    GestureDetector(
+                      onTap: () {},
+                      child: Text(
+                        l10n.viewAll,
+                        style: theme.textTheme.labelMedium?.copyWith(
+                          color: theme.colorScheme.primary,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
                     ),
@@ -286,6 +232,7 @@ class _AutomationScreenState extends State<AutomationScreen> {
                   height: 224,
                   child: ListView.separated(
                     scrollDirection: Axis.horizontal,
+                    clipBehavior: Clip.none,
                     itemCount: _scenes.length + 1,
                     separatorBuilder: (_, __) =>
                         const SizedBox(width: AppSpacing.md),
@@ -306,61 +253,41 @@ class _AutomationScreenState extends State<AutomationScreen> {
   }
 }
 
-class _CreateNewButton extends StatefulWidget {
-  const _CreateNewButton({required this.onPressed});
+/// Nút tạo rule nổi (FAB kính accent).
+class _CreateRuleFab extends StatelessWidget {
+  const _CreateRuleFab({required this.onPressed});
 
   final VoidCallback onPressed;
 
   @override
-  State<_CreateNewButton> createState() => _CreateNewButtonState();
-}
-
-class _CreateNewButtonState extends State<_CreateNewButton> {
-  double _scale = 1.0;
-
-  @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTapDown: (_) => setState(() => _scale = 0.95),
-      onTapUp: (_) => setState(() => _scale = 1.0),
-      onTapCancel: () => setState(() => _scale = 1.0),
-      onTap: widget.onPressed,
-      child: AnimatedScale(
-        duration: const Duration(milliseconds: 100),
-        scale: _scale,
-        child: Container(
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppSpacing.lg,
-            vertical: AppSpacing.md,
+    final theme = Theme.of(context);
+    final l10n = context.l10n;
+    final accent = theme.colorScheme.primary;
+
+    return GlassCard(
+      onTap: onPressed,
+      radius: AppRadius.pill,
+      fill: accent,
+      shadows: GlassTokens.glow(accent, intensity: 0.8),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.lg,
+        vertical: AppSpacing.md,
+      ),
+      semanticLabel: l10n.createNew,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(Icons.add_rounded, color: Colors.white, size: 20),
+          const SizedBox(width: AppSpacing.sm),
+          Text(
+            l10n.createNew,
+            style: theme.textTheme.labelMedium?.copyWith(
+              color: Colors.white,
+              fontWeight: FontWeight.w600,
+            ),
           ),
-          decoration: BoxDecoration(
-            color: AppColors.primary,
-            borderRadius: BorderRadius.circular(AppRadius.lg),
-            boxShadow: [
-              BoxShadow(
-                color: AppColors.primary.withValues(alpha: 0.2),
-                blurRadius: 16,
-                offset: const Offset(0, 4),
-              ),
-            ],
-          ),
-          child: const Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(Icons.add_rounded, color: Colors.white, size: 20),
-              SizedBox(width: AppSpacing.sm),
-              Text(
-                'Create New',
-                style: TextStyle(
-                  fontFamily: 'Inter',
-                  fontSize: 13,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.white,
-                ),
-              ),
-            ],
-          ),
-        ),
+        ],
       ),
     );
   }
@@ -371,48 +298,32 @@ class _IfSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final l10n = context.l10n;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           children: [
-            Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppSpacing.md,
-                vertical: AppSpacing.xs,
-              ),
-              decoration: BoxDecoration(
-                color: AppColors.primary.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(999),
-              ),
-              child: const Text(
-                'IF',
-                style: TextStyle(
-                  fontFamily: 'Inter',
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: 0.6,
-                  color: AppColors.primary,
-                ),
-              ),
-            ),
+            _SectionBadge(label: 'IF', color: theme.colorScheme.primary),
             const SizedBox(width: AppSpacing.sm),
-            const Text(
-              'Trigger occurs',
-              style: TextStyle(
-                fontFamily: 'Inter',
-                fontSize: 15,
-                color: AppColors.onSurfaceVariant,
+            Text(
+              l10n.triggerOccurs,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
               ),
             ),
           ],
         ),
         const SizedBox(height: AppSpacing.md),
-        _TriggerTile(icon: Icons.schedule_rounded, label: 'Time'),
-        const SizedBox(height: AppSpacing.md),
-        _TriggerTile(icon: Icons.near_me_rounded, label: 'Location'),
-        const SizedBox(height: AppSpacing.md),
-        _TriggerTile(icon: Icons.sensors_rounded, label: 'Device State'),
+        _TriggerTile(icon: Icons.schedule_rounded, label: l10n.triggerTime),
+        const SizedBox(height: AppSpacing.sm),
+        _TriggerTile(icon: Icons.near_me_rounded, label: l10n.triggerLocation),
+        const SizedBox(height: AppSpacing.sm),
+        _TriggerTile(
+          icon: Icons.sensors_rounded,
+          label: l10n.triggerDeviceState,
+        ),
       ],
     );
   }
@@ -423,38 +334,22 @@ class _ThenSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final l10n = context.l10n;
+    final isDark = theme.brightness == Brightness.dark;
+    final mint = isDark ? AppColors.auroraMint : AppColors.auroraMintOnLight;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           children: [
-            Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppSpacing.md,
-                vertical: AppSpacing.xs,
-              ),
-              decoration: BoxDecoration(
-                color: AppColors.secondary.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(999),
-              ),
-              child: const Text(
-                'THEN',
-                style: TextStyle(
-                  fontFamily: 'Inter',
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: 0.6,
-                  color: AppColors.secondary,
-                ),
-              ),
-            ),
+            _SectionBadge(label: 'THEN', color: mint),
             const SizedBox(width: AppSpacing.sm),
-            const Text(
-              'Execute action',
-              style: TextStyle(
-                fontFamily: 'Inter',
-                fontSize: 15,
-                color: AppColors.onSurfaceVariant,
+            Text(
+              l10n.executeAction,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
               ),
             ),
           ],
@@ -462,75 +357,107 @@ class _ThenSection extends StatelessWidget {
         const SizedBox(height: AppSpacing.md),
         _TriggerTile(
           icon: Icons.palette_rounded,
-          label: 'Scenes',
-          accentColor: AppColors.secondary,
+          label: l10n.actionScenes,
+          accentColor: mint,
         ),
-        const SizedBox(height: AppSpacing.md),
+        const SizedBox(height: AppSpacing.sm),
         _TriggerTile(
           icon: Icons.settings_remote_rounded,
-          label: 'Control Device',
-          accentColor: AppColors.secondary,
+          label: l10n.actionControlDevice,
+          accentColor: mint,
         ),
       ],
     );
   }
 }
 
-class _TriggerTile extends StatefulWidget {
+class _SectionBadge extends StatelessWidget {
+  const _SectionBadge({required this.label, required this.color});
+
+  final String label;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.md,
+        vertical: AppSpacing.xs,
+      ),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.15),
+        borderRadius: BorderRadius.circular(AppRadius.pill),
+      ),
+      child: Text(
+        label,
+        style: theme.textTheme.labelSmall?.copyWith(color: color),
+      ),
+    );
+  }
+}
+
+class _TriggerTile extends StatelessWidget {
   const _TriggerTile({
     required this.icon,
     required this.label,
-    this.accentColor = AppColors.primary,
+    this.accentColor,
   });
 
   final IconData icon;
   final String label;
-  final Color accentColor;
-
-  @override
-  State<_TriggerTile> createState() => _TriggerTileState();
-}
-
-class _TriggerTileState extends State<_TriggerTile> {
-  double _scale = 1.0;
+  final Color? accentColor;
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTapDown: (_) => setState(() => _scale = 0.98),
-      onTapUp: (_) => setState(() => _scale = 1.0),
-      onTapCancel: () => setState(() => _scale = 1.0),
-      child: AnimatedScale(
-        duration: const Duration(milliseconds: 100),
-        scale: _scale,
-        child: Container(
-          width: double.infinity,
-          padding: const EdgeInsets.all(AppSpacing.md),
-          decoration: BoxDecoration(
-            color: AppColors.surfaceContainerLowest,
-            borderRadius: BorderRadius.circular(AppRadius.card),
-            border: Border.all(
-              color: AppColors.outlineVariant.withValues(alpha: 0.2),
-            ),
-          ),
-          child: Column(
-            children: [
-              Icon(widget.icon, color: widget.accentColor, size: 28),
-              const SizedBox(height: AppSpacing.sm),
-              Text(
-                widget.label,
-                style: const TextStyle(
-                  fontFamily: 'Inter',
-                  fontSize: 13,
-                  fontWeight: FontWeight.w500,
-                  color: AppColors.onSurface,
-                ),
-              ),
-            ],
-          ),
-        ),
+    final theme = Theme.of(context);
+    final accent = accentColor ?? theme.colorScheme.primary;
+
+    return GlassCard(
+      onTap: () {},
+      radius: AppRadius.lg,
+      blur: GlassTokens.blurSm,
+      padding: const EdgeInsets.all(AppSpacing.md),
+      semanticLabel: label,
+      child: Row(
+        children: [
+          Icon(icon, color: accent, size: 22),
+          const SizedBox(width: AppSpacing.md),
+          Text(label, style: theme.textTheme.labelMedium),
+        ],
       ),
     );
+  }
+}
+
+/// Badge nhỏ hiển thị loại trigger trên rule card.
+class _TriggerBadge extends StatelessWidget {
+  const _TriggerBadge({required this.kind});
+
+  final _TriggerKind kind;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final (icon, label, color) = switch (kind) {
+      _TriggerKind.time => (
+        Icons.schedule_rounded,
+        l10n.triggerTime,
+        AppColors.auroraWarning,
+      ),
+      _TriggerKind.sensor => (
+        Icons.sensors_rounded,
+        l10n.triggerDeviceState,
+        AppColors.orbTeal,
+      ),
+      _TriggerKind.location => (
+        Icons.near_me_rounded,
+        l10n.triggerLocation,
+        AppColors.orbViolet,
+      ),
+    };
+
+    return GlassStatusPill(icon: icon, label: label, color: color);
   }
 }
 
@@ -542,23 +469,18 @@ class _RuleCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AppCard(
+    final theme = Theme.of(context);
+    final l10n = context.l10n;
+    final accent = theme.colorScheme.primary;
+
+    return GlassCard(
       onTap: () {},
+      radius: AppRadius.hero,
+      active: rule.isActive,
       padding: const EdgeInsets.all(AppSpacing.lg),
-      decoration: BoxDecoration(
-        color: AppColors.surfaceContainerHigh,
-        borderRadius: BorderRadius.circular(AppRadius.hero),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.4)),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x0D000000),
-            blurRadius: 8,
-            offset: Offset(0, 2),
-          ),
-        ],
-      ),
+      shadows: rule.isActive ? GlassTokens.glow(accent, intensity: 0.2) : null,
       child: AnimatedOpacity(
-        duration: const Duration(milliseconds: 300),
+        duration: GlassTokens.durationMed,
         opacity: rule.isActive ? 1.0 : 0.6,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -570,172 +492,56 @@ class _RuleCard extends StatelessWidget {
                   width: 48,
                   height: 48,
                   decoration: BoxDecoration(
-                    color: rule.iconColor,
+                    color: accent.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(AppRadius.lg),
                   ),
-                  child: Icon(
-                    rule.icon,
-                    color: rule.iconTextColor,
-                    size: 24,
-                  ),
+                  child: Icon(rule.icon, color: accent, size: 24),
                 ),
                 const SizedBox(width: AppSpacing.md),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        rule.title,
-                        style: const TextStyle(
-                          fontFamily: 'Inter',
-                          fontSize: 17,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.onSurface,
-                        ),
-                      ),
+                      Text(rule.title, style: theme.textTheme.titleMedium),
                       const SizedBox(height: 2),
                       Text(
                         rule.subtitle,
-                        style: const TextStyle(
-                          fontFamily: 'Inter',
-                          fontSize: 13,
-                          color: AppColors.onSurfaceVariant,
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.colorScheme.onSurface.withValues(
+                            alpha: 0.55,
+                          ),
                         ),
                       ),
                     ],
                   ),
                 ),
-                Switch.adaptive(
-                  value: rule.isActive,
-                  onChanged: (_) => onToggle(),
-                  activeThumbColor: Colors.white,
-                  activeTrackColor: AppColors.secondary,
-                ),
+                GlassToggle(value: rule.isActive, onChanged: (_) => onToggle()),
               ],
             ),
-            const SizedBox(height: AppSpacing.lg),
-            Container(
-              padding: const EdgeInsets.all(AppSpacing.md),
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.3),
-                borderRadius: BorderRadius.circular(AppRadius.lg),
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: _RuleDetail(
-                      label: rule.leftLabel,
-                      value: rule.leftValue,
-                    ),
+            const SizedBox(height: AppSpacing.md),
+            Wrap(
+              spacing: AppSpacing.sm,
+              runSpacing: AppSpacing.sm,
+              children: [
+                _TriggerBadge(kind: rule.trigger),
+                GlassStatusPill(
+                  icon: Icons.play_arrow_rounded,
+                  label: rule.action,
+                  color: theme.brightness == Brightness.dark
+                      ? AppColors.auroraMint
+                      : AppColors.auroraMintOnLight,
+                ),
+                if (rule.isActive)
+                  GlassStatusPill(
+                    label: l10n.statusActive,
+                    color: theme.brightness == Brightness.dark
+                        ? AppColors.auroraMint
+                        : AppColors.auroraMintOnLight,
                   ),
-                  Container(
-                    width: 1,
-                    height: 32,
-                    color: AppColors.outlineVariant.withValues(alpha: 0.3),
-                  ),
-                  Expanded(
-                    child: rule.showStatusDot
-                        ? _RuleStatus(value: rule.rightValue)
-                        : _RuleDetail(
-                            label: rule.rightLabel,
-                            value: rule.rightValue,
-                          ),
-                  ),
-                ],
-              ),
+              ],
             ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class _RuleDetail extends StatelessWidget {
-  const _RuleDetail({required this.label, required this.value});
-
-  final String label;
-  final String value;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            label,
-            style: const TextStyle(
-              fontFamily: 'Inter',
-              fontSize: 10,
-              fontWeight: FontWeight.w600,
-              letterSpacing: 0.8,
-              color: AppColors.onSurfaceVariant,
-            ),
-          ),
-          const SizedBox(height: AppSpacing.xs),
-          Text(
-            value,
-            style: const TextStyle(
-              fontFamily: 'Inter',
-              fontSize: 13,
-              fontWeight: FontWeight.w500,
-              color: AppColors.onSurface,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _RuleStatus extends StatelessWidget {
-  const _RuleStatus({required this.value});
-
-  final String value;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'STATUS',
-            style: TextStyle(
-              fontFamily: 'Inter',
-              fontSize: 10,
-              fontWeight: FontWeight.w600,
-              letterSpacing: 0.8,
-              color: AppColors.onSurfaceVariant,
-            ),
-          ),
-          const SizedBox(height: AppSpacing.xs),
-          Row(
-            children: [
-              Container(
-                width: 8,
-                height: 8,
-                decoration: const BoxDecoration(
-                  color: AppColors.secondary,
-                  shape: BoxShape.circle,
-                ),
-              ),
-              const SizedBox(width: AppSpacing.xs),
-              Text(
-                value,
-                style: const TextStyle(
-                  fontFamily: 'Inter',
-                  fontSize: 13,
-                  fontWeight: FontWeight.w500,
-                  color: AppColors.onSurface,
-                ),
-              ),
-            ],
-          ),
-        ],
       ),
     );
   }
@@ -751,153 +557,135 @@ class _SceneCard extends StatefulWidget {
 }
 
 class _SceneCardState extends State<_SceneCard> {
-  double _scale = 1.0;
   bool _activated = false;
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTapDown: (_) => setState(() => _scale = 0.95),
-      onTapUp: (_) => setState(() => _scale = 1.0),
-      onTapCancel: () => setState(() => _scale = 1.0),
+    final theme = Theme.of(context);
+    final l10n = context.l10n;
+    final isDark = theme.brightness == Brightness.dark;
+    final mint = isDark ? AppColors.auroraMint : AppColors.auroraMintOnLight;
+
+    return GlassCard(
       onTap: () {
         setState(() => _activated = true);
         Future<void>.delayed(const Duration(seconds: 2), () {
           if (mounted) setState(() => _activated = false);
         });
       },
-      child: AnimatedScale(
-        duration: const Duration(milliseconds: 100),
-        scale: _scale,
-        child: SizedBox(
-          width: 192,
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(AppRadius.hero),
-            child: Stack(
-              fit: StackFit.expand,
-              children: [
-                CachedNetworkImage(
-                  imageUrl: widget.scene.imageUrl,
-                  fit: BoxFit.cover,
-                  placeholder: (_, __) => Container(
-                    color: AppColors.surfaceContainer,
-                  ),
+      radius: AppRadius.hero,
+      padding: EdgeInsets.zero,
+      semanticLabel: widget.scene.name,
+      child: SizedBox(
+        width: 192,
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            CachedNetworkImage(
+              imageUrl: widget.scene.imageUrl,
+              fit: BoxFit.cover,
+              placeholder: (_, __) => ColoredBox(
+                color: theme.colorScheme.onSurface.withValues(alpha: 0.08),
+              ),
+              errorWidget: (_, __, ___) => ColoredBox(
+                color: theme.colorScheme.onSurface.withValues(alpha: 0.08),
+                child: Icon(
+                  Icons.image_not_supported_outlined,
+                  color: theme.colorScheme.onSurface.withValues(alpha: 0.3),
                 ),
-                DecoratedBox(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [
-                        Colors.black.withValues(alpha: 0.2),
-                        Colors.black.withValues(alpha: 0.8),
-                      ],
-                    ),
-                  ),
-                ),
-                Positioned(
-                  top: AppSpacing.md,
-                  right: AppSpacing.md,
-                  child: AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 200),
-                    child: Icon(
-                      _activated
-                          ? Icons.check_circle_rounded
-                          : Icons.play_circle_outline_rounded,
-                      key: ValueKey(_activated),
-                      color: _activated
-                          ? AppColors.secondary
-                          : Colors.white.withValues(alpha: 0.4),
-                      size: 28,
-                    ),
-                  ),
-                ),
-                Positioned(
-                  left: AppSpacing.lg,
-                  right: AppSpacing.lg,
-                  bottom: AppSpacing.lg,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        widget.scene.name,
-                        style: const TextStyle(
-                          fontFamily: 'Inter',
-                          fontSize: 17,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.white,
-                        ),
-                      ),
-                      const SizedBox(height: AppSpacing.xs),
-                      Text(
-                        '${widget.scene.deviceCount} Devices',
-                        style: TextStyle(
-                          fontFamily: 'Inter',
-                          fontSize: 13,
-                          color: Colors.white.withValues(alpha: 0.6),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+              ),
             ),
-          ),
+            DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Colors.black.withValues(alpha: 0.2),
+                    Colors.black.withValues(alpha: 0.8),
+                  ],
+                ),
+              ),
+            ),
+            Positioned(
+              top: AppSpacing.md,
+              right: AppSpacing.md,
+              child: AnimatedSwitcher(
+                duration: GlassTokens.durationFast,
+                child: Icon(
+                  _activated
+                      ? Icons.check_circle_rounded
+                      : Icons.play_circle_outline_rounded,
+                  key: ValueKey(_activated),
+                  color: _activated
+                      ? mint
+                      : Colors.white.withValues(alpha: 0.5),
+                  size: 28,
+                ),
+              ),
+            ),
+            Positioned(
+              left: AppSpacing.md,
+              right: AppSpacing.md,
+              bottom: AppSpacing.md,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    widget.scene.name,
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  const SizedBox(height: AppSpacing.xs),
+                  Text(
+                    l10n.devicesCount(widget.scene.deviceCount),
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: Colors.white.withValues(alpha: 0.6),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
 }
 
-class _NewSceneCard extends StatefulWidget {
+class _NewSceneCard extends StatelessWidget {
   const _NewSceneCard();
 
   @override
-  State<_NewSceneCard> createState() => _NewSceneCardState();
-}
-
-class _NewSceneCardState extends State<_NewSceneCard> {
-  double _scale = 1.0;
-
-  @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTapDown: (_) => setState(() => _scale = 0.95),
-      onTapUp: (_) => setState(() => _scale = 1.0),
-      onTapCancel: () => setState(() => _scale = 1.0),
-      child: AnimatedScale(
-        duration: const Duration(milliseconds: 100),
-        scale: _scale,
-        child: Container(
-          width: 192,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(AppRadius.hero),
-            border: Border.all(
-              color: AppColors.outlineVariant.withValues(alpha: 0.4),
-              width: 2,
-              strokeAlign: BorderSide.strokeAlignInside,
+    final theme = Theme.of(context);
+    final l10n = context.l10n;
+
+    return GlassCard(
+      onTap: () {},
+      radius: AppRadius.hero,
+      padding: EdgeInsets.zero,
+      semanticLabel: l10n.newScene,
+      child: SizedBox(
+        width: 192,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.add_circle_outline_rounded,
+              size: 32,
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
             ),
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.add_circle_outline_rounded,
-                size: 32,
-                color: AppColors.onSurfaceVariant.withValues(alpha: 0.8),
+            const SizedBox(height: AppSpacing.sm),
+            Text(
+              l10n.newScene,
+              style: theme.textTheme.labelMedium?.copyWith(
+                color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
               ),
-              const SizedBox(height: AppSpacing.sm),
-              const Text(
-                'New Scene',
-                style: TextStyle(
-                  fontFamily: 'Inter',
-                  fontSize: 13,
-                  fontWeight: FontWeight.w500,
-                  color: AppColors.onSurfaceVariant,
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -910,28 +698,18 @@ class _AutomationRule {
     required this.title,
     required this.subtitle,
     required this.icon,
-    required this.iconColor,
-    required this.iconTextColor,
-    required this.leftLabel,
-    required this.leftValue,
-    required this.rightLabel,
-    required this.rightValue,
+    required this.trigger,
+    required this.action,
     required this.isActive,
-    required this.showStatusDot,
   });
 
   final String id;
   final String title;
   final String subtitle;
   final IconData icon;
-  final Color iconColor;
-  final Color iconTextColor;
-  final String leftLabel;
-  final String leftValue;
-  final String rightLabel;
-  final String rightValue;
+  final _TriggerKind trigger;
+  final String action;
   final bool isActive;
-  final bool showStatusDot;
 
   _AutomationRule copyWith({bool? isActive}) {
     return _AutomationRule(
@@ -939,14 +717,9 @@ class _AutomationRule {
       title: title,
       subtitle: subtitle,
       icon: icon,
-      iconColor: iconColor,
-      iconTextColor: iconTextColor,
-      leftLabel: leftLabel,
-      leftValue: leftValue,
-      rightLabel: rightLabel,
-      rightValue: rightValue,
+      trigger: trigger,
+      action: action,
       isActive: isActive ?? this.isActive,
-      showStatusDot: showStatusDot,
     );
   }
 }

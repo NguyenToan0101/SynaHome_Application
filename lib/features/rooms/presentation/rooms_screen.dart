@@ -2,8 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../app/localization/l10n_extensions.dart';
 import '../../../app/theme/app_colors.dart';
+import '../../../app/theme/app_radius.dart';
 import '../../../app/theme/app_spacing.dart';
+import '../../../app/theme/glass_tokens.dart';
+import '../../../core/widgets/glass/glass.dart';
+import '../../devices/presentation/device_visuals.dart';
 import '../data/room_providers.dart';
 import '../domain/room.dart';
 
@@ -12,97 +17,60 @@ class RoomsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
+    final theme = Theme.of(context);
     final rooms = ref.watch(roomsProvider);
     final totalDevices = rooms.fold<int>(0, (sum, r) => sum + r.deviceCount);
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Colors.transparent,
       body: CustomScrollView(
         slivers: [
-          // Glass app bar
           SliverAppBar(
             pinned: true,
             elevation: 0,
-            backgroundColor: AppColors.surface.withValues(alpha: 0.7),
+            backgroundColor: Colors.transparent,
             surfaceTintColor: Colors.transparent,
+            automaticallyImplyLeading: false,
             toolbarHeight: 68,
-            title: Row(
-              children: [
-                Container(
-                  width: 36,
-                  height: 36,
-                  decoration: const BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: AppColors.surfaceContainer,
-                  ),
-                  child: const Icon(
-                    Icons.person_rounded,
-                    size: 20,
-                    color: AppColors.onSurfaceVariant,
-                  ),
-                ),
-                const SizedBox(width: AppSpacing.md),
-                const Text(
-                  'Lumina',
-                  style: TextStyle(
-                    fontFamily: 'Inter',
-                    fontSize: 22,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.onSurface,
-                  ),
+            flexibleSpace: GlassAppBar(
+              centerTitle: false,
+              title: l10n.appName,
+              actions: [
+                GlassIconButton(
+                  icon: Icons.notifications_outlined,
+                  tooltip: l10n.notifications,
+                  onTap: () => context.go('/profile/notifications'),
                 ),
               ],
             ),
-            actions: [
-              IconButton(
-                icon: const Icon(
-                  Icons.notifications_outlined,
-                  color: AppColors.onSurfaceVariant,
-                ),
-                onPressed: () {},
-              ),
-            ],
-            bottom: PreferredSize(
-              preferredSize: const Size.fromHeight(0),
-              child: Container(
-                height: 0.5,
-                color: Colors.white.withValues(alpha: 0.1),
-              ),
-            ),
           ),
-
           SliverPadding(
             padding: const EdgeInsets.fromLTRB(
               AppSpacing.screen,
               AppSpacing.lg,
               AppSpacing.screen,
-              100,
+              AppSpacing.navClearance,
             ),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
-                // Header
                 Text(
-                  'Your Rooms',
-                  style: const TextStyle(
-                    fontFamily: 'Inter',
-                    fontSize: 28,
-                    fontWeight: FontWeight.w600,
-                    letterSpacing: -0.5,
-                    color: AppColors.onSurface,
-                  ),
+                  l10n.yourRooms,
+                  style: theme.textTheme.headlineSmall?.copyWith(fontSize: 26),
                 ),
                 const SizedBox(height: AppSpacing.xs),
                 Text(
-                  '$totalDevices total devices connected',
-                  style: const TextStyle(
-                    fontFamily: 'Inter',
-                    fontSize: 15,
-                    color: AppColors.onSurfaceVariant,
+                  l10n.totalDevicesConnected(totalDevices),
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
                   ),
                 ),
                 const SizedBox(height: AppSpacing.lg),
 
-                // Rooms list
+                // Card an ninh: lối vào Camera.
+                _SecurityCameraCard(onTap: () => context.push('/camera')),
+                const SizedBox(height: AppSpacing.md),
+
                 ...rooms.map(
                   (room) => Padding(
                     padding: const EdgeInsets.only(bottom: AppSpacing.md),
@@ -118,181 +86,237 @@ class RoomsScreen extends ConsumerWidget {
   }
 }
 
-class _RoomCard extends StatefulWidget {
+/// Thẻ kính an ninh — lối vào màn Camera từ tab Rooms.
+class _SecurityCameraCard extends StatelessWidget {
+  const _SecurityCameraCard({required this.onTap});
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final l10n = context.l10n;
+    final isDark = theme.brightness == Brightness.dark;
+    final mint = isDark ? AppColors.auroraMint : AppColors.auroraMintOnLight;
+
+    return GlassCard(
+      onTap: onTap,
+      radius: AppRadius.card,
+      padding: const EdgeInsets.all(AppSpacing.md),
+      semanticLabel: l10n.securityCameras,
+      child: Row(
+        children: [
+          Container(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(AppRadius.md),
+              color: mint.withValues(alpha: 0.15),
+              boxShadow: GlassTokens.glow(mint, intensity: 0.35),
+            ),
+            child: Icon(Icons.videocam_rounded, color: mint, size: 24),
+          ),
+          const SizedBox(width: AppSpacing.md),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(l10n.securityCameras, style: theme.textTheme.titleMedium),
+                const SizedBox(height: 2),
+                Row(
+                  children: [
+                    Container(
+                      width: 8,
+                      height: 8,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: mint,
+                        boxShadow: GlassTokens.glow(mint, intensity: 0.6),
+                      ),
+                    ),
+                    const SizedBox(width: AppSpacing.xs),
+                    Text(
+                      l10n.camerasLive,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.colorScheme.onSurface.withValues(
+                          alpha: 0.6,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          Icon(
+            Icons.chevron_right_rounded,
+            color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _RoomCard extends StatelessWidget {
   const _RoomCard({required this.room});
   final Room room;
 
-  @override
-  State<_RoomCard> createState() => _RoomCardState();
-}
-
-class _RoomCardState extends State<_RoomCard> {
-  double _scale = 1.0;
-
-  // Room gradient colors and icons for visual variety
-  static const _roomConfig = <String, (Color, Color, IconData)>{
-    'living-room': (Color(0xFF8B5E3C), Color(0xFFC4956A), Icons.weekend_outlined),
-    'bedroom': (Color(0xFF4A6B8A), Color(0xFF7EA8C4), Icons.bed_outlined),
-    'kitchen': (Color(0xFF2D4A3E), Color(0xFF5A8A72), Icons.kitchen_outlined),
-    'garage': (Color(0xFF4A4A5A), Color(0xFF8A8A9A), Icons.garage_outlined),
-    'bathroom': (Color(0xFF2E6B8A), Color(0xFF5AA0C4), Icons.bathtub_outlined),
-    'garden': (Color(0xFF2D5A27), Color(0xFF5A8A52), Icons.nature_outlined),
+  // Màu nhấn + icon theo phòng để card không đơn điệu.
+  static const _roomConfig = <String, (Color, IconData)>{
+    'living-room': (Color(0xFFC4956A), Icons.weekend_outlined),
+    'bedroom': (Color(0xFF7EA8C4), Icons.bed_outlined),
+    'kitchen': (Color(0xFF5A8A72), Icons.kitchen_outlined),
+    'garage': (Color(0xFF8A8A9A), Icons.garage_outlined),
+    'bathroom': (Color(0xFF5AA0C4), Icons.bathtub_outlined),
+    'garden': (Color(0xFF5A8A52), Icons.nature_outlined),
   };
 
   @override
   Widget build(BuildContext context) {
-    final config = _roomConfig[widget.room.id] ??
-        (AppColors.primary, AppColors.primaryContainer, Icons.meeting_room_outlined);
-    final darkColor = config.$1;
-    final lightColor = config.$2;
-    final icon = config.$3;
-    final hasActive = widget.room.activeCount > 0;
+    final theme = Theme.of(context);
+    final l10n = context.l10n;
+    final isDark = theme.brightness == Brightness.dark;
+    final config =
+        _roomConfig[room.id] ??
+        (theme.colorScheme.primary, Icons.meeting_room_outlined);
+    final tint = config.$1;
+    final icon = config.$2;
+    final hasActive = room.activeCount > 0;
+    final mint = isDark ? AppColors.auroraMint : AppColors.auroraMintOnLight;
 
-    return GestureDetector(
-      onTap: () => context.push('/rooms/${widget.room.id}'),
-      onTapDown: (_) => setState(() => _scale = 0.98),
-      onTapUp: (_) => setState(() => _scale = 1.0),
-      onTapCancel: () => setState(() => _scale = 1.0),
-      child: AnimatedScale(
-        duration: const Duration(milliseconds: 100),
-        scale: _scale,
-        child: Container(
-          height: 200,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
-            gradient: LinearGradient(
-              colors: [darkColor, lightColor],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: darkColor.withValues(alpha: 0.3),
-                blurRadius: 20,
-                offset: const Offset(0, 4),
-              ),
-            ],
-          ),
+    final image = DeviceVisuals.roomCardImage(room.id);
+
+    return GlassCard(
+      onTap: () => context.push('/rooms/${room.id}'),
+      radius: AppRadius.card,
+      padding: EdgeInsets.zero,
+      active: hasActive,
+      shadows: hasActive ? GlassTokens.glow(tint, intensity: 0.25) : null,
+      semanticLabel: room.name,
+      child: SizedBox(
+        height: 188,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(AppRadius.card),
           child: Stack(
+            fit: StackFit.expand,
             children: [
-              // Decorative background elements
-              Positioned(
-                right: -20,
-                top: -20,
-                child: Container(
-                  width: 120,
-                  height: 120,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.white.withValues(alpha: 0.05),
-                  ),
-                ),
-              ),
-              Positioned(
-                left: -30,
-                bottom: 40,
-                child: Container(
-                  width: 100,
-                  height: 100,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.white.withValues(alpha: 0.04),
-                  ),
-                ),
-              ),
-
-              // Large room icon
-              Positioned(
-                right: 20,
-                top: 20,
-                child: Icon(
-                  icon,
-                  size: 80,
-                  color: Colors.white.withValues(alpha: 0.12),
-                ),
-              ),
-
-              // Bottom glass footer
-              Positioned(
-                left: 0,
-                right: 0,
-                bottom: 0,
-                child: Container(
-                  padding: const EdgeInsets.all(AppSpacing.lg),
-                  decoration: BoxDecoration(
-                    borderRadius: const BorderRadius.vertical(
-                      bottom: Radius.circular(20),
-                    ),
-                    color: Colors.white.withValues(alpha: 0.15),
-                    border: Border(
-                      top: BorderSide(
-                        color: Colors.white.withValues(alpha: 0.2),
-                        width: 0.5,
+              // Ảnh phòng full-bleed; fallback vệt màu + icon nếu thiếu ảnh.
+              if (image != null)
+                Image.asset(image, fit: BoxFit.cover)
+              else ...[
+                Positioned(
+                  right: -30,
+                  top: -30,
+                  child: Container(
+                    width: 150,
+                    height: 150,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: RadialGradient(
+                        colors: [
+                          tint.withValues(alpha: isDark ? 0.35 : 0.3),
+                          tint.withValues(alpha: 0),
+                        ],
                       ),
                     ),
                   ),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              widget.room.name,
-                              style: const TextStyle(
-                                fontFamily: 'Inter',
-                                fontSize: 22,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.white,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Row(
-                              children: [
-                                Container(
-                                  width: 8,
-                                  height: 8,
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    color: hasActive
-                                        ? const Color(0xFF34C759)
-                                        : Colors.white.withValues(alpha: 0.5),
-                                  ),
-                                ),
-                                const SizedBox(width: 6),
-                                Text(
-                                  hasActive
-                                      ? '${widget.room.activeCount} Device${widget.room.activeCount == 1 ? '' : 's'} Active'
-                                      : '0 Devices Active',
-                                  style: TextStyle(
-                                    fontFamily: 'Inter',
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w500,
-                                    color: Colors.white.withValues(alpha: 0.85),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
+                ),
+                Positioned(
+                  right: AppSpacing.md,
+                  top: AppSpacing.md,
+                  child: Icon(
+                    icon,
+                    size: 56,
+                    color: tint.withValues(alpha: isDark ? 0.8 : 0.9),
+                  ),
+                ),
+              ],
+              // Scrim tối dần ở đáy để chữ trắng đủ contrast trên ảnh.
+              if (image != null)
+                DecoratedBox(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      stops: const [0.35, 0.7, 1],
+                      colors: [
+                        Colors.transparent,
+                        Colors.black.withValues(alpha: 0.35),
+                        Colors.black.withValues(alpha: 0.75),
+                      ],
+                    ),
+                  ),
+                ),
+              Padding(
+                padding: const EdgeInsets.all(AppSpacing.md),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Text(
+                      room.name,
+                      style: theme.textTheme.headlineSmall?.copyWith(
+                        color: image != null ? Colors.white : null,
                       ),
-                      Container(
-                        width: 32,
-                        height: 32,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Colors.white.withValues(alpha: 0.2),
+                    ),
+                    const SizedBox(height: AppSpacing.xs),
+                    Row(
+                      children: [
+                        Container(
+                          width: 8,
+                          height: 8,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: hasActive
+                                ? mint
+                                : (image != null
+                                      ? Colors.white.withValues(alpha: 0.5)
+                                      : theme.colorScheme.onSurface.withValues(
+                                          alpha: 0.3,
+                                        )),
+                            boxShadow: hasActive
+                                ? GlassTokens.glow(mint, intensity: 0.6)
+                                : null,
+                          ),
                         ),
-                        child: const Icon(
+                        const SizedBox(width: AppSpacing.xs + 2),
+                        Text(
+                          l10n.roomDevicesSummary(
+                            room.deviceCount,
+                            room.activeCount,
+                          ),
+                          style: theme.textTheme.labelMedium?.copyWith(
+                            color: image != null
+                                ? Colors.white.withValues(alpha: 0.85)
+                                : theme.colorScheme.onSurface.withValues(
+                                    alpha: 0.65,
+                                  ),
+                          ),
+                        ),
+                        const Spacer(),
+                        Text(
+                          '${room.temperature}°',
+                          style: theme.textTheme.labelMedium?.copyWith(
+                            color: image != null
+                                ? Colors.white.withValues(alpha: 0.75)
+                                : theme.colorScheme.onSurface.withValues(
+                                    alpha: 0.55,
+                                  ),
+                          ),
+                        ),
+                        const SizedBox(width: AppSpacing.xs),
+                        Icon(
                           Icons.chevron_right_rounded,
-                          color: Colors.white,
                           size: 20,
+                          color: image != null
+                              ? Colors.white.withValues(alpha: 0.8)
+                              : theme.colorScheme.onSurface.withValues(
+                                  alpha: 0.4,
+                                ),
                         ),
-                      ),
-                    ],
-                  ),
+                      ],
+                    ),
+                  ],
                 ),
               ),
             ],

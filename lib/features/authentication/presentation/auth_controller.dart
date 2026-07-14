@@ -5,10 +5,11 @@ import '../data/auth_providers.dart';
 import '../domain/auth_repository.dart';
 import 'auth_state.dart';
 
-final authControllerProvider =
-    StateNotifierProvider<AuthController, AuthState>((ref) {
-  return AuthController(ref.watch(authRepositoryProvider))..restore();
-});
+final authControllerProvider = StateNotifierProvider<AuthController, AuthState>(
+  (ref) {
+    return AuthController(ref.watch(authRepositoryProvider))..restore();
+  },
+);
 
 class AuthController extends StateNotifier<AuthState> {
   AuthController(this._repository) : super(const AuthState.checking());

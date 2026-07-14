@@ -6,6 +6,8 @@ import '../../../app/localization/l10n_extensions.dart';
 import '../../../app/theme/app_colors.dart';
 import '../../../app/theme/app_radius.dart';
 import '../../../app/theme/app_spacing.dart';
+import '../../../app/theme/glass_tokens.dart';
+import '../../../core/widgets/glass/glass.dart';
 import '../../authentication/presentation/auth_controller.dart';
 
 class ProfileScreen extends ConsumerWidget {
@@ -15,46 +17,37 @@ class ProfileScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final session = ref.watch(authControllerProvider).session;
     final l10n = context.l10n;
+    final theme = Theme.of(context);
     final name = session?.name ?? 'Alex';
-    final email = session?.email ?? 'alex@lumina.com';
+    final email = session?.email ?? 'alex@syna.local';
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Colors.transparent,
       body: CustomScrollView(
         slivers: [
           SliverAppBar(
             pinned: true,
             elevation: 0,
-            backgroundColor: AppColors.surface.withValues(alpha: 0.7),
+            backgroundColor: Colors.transparent,
             surfaceTintColor: Colors.transparent,
+            automaticallyImplyLeading: false,
             toolbarHeight: 68,
-            title: const Text(
-              'Lumina',
-              style: TextStyle(
-                fontFamily: 'Inter',
-                fontSize: 22,
-                fontWeight: FontWeight.w700,
-                color: AppColors.onSurface,
-              ),
-            ),
+            flexibleSpace: GlassAppBar(centerTitle: false, title: l10n.profile),
           ),
-
           SliverPadding(
             padding: const EdgeInsets.fromLTRB(
               AppSpacing.screen,
               AppSpacing.lg,
               AppSpacing.screen,
-              100,
+              AppSpacing.navClearance,
             ),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
-                // Profile Hero Card
                 _ProfileHeroCard(name: name, email: email),
-                const SizedBox(height: AppSpacing.xl),
+                const SizedBox(height: AppSpacing.lg),
 
-                // Account settings group
                 _SettingsGroup(
-                  title: 'Account',
+                  title: l10n.groupAccount,
                   items: [
                     _SettingsItem(
                       icon: Icons.notifications_outlined,
@@ -68,49 +61,40 @@ class ProfileScreen extends ConsumerWidget {
                     ),
                     _SettingsItem(
                       icon: Icons.language_outlined,
-                      label: 'Language',
-                      trailing: const _TrailingChip(label: 'English'),
-                      onTap: () {},
-                    ),
-                    _SettingsItem(
-                      icon: Icons.dark_mode_outlined,
-                      label: 'Dark Mode',
-                      trailing: Switch.adaptive(
-                        value: false,
-                        onChanged: (_) {},
+                      label: l10n.language,
+                      trailing: GlassStatusPill(
+                        label: l10n.languageName,
+                        color: theme.colorScheme.primary,
                       ),
-                      onTap: null,
+                      onTap: () {},
                     ),
                   ],
                 ),
                 const SizedBox(height: AppSpacing.lg),
 
-                // Security group
                 _SettingsGroup(
-                  title: 'Security',
+                  title: l10n.groupSecurity,
                   items: [
                     _SettingsItem(
                       icon: Icons.privacy_tip_outlined,
-                      label: 'Privacy',
+                      label: l10n.privacy,
                       onTap: () {},
                     ),
                     _SettingsItem(
                       icon: Icons.security_outlined,
-                      label: 'Security Settings',
+                      label: l10n.securitySettings,
                       onTap: () {},
                     ),
                   ],
                 ),
                 const SizedBox(height: AppSpacing.lg),
 
-                // Sign out
                 _SettingsGroup(
                   items: [
                     _SettingsItem(
                       icon: Icons.logout_rounded,
                       label: l10n.signOut,
-                      iconColor: AppColors.error,
-                      labelColor: AppColors.error,
+                      color: AppColors.auroraError,
                       showChevron: false,
                       onTap: () =>
                           ref.read(authControllerProvider.notifier).logout(),
@@ -126,9 +110,6 @@ class ProfileScreen extends ConsumerWidget {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────
-// Profile Hero Card
-// ─────────────────────────────────────────────────────────────────────
 class _ProfileHeroCard extends StatelessWidget {
   const _ProfileHeroCard({required this.name, required this.email});
   final String name;
@@ -136,23 +117,18 @@ class _ProfileHeroCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    final theme = Theme.of(context);
+    final l10n = context.l10n;
+    final accent = theme.colorScheme.primary;
+    final isDark = theme.brightness == Brightness.dark;
+    final mint = isDark ? AppColors.auroraMint : AppColors.auroraMintOnLight;
+
+    return GlassContainer(
+      radius: AppRadius.hero,
       padding: const EdgeInsets.all(AppSpacing.lg),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.7),
-        borderRadius: BorderRadius.circular(AppRadius.card),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.4)),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x0D000000),
-            blurRadius: 20,
-            offset: Offset(0, 4),
-          ),
-        ],
-      ),
+      shadows: GlassTokens.shadowSoft,
       child: Column(
         children: [
-          // Avatar with PRO badge
           Stack(
             children: [
               Container(
@@ -160,42 +136,40 @@ class _ProfileHeroCard extends StatelessWidget {
                 height: 88,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: AppColors.primary.withValues(alpha: 0.1),
+                  color: accent.withValues(alpha: 0.15),
                   border: Border.all(
-                    color: AppColors.primary.withValues(alpha: 0.2),
-                    width: 3,
+                    color: accent.withValues(alpha: 0.3),
+                    width: 2,
                   ),
+                  boxShadow: GlassTokens.glow(accent, intensity: 0.35),
                 ),
                 child: Center(
                   child: Text(
                     name.isNotEmpty ? name[0].toUpperCase() : 'A',
-                    style: const TextStyle(
-                      fontFamily: 'Inter',
-                      fontSize: 32,
+                    style: theme.textTheme.headlineLarge?.copyWith(
+                      color: accent,
                       fontWeight: FontWeight.w700,
-                      color: AppColors.primary,
                     ),
                   ),
                 ),
               ),
-              // PRO badge
               Positioned(
                 bottom: 0,
                 right: 0,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                  decoration: BoxDecoration(
-                    color: AppColors.primary,
-                    borderRadius: BorderRadius.circular(100),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.sm,
+                    vertical: 2,
                   ),
-                  child: const Text(
+                  decoration: BoxDecoration(
+                    color: accent,
+                    borderRadius: BorderRadius.circular(AppRadius.pill),
+                  ),
+                  child: Text(
                     'PRO',
-                    style: TextStyle(
-                      fontFamily: 'Inter',
+                    style: theme.textTheme.labelSmall?.copyWith(
                       fontSize: 10,
-                      fontWeight: FontWeight.w700,
                       color: Colors.white,
-                      letterSpacing: 0.5,
                     ),
                   ),
                 ),
@@ -203,53 +177,22 @@ class _ProfileHeroCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: AppSpacing.md),
-
-          Text(
-            name,
-            style: const TextStyle(
-              fontFamily: 'Inter',
-              fontSize: 22,
-              fontWeight: FontWeight.w600,
-              color: AppColors.onSurface,
-            ),
-          ),
-          const SizedBox(height: 4),
+          Text(name, style: theme.textTheme.headlineSmall),
+          const SizedBox(height: AppSpacing.xs),
           Text(
             email,
-            style: const TextStyle(
-              fontFamily: 'Inter',
-              fontSize: 14,
-              color: AppColors.onSurfaceVariant,
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
             ),
           ),
           const SizedBox(height: AppSpacing.sm),
-
-          // Home Member chip
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-            decoration: BoxDecoration(
-              color: AppColors.secondary.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(100),
-            ),
-            child: const Text(
-              'Home Member',
-              style: TextStyle(
-                fontFamily: 'Inter',
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: AppColors.secondary,
-              ),
-            ),
-          ),
+          GlassStatusPill(label: l10n.homeMember, color: mint),
         ],
       ),
     );
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────
-// Settings Group
-// ─────────────────────────────────────────────────────────────────────
 class _SettingsGroup extends StatelessWidget {
   const _SettingsGroup({this.title, required this.items});
   final String? title;
@@ -257,53 +200,39 @@ class _SettingsGroup extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (title != null) ...[
+        if (title != null)
           Padding(
-            padding: const EdgeInsets.only(left: 4, bottom: AppSpacing.sm),
+            padding: const EdgeInsets.only(
+              left: AppSpacing.xs,
+              bottom: AppSpacing.sm,
+            ),
             child: Text(
               title!.toUpperCase(),
-              style: const TextStyle(
-                fontFamily: 'Inter',
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
+              style: theme.textTheme.labelSmall?.copyWith(
+                color: theme.colorScheme.onSurface.withValues(alpha: 0.55),
                 letterSpacing: 0.8,
-                color: AppColors.onSurfaceVariant,
               ),
             ),
           ),
-        ],
-        Container(
-          decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.7),
-            borderRadius: BorderRadius.circular(18),
-            border: Border.all(color: Colors.white.withValues(alpha: 0.4)),
-            boxShadow: const [
-              BoxShadow(
-                color: Color(0x0D000000),
-                blurRadius: 20,
-                offset: Offset(0, 4),
-              ),
-            ],
-          ),
+        GlassContainer(
+          radius: AppRadius.card,
+          padding: EdgeInsets.zero,
           child: Column(
-            children: items.asMap().entries.map((entry) {
-              final i = entry.key;
-              final item = entry.value;
-              return Column(
-                children: [
-                  item,
-                  if (i < items.length - 1)
-                    Divider(
-                      height: 0,
-                      indent: 56,
-                      color: AppColors.outlineVariant.withValues(alpha: 0.3),
-                    ),
-                ],
-              );
-            }).toList(),
+            children: [
+              for (final (index, item) in items.indexed) ...[
+                if (index > 0)
+                  Divider(
+                    height: 0,
+                    indent: 56,
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.08),
+                  ),
+                item,
+              ],
+            ],
           ),
         ),
       ],
@@ -317,8 +246,7 @@ class _SettingsItem extends StatelessWidget {
     required this.label,
     required this.onTap,
     this.trailing,
-    this.iconColor,
-    this.labelColor,
+    this.color,
     this.showChevron = true,
   });
 
@@ -326,15 +254,15 @@ class _SettingsItem extends StatelessWidget {
   final String label;
   final VoidCallback? onTap;
   final Widget? trailing;
-  final Color? iconColor;
-  final Color? labelColor;
+  final Color? color;
   final bool showChevron;
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(18),
+      borderRadius: BorderRadius.circular(AppRadius.card),
       child: Padding(
         padding: const EdgeInsets.symmetric(
           horizontal: AppSpacing.md,
@@ -345,54 +273,28 @@ class _SettingsItem extends StatelessWidget {
             Icon(
               icon,
               size: 22,
-              color: iconColor ?? AppColors.onSurfaceVariant,
+              color:
+                  color ?? theme.colorScheme.onSurface.withValues(alpha: 0.65),
             ),
             const SizedBox(width: AppSpacing.md),
             Expanded(
               child: Text(
                 label,
-                style: TextStyle(
-                  fontFamily: 'Inter',
+                style: theme.textTheme.labelMedium?.copyWith(
                   fontSize: 15,
-                  fontWeight: FontWeight.w500,
-                  color: labelColor ?? AppColors.onSurface,
+                  color: color ?? theme.colorScheme.onSurface,
                 ),
               ),
             ),
             if (trailing != null)
               trailing!
             else if (showChevron)
-              const Icon(
+              Icon(
                 Icons.chevron_right_rounded,
                 size: 20,
-                color: AppColors.outlineVariant,
+                color: theme.colorScheme.onSurface.withValues(alpha: 0.35),
               ),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-class _TrailingChip extends StatelessWidget {
-  const _TrailingChip({required this.label});
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(
-        color: AppColors.surfaceContainer,
-        borderRadius: BorderRadius.circular(100),
-      ),
-      child: Text(
-        label,
-        style: const TextStyle(
-          fontFamily: 'Inter',
-          fontSize: 12,
-          fontWeight: FontWeight.w500,
-          color: AppColors.onSurfaceVariant,
         ),
       ),
     );

@@ -47,6 +47,7 @@ dependencies:
   intl: ^0.20.2
   json_annotation: ^4.9.0
   logger: ^2.5.0
+  model_viewer_plus: ^1.9.3
   shared_preferences: ^2.5.3
 
 dev_dependencies:
@@ -83,6 +84,12 @@ flutter:
   assets:
     - config/
     - stitch_syna_home_systems/
+    - assets/models/
+    - assets/images/devices/
+    - assets/images/rooms/horizontal_room/
+    - assets/images/rooms/vertical_room/
+    - assets/images/room_devices/livingroom_devices/
+    - assets/images/room_devices/livingroom_devices/premium_hyper_realistic_3d_render_of_a_luxury_modern_living_room_at_night/
 
 flutter_launcher_icons:
   android: true
